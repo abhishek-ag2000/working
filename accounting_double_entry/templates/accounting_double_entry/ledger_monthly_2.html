@@ -1,0 +1,328 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load poll_extras %}
+{% block title %}Ledger Monthly View{% endblock %}
+
+{% block content %}
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h3>Ledger list</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'accounting_double_entry:ledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Ledger List</a>
+                    </li>
+                    <li class="breadcrumb-item ">
+                    <a href="{% url 'accounting_double_entry:ledgerdetail' pk=company_details.pk pk2=ledger1_details.pk pk3=selectdatefield_details.pk %}}">Ledger Details</a>
+                        
+                    </li>
+                    <li class="breadcrumb-item active">
+                    <strong>Ledger Monthly View</strong> 
+                        
+                    </li>
+                </ol>
+           <br>
+              <a href="{% url 'accounting_double_entry:ledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Select Ledger </a>
+                <a href="{% url 'accounting_double_entry:ledgercreate' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-warning" role="button">Create Ledger</a>
+                <a href="{% url 'accounting_double_entry:ledgerdetail' pk=company_details.pk pk2=ledger1_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-primary" role="button">T view</a>
+              {% if not selectdatefield_details %}
+
+                  
+                     <button class="btn btn-primary show-form pull-right" data-url="{% url 'accounting_double_entry:datecreate' %}">
+                      <span class="glyphicon glyphicon-plus"></span>
+                        Select Date Range
+                      </button>
+
+                {% else %} 
+              
+  
+                            <button  class="btn btn-info show-form-update pull-right" data-url="{% url 'accounting_double_entry:dateupdate' pk=selectdatefield_details.pk %}">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                              Update Period 
+                            </button>
+
+                      <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+                      <strong>Selected Period: From</strong>
+                       {{ selectdatefield_details.Start_Date|date }}
+                        <strong>To</strong>
+                         {{ selectdatefield_details.End_Date|date }}  &nbsp;
+
+                      </a> 
+
+                 
+
+                {% endif %}
+           
+                </div>
+            </div>
+<div id="printableArea">
+
+    <style>
+    @media print  
+    {
+    a[href]:after {
+    content: none !important;
+    }
+    @page {
+    margin-top: 0;
+    margin-bottom: 0;
+    }
+    body{
+    padding-top: 72px;
+    padding-bottom: 72px ;
+    }
+    }
+    </style>
+
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h2><center><strong>{{ ledger1_details.name }}</strong></center></h2>
+                        </div>
+                        <div class="ibox-content">
+
+                        <div class="table-responsive">
+                            <table class="table table-hover" data-page-size="15" id="book-table">
+
+                                <tr>
+                                  <th><center>Months</center></th>
+                                  <th><center>Debit(&#8377)</center></th>
+                                  <th><center>Credit(&#8377)</center></th>
+                                  <th><center>Closing Balance(&#8377)</center></th>
+                                </tr>
+                              
+
+
+                                <tr>
+                                  <th><center>Opening Balance</center></th>
+                                  <th><center></center></th>
+                                  <th><center></center></th>
+                                  {% if ledger1_details.group1_Name.balance_nature == 'Debit' %}
+
+                                    {% if opening_balance > 0 %}
+
+                                      {% if opening_balance == 0 %}
+
+                                        <th><center></center></th>
+
+                                      {% else %}
+
+                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Dr</center></th>
+
+                                      {% endif %}
+                                      
+
+                                    {% else %}
+
+                                      {% if opening_balance == 0 %}
+
+                                        <th><center></center></th>
+
+                                      {% else %}
+
+                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Cr</center></th>
+                                      {% endif %}
+
+                                    {% endif %}
+
+                                  {% else %}
+
+
+                                    {% if opening_balance > 0 %}
+
+                                      {% if opening_balance == 0 %}
+
+                                        <th><center></center></th>
+
+                                      {% else %}
+
+                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Cr</center></th>
+
+                                      {% endif %}
+
+                                    {% else %}
+
+                                      {% if opening_balance == 0 %}
+
+                                        <th><center></center></th>
+
+                                      {% else %}
+
+                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Dr</center></th>
+                                        
+                                      {% endif %}
+
+                                    {% endif %}
+
+                                  {% endif %}
+                                </tr>               
+                                
+
+                                {% for key, value in data %}
+                                  <tr>
+                                    <td><center><a href="{% url 'accounting_double_entry:ledgerdatewise_2' pk=company_details.pk pk2=ledger1_details.pk month=key pk3=selectdatefield_details.pk %}">{{ key|month_name }}</a></center></td>
+
+                                    {% if value.0 == 0 %}
+                                      <td><center></center></td>
+                                    {% else %}
+                                      <td><center>{{ value.0|abs|floatformat:2 }}</center></td>
+                                    {% endif %}
+
+
+
+                                    {% if value.1 == 0 %}
+                                      <td><center></center></td>
+                                    {% else %}
+                                      <td><center>{{ value.1|abs|floatformat:2 }}</center></td>
+                                    {% endif %}
+
+                                  {% if ledger1_details.group1_Name.balance_nature == 'Debit' %}
+
+                                    {% if value.2 > 0 %}
+
+
+                                          <td><center>{{ value.2|abs|floatformat:2 }} Dr</center></td>
+                                        
+
+                                    {% else %}
+
+
+                                          <td><center>{{ value.2|abs|floatformat:2 }} Cr</center></td>
+                                        
+
+                                    {% endif %}
+                                      </tr>
+
+                                  {% else %}
+                                    
+                                      {% if value.2 > 0 %}
+
+
+                                          <td><center>{{ value.2|abs|floatformat:2 }} Cr</center></td>
+                                        
+
+                                      {% else %}
+
+
+                                          <td><center>{{ value.2|abs|floatformat:2 }} Dr</center></td>
+                                       
+
+                                      {% endif %}
+                                  {% endif %}
+
+                                      </tr>
+                                {% endfor %}
+
+                                  <tr>
+                                    <th><center></center></th>
+                                    <th><center></center></th>
+                                    <th><center></center></th>
+                                    <th><center></center></th>
+                                  </tr>
+
+                                <tr>
+                                  <th><center>Grand Total</center></th>
+
+                                  {% if total_debit == 0 %}
+                                    <th><center></center></th>
+                                  {% else %}
+                                    <th><center>{{ total_debit|abs|floatformat:2 }}</center></th>
+                                  {% endif %}
+
+                                  {% if total_credit == 0 %}
+                                    <th><center></center></th>
+                                  {% else %}
+                                    <th><center>{{ total_credit|abs|floatformat:2 }}</center></th>
+                                  {% endif %}
+                                  
+                               
+
+                                  {% if ledger1_details.group1_Name.balance_nature == 'Debit' %}
+
+                                    {% if total > 0 %}
+                                      <th><center>{{ total|abs|floatformat:2 }} Dr</center></th>
+
+                                    {% else %}
+
+                                      <th><center>{{ total|abs|floatformat:2 }} Cr</center></th>
+
+                                    {% endif %}
+
+                                  {% else %}
+
+                                    {% if total > 0 %}
+                                      <th><center>{{ total|abs|floatformat:2 }} Cr</center></th>
+
+                                    {% else %}
+
+                                      <th><center>{{ total|abs|floatformat:2 }} Dr</center></th>
+
+                                    {% endif %}
+
+                                  {% endif %} 
+                                    
+                                </tr>                
+
+
+                            </table>
+                        </div>
+                             <br>
+                            <p><input class='btn btn-default' type="button" onclick="printDiv('printableArea')" value="Print" />
+
+                            <a class='btn btn-warning' href="{% url 'accounting_double_entry:ledgerupdate' pk=company_details.pk pk2=ledger1_details.pk pk3=selectdatefield_details.pk %}">Update Ledger</a>
+                            <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+    <div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+    </div>
+  </div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+
+<script type="text/javascript">
+  
+  function printDiv(divName) {
+     var printContents = document.getElementById(divName).innerHTML;
+     var originalContents = document.body.innerHTML;
+
+     document.body.innerHTML = printContents;
+
+     window.print();
+
+     document.body.innerHTML = originalContents;
+  }
+</script>
+
+{% endblock %}

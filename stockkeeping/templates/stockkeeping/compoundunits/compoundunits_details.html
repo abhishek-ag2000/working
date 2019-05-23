@@ -1,0 +1,93 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Compound Unit Details{% endblock %}
+
+{% block content %}
+
+
+
+   {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h3>Compound Unit Details</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'stockkeeping:compoundlist' pk=company_details.pk pk3=selectdatefield_details.pk %">Compound Unit Details List</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Compound Unit Details</strong>
+                    </li>
+                </ol>
+           <br>
+              <a href="{% url 'stockkeeping:compoundlist' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Select Compound Unit </a>
+          
+              <a href="{% url 'stockkeeping:compoundcreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}" class="btn btn-warning" role="button">Create Compound Unit</a>
+           
+                </div>
+            </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+
+                          <div class="table-responsive">
+                            
+                            <table class="table table-striped" data-page-size="15" id="book-table">
+                                <tr>
+                                  <th>First unit</th>
+                                  <th>{{ compoundunits_details.firstunit }}</th>
+                                </tr>
+
+                                
+
+                                <tr>
+                                  <th>Conversion</th>
+                                  <th>{{ compoundunits_details.conversion }}</th>
+                                </tr>
+
+                                <tr>
+                                  <th>Second unit</th>
+                                  <th>{{ compoundunits_details.seconds_unit }}</th>
+                                </tr>
+
+                            </table>
+                          </div>
+                            <p><a class='btn btn-warning' href="{% url 'stockkeeping:compoundupdate' pk1=company_details.pk pk2=compoundunits_details.pk pk3=selectdatefield_details.pk %}">Update Compound Unit</a><a class='btn btn-danger pull-right' href="{% url 'stockkeeping:compounddelete' pk=company_details.pk pk2=compoundunits_details.pk pk3=selectdatefield_details.pk %}">Delete Compound Unit</a></p>
+
+                        </div>
+                        <br>
+                        
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+<div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content animated fadeIn"></div>
+  </div>
+</div>
+  
+
+
+{% endblock %}

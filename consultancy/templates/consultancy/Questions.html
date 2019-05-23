@@ -1,0 +1,39 @@
+{% for consultancy in consultancy_list %}
+    <tr> 
+        <td>
+            <span class="label label-primary">Question</span>
+        </td>
+        <td class="issue-info">
+            <a href="{% url 'consultancy:consultancydetail' pk=consultancy.pk %}">
+                {{ consultancy.Questions }}
+            </a>
+
+            <small>
+                {{ consultancy.Questions }}
+            </small>
+        </td>
+        <td>
+            <a href="{% url 'userprofile:specific_profile' pk=consultancy.User.profile.pk %}">{{ consultancy.User }}</a>
+        </td>
+        <td>
+            {{ consultancy.Date|date }} {{ consultancy.Date|date:"h" }}:{{ consultancy.Date|date:"i" }} {{ consultancy.Date|date:"a" }}
+        </td>
+        <td>
+            <span class="pie">0.52,1.041</span>
+            {{ consultancy.consultancies.count }} Solution{{ consultancy.consultancies.count|pluralize }} - {{ consultancy.like.count }} Like{{ consultancy.like.count|pluralize }}
+        </td>
+        <td class="text-right">
+            <a href="{% url 'consultancy:consultancydetail' pk=consultancy.pk %}" class="btn btn-success btn-xs">Answer</a>
+            {% if consultancy.User == user %}
+              <button class="show-form-update btn btn-warning btn-xs" data-url="{% url 'consultancy:consultancyupdate' id=consultancy.id %}">
+                Update
+              </button>
+
+              <button class="show-form-delete btn btn-danger btn-xs" data-url="{% url 'consultancy:consultancydelete' id=consultancy.id %}">
+                Delete
+              </button>
+
+          {% endif %}
+        </td>
+    </tr> 
+{% endfor %}

@@ -1,0 +1,146 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-8">
+                    <h2>Invoice</h2>
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item">
+                          <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                      </li>
+                      <li class="breadcrumb-item">
+                          <a href="{% url 'ecommerce_cart:order_summary' %}">Cart</a>
+                      </li>
+                      <li class="breadcrumb-item active">
+                          <strong>Checkout</strong>
+                      </li>
+                    </ol>
+                </div>
+                <div class="col-lg-4">
+                    <div class="title-action">
+                        <input class='btn btn-primary' type="button" onclick="printDiv('printableArea')" value="Print" />
+                    </div>
+                </div>
+            </div>
+    <div id="printableArea">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="wrapper wrapper-content animated fadeInRight">
+                    <div class="ibox-content p-xl">
+                        {% for order in order_list %}
+                            {% if forloop.last %}
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <h5>From:</h5>
+                                    <address>
+                                        <strong>BracketLine Pvt Ltd</strong><br>
+                                        P.N.B.Building, Hill Cart Rd, Siliguri<br>
+                                        State : West Bengal<br>
+                                        <abbr title="Phone">Ph:</abbr> 097330 25982
+                                    </address>
+                                </div>
+
+                                <div class="col-sm-6 text-right">
+                                    <h4>Invoice No.</h4>
+                                    <h4 class="text-navy">{{order.ref_code}}</h4>
+                                    <span>To:</span>
+                                    <address>
+                                        <strong>{{order.owner.Name}}</strong><br>
+                                        {{order.owner.Permanant_Address}}<br>
+                                       State : {{order.owner.State}}<br>
+                                        <abbr title="Phone">Ph:</abbr> {{order.owner.Phone_no}}
+                                    </address>
+                                    <p>
+                                        <span><strong>Invoice Date:</strong> Marh 18, 2014</span><br/>
+                                        <span><strong>Due Date:</strong> March 24, 2014</span>
+                                    </p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                            <div class="table-responsive m-t">
+                                <table class="table invoice-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Products</th>
+                                        <th>Valid upto</th>
+                                        <th>Total Price</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in order.get_cart_items %}
+                                    <tr>
+                                        <td><div><strong>{{ item.product.title }}</strong></div>
+                                            <small>{{ item.product.summary }}</small></td>
+                                        <td>12 months</td>
+                                        <td>{{ item.product.price }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div><!-- /table-responsive -->
+
+                            <table class="table invoice-total">
+                                <tbody>
+                                {% if order.get_cart_total != None %}
+                                  <tr>
+                                    <th style="width:50%">Subtotal:(&#8377;)</th>
+                                    <td>{{ order.get_cart_total }}</td>
+                                  </tr>
+                                  {% if company_details.State == purchase_details.State %}
+                                    <tr>
+                                      <th style="width:50%">CGST:(&#8377;)</th>
+                                      <td>9.0%</td>
+                                    </tr>
+                                    <tr>
+                                      <th style="width:50%">SGST:(&#8377;)</th>
+                                      <td>9.0%</td>
+                                    </tr>
+                                  {% else %}
+                                    <tr>
+                                      <th style="width:50%">IGST:(&#8377;)</th>
+                                      <td>9.0%</td>
+                                    </tr>
+                                  {% endif %}
+                                  <tr>
+                                    <th style="width:50%">Total:(&#8377;)</th>
+                                    <td>{{ order.get_cart_total|mul:18|div:100|add:order.get_cart_total|floatformat:2 }}</td>
+                                  </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                            <div class="text-right">
+                              {% if order.get_cart_items %}
+                                  <a href="{% url 'ecommerce_cart:update_records' %}" class="pull-right btn btn-primary">Pay <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                              {% endif %}
+                            </div>
+
+                        </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+  <script type="text/javascript">
+  
+  function printDiv(divName) {
+     var printContents = document.getElementById(divName).innerHTML;
+     var originalContents = document.body.innerHTML;
+
+     document.body.innerHTML = printContents;
+
+     window.print();
+
+     document.body.innerHTML = originalContents;
+  }
+</script>
+
+{% endblock %}

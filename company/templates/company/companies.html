@@ -1,0 +1,30 @@
+{% load staticfiles %}
+{% load mathfilters %}
+{% for company in company_list %}
+
+  {% for selectdatefield in selectdates %}
+
+    <tr>
+      <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{company.Name}}</a></td>
+      <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{company.Books_Begining_From}}</a></td>
+      <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{ company.capital|abs }}</a></td>
+      <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{company.Type_of_company}}</a></td>
+      <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{ company.asset|floatformat:2|abs}}</a></td>
+      <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{company.modified_date}}</a></td>
+      <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{company.pl|abs}}</a></td>
+      <td><center><a href="{% url 'company:backup' pk=company.pk %}" class="btn btn-default"><i class="fa fa-download"></i></a></center></td>
+      <td>
+      <center>
+        <button class="btn btn-danger show-form-delete" data-url="{% url 'company:delete' company.id %}">
+          <span class="glyphicon glyphicon-trash"></span>                       
+      </button>
+      </center>
+      
+      </td>
+      <td><center><a href="{% url 'company:company_details' pk=company.pk %}" class="btn btn-default"><i class="fa fa-gear"></i></a></center></td>
+      
+    </tr>
+
+  {% endfor %}  
+                    
+{% endfor %}

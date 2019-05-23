@@ -1,0 +1,103 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+{% block title %}Service Details{% endblock %}
+
+{% block content %}
+
+ <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>Service Details</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong><a href="{% url 'ecommerce_integration:servicelist' %}">Service List</a></strong>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Service Details</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+
+            </div>
+        </div>
+
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+
+                    <div class="ibox product-detail">
+                        <div class="ibox-content">
+
+                            <div class="row">
+                                <div class="col-md-5">
+
+
+                                    <div class="product-images">
+
+                                        <div>
+                                            <div>
+                                                {% if service_details.image %}
+                                                    <img class="product_img" src="{{ service_details.image.url }}/" alt="product picture" height="100%" width="100%">
+                                                {% else %}
+                                                    <img src="{% static 'userprofile/comming soon.jpg' %}" alt="product picture" height="100%" width="100%">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+                                <div class="col-md-7">
+
+                                    <h2 class="font-bold m-b-xs">
+                                        {{ service_details.title}}
+                                    </h2>
+                                    
+                                    <hr>
+                                    
+                                     <div>
+                                        <style type="text/css">
+                                          .checked {
+                                            color: orange;
+                                        }
+                                      </style>
+                                      
+                                        <div class="product-rating">
+                                          <i class="fa fa-star checked"></i>
+                                          <i class="fa fa-star checked"></i>
+                                          <i class="fa fa-star checked"></i>
+                                          <i class="fa fa-star-o empty"></i>
+                                          <i class="fa fa-star-o empty"></i>
+                                        </div>
+                                        
+                                      </div>
+                                    <hr>
+                                    <h4>Product description</h4>
+
+                                    <div class="small text-muted">
+                                        {{ service_details.description}}
+                                    </div>
+                                    <dl class="row m-t-md small">
+                                        <dt class="col-md-4 text-right">Summary</dt>
+                                        <dd class="col-md-8"> {{ service_details.summary}}</dd>
+                                    </dl>
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+{% endblock %}

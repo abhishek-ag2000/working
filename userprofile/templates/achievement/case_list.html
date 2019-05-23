@@ -1,0 +1,91 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Achievements{% endblock %}
+
+{% block content %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-10">
+                    <h3>Achievements</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'userprofile:profiledetail' %}">Profile</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Achievements</strong>
+                    </li>
+                </ol>
+
+                <br>
+                <a href="{% url 'userprofile:case_create' %}" class="btn btn-warning" role="button">Create Achievements</a>
+           <br>
+           
+                </div>
+                <div class="col-lg-2">
+
+                </div>
+            </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover dataTables-example" id="book-table">
+                                <thead>
+                                    <tr>
+                                        <th><center>Sl no</center></th>
+                                        <th><center>Legal Case?</center></th>
+                                        <th><center>Act</center></th>
+                                        <th><center>Location</center></th>
+                                        <th><center>Role</center></th> 
+                                        <th><center>Remove</center></th>   
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    {% include "achievement/case_list2.html" %}
+
+                                </tbody>
+
+                                <tfoot>
+                                <tr>
+                                    <td colspan="6">
+                                        <ul class="pagination float-right"></ul>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+  <div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated fadeIn"></div>
+    </div>
+  </div>
+
+  
+
+
+{% endblock %}

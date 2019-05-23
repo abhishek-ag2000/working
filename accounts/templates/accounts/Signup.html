@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+{% load staticfiles %}
+{% load bootstrap3 %}
+<head>
+
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bracketline Pvt Ltd | Register</title>
+
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
+    <link href="{% static 'css/plugins/iCheck/custom.css' %}" rel="stylesheet">
+    <link href="{% static 'css/animate.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+    <!-- Sweet Alert -->
+    <link href="{% static 'css/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet">
+
+</head>
+
+<style type="text/css">
+
+  .signup-page{
+  background: url('../../static/accounts/img/bgg.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+   
+
+
+}
+</style>
+
+<body class="signup-page">
+
+    <div class="loginColumns animated fadeInDown">
+        <div class="row">
+
+            <div class="col-md-6">
+                <h2 class="font-bold" style="color: black">Welcome to Bracketline Pvt Ltd</h2>
+                <h3 class="font-bold" style="color: black">Registrations Requirements</h3>
+
+                <p style="color: black">
+                    <strong>Username:</strong>&nbsp; Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. 
+                </p>
+
+                <p style="color: black">
+                    <strong>Password</strong>
+                    <br>
+                    1) Your password can't be too similar to your other personal information.
+                    <br>
+                    2) Your password must contain at least 9 characters.
+                    <br>
+                    3) Your password can't be a commonly used password.
+                    <br>
+                    4) Your password can't be entirely numeric.
+                </p>
+
+            </div>
+            <div class="col-md-6">
+                <div class="ibox-content">
+                <form method="POST" id="new_user_form">
+                    {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <div class="form-group">
+                            <div class="checkbox i-checks">
+                                <label> 
+                                <input type="checkbox"><i></i> Agree the <a href="" data-toggle="modal" data-target="#myModal5"> terms and policy </a>
+                    <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <h4 class="modal-title">Terms and Conditions ("Terms")</h4>
+                                            <small class="font-bold">Last updated: April 19, 2019</small>
+                                        </div>
+                                        <div class="modal-body">
+                                           <p>Please read these Terms and Conditions ("Terms", "Terms and Conditions") carefully before using the www.bracketline.com website (the "Service") operated by Bracketline ("us", "we", or "our").</p>
+
+                                            <p>Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms. These Terms apply to all visitors, users and others who access or use the Service.</p>
+
+                                            <p>By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service. The Terms and Conditions agreement  for Bracketline has been created with the help of <a href="https://termsfeed.com/terms-conditions/generator/">TermsFeed Terms and Conditions Generator</a>.</p>
+
+                                            <h2><strong>Accounts</strong></h2>
+
+
+                                           <p>When you create an account with us, you must provide us information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.</p>
+
+                                            <p>You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password, whether your password is with our Service or a third-party service.</p>
+
+                                            <p>You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.</p>
+
+                                            <h2>Links To Other Web Sites</h2>
+
+                                           <p>Our Service may contain links to third-party web sites or services that are not owned or controlled by Bracketline.</p>
+
+                                            <p>Bracketline has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that Bracketline shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.</p>
+
+                                            <p>We strongly advise you to read the terms and conditions and privacy policies of any third-party web sites or services that you visit.</p>
+
+                                            <h2><strong>Termination</strong></h2>
+
+                                            <p>We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+
+                                            <p>All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity and limitations of liability.</p>
+
+                                            <p>We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+
+                                            <p>Upon termination, your right to use the Service will immediately cease. If you wish to terminate your account, you may simply discontinue using the Service.</p>
+
+                                            <p>All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity and limitations of liability.</p>
+
+                                            <h2><strong>Governing Law</strong></h2>
+
+
+                                           <p>These Terms shall be governed and construed in accordance with the laws of West Bengal, India, without regard to its conflict of law provisions.</p>
+
+                                            <p>Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect. These Terms constitute the entire agreement between us regarding our Service, and supersede and replace any prior agreements we might have between us regarding the Service.</p>
+
+                                            <h2><strong>Changes</strong></h2>
+
+
+                                           <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p>
+
+                                            <p>By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, please stop using the Service.</p>
+
+                                            <h2><strong>Contact Us</strong></h2>
+
+
+                                           <p>If you have any questions about these Terms, please contact us.</p>
+                                            
+                                            
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary block full-width m-b">Register</button>
+
+                            <div class="social-auth-links text-center">
+                              <p>- OR -</p>
+                              <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-block btn-social btn-facebook btn-success"><i class="fa fa-facebook"></i> Sign up using
+                                Facebook</a>
+                              <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-block btn-social btn-google btn-danger"><i class="fa fa-google"></i> Sign up using
+                                Gmail</a>
+                            </div>
+
+                        <p class="text-muted text-center"><small>Already have an account?</small></p>
+                        <a class="btn btn-sm btn-white btn-block" href="{% url 'accounts:login' %}">Login</a>
+                    </form> 
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-md-6">
+               <small> BracketLine - <strong>Copyright &copy; 2017-2018 <a href="#"></a>.</strong> All rights
+                    reserved.</small>
+            </div>
+        </div>
+    </div>
+
+<!-- Mainly scripts -->
+<script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<!-- iCheck -->
+<script src="{% static 'js/plugins/iCheck/icheck.min.js' %}"></script>
+
+ <!-- Sweet alert -->
+<script src="{% static 'js/plugins/sweetalert/sweetalert.min.js' %}"></script>
+
+<script>
+    $(document).ready(function(){
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
+        });
+    });
+</script>
+
+
+
+</body>
+
+</html>

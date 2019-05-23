@@ -1,0 +1,71 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+
+      Upload Journal
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>
+                  Upload Journal
+
+        </h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+                
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+                   <a href="{% url 'accounting_double_entry:list' pk=company_details.pk pk3=selectdatefield_details.pk %}">Journal List</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Upload Journal From excel</strong>
+
+            </li>
+        </ol>
+    </div>         
+</div>
+<br>
+<div class="col-lg-12">
+{% if form_error == True %}
+<div class="ibox">
+    <div class="ibox-title">
+            <h5 style="color: red">Alert</h5>
+    </div>
+    <div class="ibox-content">
+            <h5>{{ error_message }}</h5>
+    </div>
+</div>
+{% endif %}
+    <div class="ibox">
+        <div class="ibox-title">
+            <h5>Upload Journal From excel</h5>
+        </div>
+        <div class="ibox-content">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ new_journal.errors }}
+               <input type="file" name="myfile">
+                <button class="btn btn-warning" type="submit">Upload</button>
+              </form>
+
+
+             
+                
+</div>
+    </div>
+</div>
+
+<br>
+  
+
+
+{% endblock %}

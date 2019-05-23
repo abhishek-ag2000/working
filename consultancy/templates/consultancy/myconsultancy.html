@@ -1,0 +1,83 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+{% block title %}Consultancy Forum{% endblock %}
+
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2>Consultancy Forum</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Consultancy Forum</strong>
+                    </li>
+                </ol>
+                <br>
+
+            </div>
+</div>
+
+        <div class="wrapper wrapper-content  animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Question list</h5>
+                            <div class="ibox-tools">
+                                <a href="{% url 'consultancy:consultancycreate' %}" class="btn btn-primary btn-xs">Add new Question</a>
+                                <a href="{% url 'consultancy:consultancylist' %}" class="btn btn-primary btn-xs">All queries</a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+
+                            <div class="m-b-lg">
+                                <form method='GET' class="form-horizontal" id="search-form" action="{% url 'consultancy:search' %}">
+                                <div class="input-group input-group-sm">
+                                    <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-white" type="submit">Search</button>
+                                    </div>
+                                </div>
+                                </form>
+
+                                <div class="m-t-md">
+
+                                    <strong>Found {{ consultancy_count }} questions.</strong>
+
+
+
+                                </div>
+
+                            </div>
+
+                            <div class="table-responsive">
+                            <table class="table table-hover issue-tracker" id="book-table">
+                                <tbody>
+
+                                    {% include 'consultancy/Questions.html' %}
+
+                                
+                                
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+  <div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+    </div>
+  </div>
+
+{% endblock %}

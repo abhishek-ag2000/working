@@ -1,0 +1,83 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+
+    Find Professionals
+{% endblock %}
+
+{% block content %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h2>Find Professionals</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                    <strong>Find Professionals</strong>
+                    </li>
+                </ol>
+                </div>
+            </div>
+<br>
+            <div class="row wrapper border-bottom white-bg page-heading">
+            <br>
+                <div class="col-lg-12">
+                <br>
+                    <form method='GET' class="form-horizontal" id="search-form" action="{% url 'userprofile:search' %}">
+
+                        <div class="input-group input-group-sm">
+                          <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Professional by name / location / category / Services">
+                          <div class="input-group-append">
+                              <button type="submit" class="btn btn-info pull-right">Go</button>
+                          </div>
+                            
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+        {% for prof in users %}
+            <div class="col-lg-3">
+                <div class="contact-box center-version">
+
+                    <a href="{% url 'userprofile:specific_profile' pk=prof.pk %}">
+                        {% if prof.image %}
+                            <img alt="image" class="rounded-circle" src="{{ prof.image.url }}/">
+                        {% else %}
+                            <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}">
+                        {% endif %}
+
+
+                        <h3 class="m-b-xs"><strong>{{ prof.Name }}</strong></h3>
+
+                        <div class="font-bold">{{ prof.user_type }}</div>
+                        <address class="m-t-md">
+                            <strong>{{ prof.Name.organisation_user.name }}</strong><br>
+                            {{ prof.Permanant_Address }}<br>
+                            State: {{ prof.State }}<br>
+                            <abbr title="Phone">P:</abbr> {{ prof.Phone_no }}
+                        </address>
+
+                    </a>
+                    <div class="contact-box-footer">
+                        <div class="m-t-xs btn-group">
+                            <a href="#"  class="btn btn-xs btn-white"><i class="fa fa-phone"></i> Call </a>
+                            <a href="#"  class="btn btn-xs btn-white"><i class="fa fa-envelope"></i> Email</a>
+                            <a href="#"  class="btn btn-xs btn-white"><i class="fa fa-user-plus"></i> Follow</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+
+        </div>
+        </div>
+
+{% endblock %}

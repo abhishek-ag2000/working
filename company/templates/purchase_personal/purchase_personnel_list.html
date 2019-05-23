@@ -1,0 +1,101 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Purchase Personnals{% endblock %}
+
+{% block content %}
+       <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-10">
+                    <h2><strong>Company : {{company_details.Name}}</strong> </h2>
+                </div>
+            </div>
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h2>Company list</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                    <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                    <a href="{% url 'company:company_details' pk=company_details.pk %}">Company Settings</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                    <strong>Purchase Personnals</strong>
+                    </li>
+                </ol>
+                <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Select Company </a>
+                <a href="{% url 'company:create' %}" class="btn btn-warning" role="button">Create Company details</a>
+                <a href="{% url 'company:search_purchase_personal' pk=company_details.pk %}" class="btn btn-primary" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Purchase Personnel</a>
+                </div>
+            </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+
+                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15" id="book-table">
+                                <thead>
+                                <tr>
+                                    <th><center>Sl no</center></th>
+                                    <th><center>Purchase Personnel name</center></th>
+                                    <th><center>Remove</center></th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+
+                                      {% for purchase in company_details.purchase_personal.all %}
+                                        <tr>
+
+                                          <td><center><a href="#">{{ forloop.counter }}</a></center></td>
+
+
+                                          <td><center><a href="#">{{purchase}}</a></center></td>
+
+                                          <td>
+                                              <center><a href="{% url 'company:delete_purchase_personal' pk=company_details.pk pk2=purchase.profile.pk %}" data-balloon="remove this member" class="text-danger btn btn-danger" onclick="return confirm_delete();">
+                                                    <i class="fa fa-trash" style="color: white"></i>
+                                                </a></center>
+                                          </td> 
+
+                                        </tr>
+
+                                      {% endfor %}
+
+                                </tbody>
+
+                                <tfoot>
+                                <tr>
+                                    <td colspan="6">
+                                        <ul class="pagination float-right"></ul>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+  
+  <script>
+  function confirm_delete(){
+    return confirm("Do you want to remove this purchase personnel?");
+  }
+  </script>
+
+
+{% endblock %}

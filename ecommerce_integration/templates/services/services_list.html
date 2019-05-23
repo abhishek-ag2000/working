@@ -1,0 +1,87 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+{% block title %}Services{% endblock %}
+
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>All Services</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Services List</strong>
+                    </li>
+                </ol>
+
+            </div>
+</div>
+
+    <style type="text/css">
+        .product_img {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 100%;
+        }
+    </style>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+
+            {% for service in services %}
+                <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div>
+
+                            {% if service.image %}
+				               <img class="product_img" src="{{ service.image.url }}/" alt="product picture" height="200" width="100">
+				            {% else %}
+				                <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}" height="200" width="100">
+				            {% endif %}
+
+                            </div>
+                            <div class="product-desc">
+                                
+                                <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="product-name">{{ service.title}}</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    {{ service.summary|safe|truncatewords:"9" }}
+                                </div>
+                                <div class="ratings">
+
+				                <style type="text/css">
+				                  .checked {
+				                     color: orange;
+				                }
+				                </style>
+				                <p>
+				                    <span class="fa fa-star checked"></span>
+				                    <span class="fa fa-star checked"></span>
+				                    <span class="fa fa-star checked"></span>
+				                    <span class="fa fa-star-o empty "></span>
+				                    <span class="fa fa-star-o empty"></span>
+				                </p>
+				            </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+
+{% endblock %}

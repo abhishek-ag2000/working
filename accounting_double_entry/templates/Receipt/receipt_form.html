@@ -1,0 +1,213 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+        {% if not form.instance.pk %}
+        Create Receipt
+        {% else %}
+        Update Receipt
+        {% endif %}
+{% endblock %}
+
+{% block content %}
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    {% if not form.instance.pk %}
+                        <h3><b>Create Receipt</b></h3>
+                    {% else %}
+                        <h3><b>Update Receipt</b></h3>
+                    {% endif %}
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                    {% if not form.instance.pk %}
+                        <strong>Create Receipt</strong>
+                    {% else %}
+                        <strong>Update Receipt</strong>
+                    {% endif %}
+                    </li>
+                </ol>
+           <br>
+
+                <a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}" class="btn btn-success" role="button">Create Purchase Invoice</a>
+
+          
+                <a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}" class="btn btn-warning" role="button">Create Sales Invoice</a>
+
+            {% if not selectdatefield_details %}
+
+                  
+                     <button class="btn btn-primary show-form pull-right" data-url="{% url 'accounting_double_entry:datecreate' %}">
+                      <span class="glyphicon glyphicon-plus"></span>
+                        Select Date Range
+                      </button>
+
+                {% else %} 
+              
+  
+                    <button  class="btn btn-info show-form-update pull-right" data-url="{% url 'accounting_double_entry:dateupdate' pk=selectdatefield_details.pk %}">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                              Update Period 
+                            </button>
+
+                      <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+                      <strong>Selected Period: From</strong>
+                       {{ selectdatefield_details.Start_Date|date }}
+                        <strong>To</strong>
+                         {{ selectdatefield_details.End_Date|date }}  &nbsp;
+
+                      </a> 
+
+                 
+
+                {% endif %}
+                </div>
+            </div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+<div class="row">
+<div class="col-lg-12">
+    <div class="ibox ">
+        <div class="ibox-title">
+        {% if not form.instance.pk %}
+            <h5>Create Receipt</h5>
+        {% else %}
+            <h5>Update Receipt</h5>
+        {% endif %}
+
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <form method="POST">
+            {% csrf_token %}
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Account<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+
+                    <div class="col-lg-10">
+                        {{ form.account }} 
+                    </div>
+                </div>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Date<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+
+                    <div class="col-lg-10">
+                        {{ form.date }} 
+                    </div>
+                </div>
+                         
+                <div class="table-responsive">
+                    <table class="table">
+                    {{ receipts.management_form }}
+
+                        <thead>
+                        <tr>
+                          <th class="col-md-6">Particulars<i class="material-icons" style="font-size:16px;color:red">*</i></th>
+                          <th class="col-md-6">Amount<i class="material-icons" style="font-size:16px;color:red">*</i></th>
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="calculate">
+                            {% for form in receipts.forms %}
+                              
+                                <tr class='{% cycle "row1" "row2" %}  formset_row'>
+                                  <td class="col-md-6">{{ form.id }} {{ form.particular}}</td>
+                                  <td class="col-md-6 amounts">{{ form.amount}}</td>
+                                </tr>  
+                              
+                            {% endfor %}
+
+                        </tbody>
+
+
+                        <tr>
+                            <td class="col-md-6"></td>
+                            <td class="col-md-6" id="totaled"><input type="text" name="total"></td>
+                        </tr>
+                </table>
+            </div>
+               
+
+                <div class="form-group row">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        {% if not form.instance.pk %}
+                        <button type="submit" class="btn btn-info pull-right" value="Submit">Create</button>
+                        {% else %}
+                        <button type="submit" class="btn btn-info pull-right" value="Submit">Update</button>
+                        {% endif %}
+                          <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+
+  <div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated fadeIn"></div>
+    </div>
+  </div>
+
+      <div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+    </div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="{% static 'formset/jquery.formset.js' %}"></script>
+
+<script type="text/javascript">
+    $('.formset_row').formset({
+        addText: 'add contra',
+        deleteText: 'remove',
+        prefix: 'contras'
+    });
+</script>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  let tableInstance = $('#calculate td.amounts');
+  let totals = 0;
+  tableInstance.each(function() {
+    totals = totals + Math.floor($(this).text() * 100) / 100;
+  });
+  $(".totaled :input").val(totals);
+});
+
+</script>
+{% endblock %}

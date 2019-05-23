@@ -1,0 +1,62 @@
+{% for aggrement in aggrement_list %}
+    <tr> 
+        <td>
+        {% if aggrement.form_type == 'Agreement' %}
+            <span class="label label-primary">{{ aggrement.form_type }}</span>
+        {% elif aggrement.form_type == 'Affidavit' %}
+            <span class="label label-warning">{{ aggrement.form_type }}</span>
+        {% else %}
+            <span class="label label-success">{{ aggrement.form_type }}</span>
+        {% endif %}
+        </td>
+        <td class="issue-info">
+            <a href="#">
+                {{ aggrement.title }}
+            </a>
+
+            <small>
+                {{ aggrement.category }}
+            </small>
+        </td>
+        <td>
+            <a href="#">{{ aggrement.act }}</a>
+        </td>
+
+        <td>
+
+            <a href="{% url 'aggrement:add_user_aggrement' pk=aggrement.pk %}" class="btn btn-success">Use Draft</a>
+        </td>
+
+        <td>
+
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{ aggrement.pk }}">
+                Preview
+            </button>
+                 <div class="modal inmodal fade" id="{{ aggrement.pk }}" tabindex="-1" role="dialog"  aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title">{{ aggrement.title }}</h4>
+                            <small class="font-bold">{{ aggrement.act }}</small>
+                        </div>
+                        <div class="modal-body">
+                        <style type="text/css">
+                        
+                        </style>
+                            <p>{{ aggrement.textbody|safe|linebreaks  }}</p>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+
+{% endfor %}
+

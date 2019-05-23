@@ -1,0 +1,38 @@
+{% load staticfiles %}
+{% for answer in comments %}
+<div class="feed-element">
+    {% if answer.User.profile.image %}
+        <a href="#" class="float-left">
+        <img alt="image" class="rounded-circle" src="{{ answer.User.profile.image.url }}/">
+        </a>
+    {% else %}
+        <a href="#" class="float-left">
+        <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}">
+        </a>
+    {% endif %}
+        <div class="media-body ">
+        <small class="float-right">{{ answer.Date|timesince }} ago</small>
+        <strong>{{ answer.User }}</strong> <br>
+        <small class="text-muted">Today {{ answer.Date|date:'h' }}:{{ answer.Date|date:'i' }} {{ answer.Date|date:'a' }} - {{ answer.Date|date }}</small>
+        <div class="well">
+            {{ answer.text }}
+        </div>
+        </div>
+            {% if consultancy_details.User == user or answer.User == user %}
+                          
+                <button class="show-form-delete pull-right" data-url="{% url 'consultancy:answersdelete' id=answer.id %}">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+                          
+            {% endif %}
+
+        {% if answer.User == user %}
+            <button class="show-form-update pull-right" data-url="{% url 'consultancy:answersupdate' id=answer.id %}">
+                <span class="glyphicon glyphicon-pencil"></span>
+            </button>
+        {% endif %}
+
+
+</div>
+
+{% endfor %}

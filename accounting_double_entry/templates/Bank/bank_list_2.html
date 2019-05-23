@@ -1,0 +1,118 @@
+{% for i in n %}
+    {% for j in i|slice:"0:1" %}
+        {% if j == None %}
+
+          <tr>
+
+            <td></td>
+                                
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+          </tr>
+        {% else %}
+          <tr>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{ j.Date }}</a></td>
+                                
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.To}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.voucher_type}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.transaction_type}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.instrument_no}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{ j.Date }}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{ j.bank_date }}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{ j.Debit }}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}"></a></td>
+            <td>
+                <button class="show-form-update btn btn-warning btn-xs" data-url="{% url 'accounting_double_entry:bankupdate' id=j.id %}">
+             Update
+            </button>
+            </td>
+          </tr>
+        {% endif %}
+    {% endfor %}
+
+    {% for k in i|slice:"1:2" %}
+
+        {% if k == None %}
+
+              <tr>
+
+            <td></td>
+                                
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+            <td></td>
+
+          </tr>
+        {% else %}
+          <tr>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{ k.Date }}</a></td>
+                                
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.By}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.voucher_type}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.transaction_type}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.instrument_no}}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{ k.Date }}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{ k.bank_date }}</a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}"></a></td>
+
+            <td><a href="{% url 'accounting_double_entry:bankdetail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{ k.Credit }}</a></td>
+
+            <td>
+                <button class="show-form-update btn btn-warning btn-xs" data-url="{% url 'accounting_double_entry:bankupdate' id=k.id %}">
+             Update
+            </button>
+            </td>
+
+          </tr>
+        {% endif %}
+    {% endfor %}
+                      
+{% endfor %}
+
+
+  <div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated fadeIn"></div>
+    </div>
+  </div>

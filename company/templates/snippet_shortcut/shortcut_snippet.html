@@ -1,0 +1,67 @@
+        <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                 <div class="col-lg-6 pull-left"> <h2 ><strong>Company : {{company_details.Name}}</strong> </h2></div> <br>
+                    <div class="col-lg-6 pull-right">
+                        
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#myModal5">
+                            Shortcut List
+                    </button>
+
+                    <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <h4 class="modal-title">Shortcut List</h4>
+                                            <small class="font-bold" style="color: red;">Note : Shortcut keys will work only with Caps lock off</small>
+                                        </div>
+                                        <div class="modal-body">
+                                        <ol>
+                                          <li>&nbsp;<strong>Go Back</strong> --&nbsp; escape </li> 
+                                           <li>&nbsp;<strong>Group Creation</strong> --&nbsp; c + g </li> 
+                                           <li>&nbsp;<strong>Group list</strong> --&nbsp; v + g </li> 
+                                           <li>&nbsp;<strong>Ledger Creation</strong> --&nbsp; c + l </li>
+                                           <li>&nbsp;<strong>Ledger list</strong> --&nbsp; v + l </li>
+                                           <li>&nbsp;<strong>Journal Creation</strong> --&nbsp; c + j </li>
+                                           <li>&nbsp;<strong>Journal List</strong> --&nbsp; v + j </li>
+                                           <li>&nbsp;<strong>Payment Creation</strong> --&nbsp; c + a</li>
+                                           <li>&nbsp;<strong>Receipt Creation</strong> --&nbsp; c + r</li>
+                                           <li>&nbsp;<strong>Contra Creation</strong> --&nbsp; c + o</li>
+                                           <li>&nbsp;<strong>Sales Invoice Creation</strong> --&nbsp; c + s</li>
+                                           <li>&nbsp;<strong>Sales Invoice List</strong> --&nbsp; v + s </li>
+                                           <li>&nbsp;<strong>Purchase Invoice Creation</strong> --&nbsp; c + p </li>
+                                           <li>&nbsp;<strong>Purchase Invoice List</strong> --&nbsp; v + p </li>
+                                           {% if company_details.maintain == 'Accounts with Inventory' %}
+                                             <li>&nbsp;<strong>Stock group List</strong> --&nbsp; v + t</li>
+                                             <li>&nbsp;<strong>Stock item Create</strong> --&nbsp; c + m </li>
+                                             <li>&nbsp;<strong>Stock item List</strong> --&nbsp; v + m </li>
+                                             <li>&nbsp;<strong>Stock Summary</strong> --&nbsp; v + u </li>
+                                            {% endif %}
+                                           <li>&nbsp;<strong>Bank Reconciliation</strong> --&nbsp; v + b </li>
+                                           <li>&nbsp;<strong>Balance Sheet Statement</strong> --&nbsp; b + c </li>
+                                           <li>&nbsp;<strong>Trial Balance</strong> --&nbsp; t + c </li>
+                                           <li>&nbsp;<strong>Day Book</strong> --&nbsp; d + v </li>
+                                           <li>&nbsp;<strong>Cash/Bank Book</strong> --&nbsp; c + v </li>
+                                           <li>&nbsp;<strong>Group summary</strong> --&nbsp; g + v </li>
+                                           <li>&nbsp;<strong>Sales Register</strong> --&nbsp; s + r </li>
+                                           <li>&nbsp;<strong>Purchase Register</strong> --&nbsp; p + r </li>
+                                           <li>&nbsp;<strong>Journal Register</strong> --&nbsp; j + r </li>
+                                        </ol>
+                                            
+                                            
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                    </div>
+
+                    
+                </div>
+            </div>

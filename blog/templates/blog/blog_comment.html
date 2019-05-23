@@ -1,0 +1,30 @@
+{% load staticfiles %}
+
+{% for comment in blogcomments %}
+                <!-- User image -->
+      <div class="social-feed-box">
+          <div class="social-avatar">
+              <a href="" class="float-left">
+              {% if comment.User.profile.image %}
+                  <img alt="image" src="{{ comment.User.profile.image.url }}/">
+              {% else %}
+                <img alt="image" src="{% static 'userprofile/download (1).jpg' %}">
+              {% endif %}
+              </a>
+              <div class="media-body">
+                  <a href="{% url 'userprofile:specific_profile' pk=comment.User.profile.pk %}">
+                      {{ comment.User }}
+                  </a>
+                  <small class="text-muted"> {{ comment.Date|timesince }} ago</small>
+              </div>
+          </div>
+          <div class="social-body">
+              <p>
+                  {{ comment.text }}
+              </p>
+          </div>
+      </div>
+
+
+                <!-- /.comment-text -->
+{% endfor %}

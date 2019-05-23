@@ -1,0 +1,103 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+
+    Find Auditor
+{% endblock %}
+
+{% block content %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h2>Find Auditor</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:company_details' pk=company_details.pk %}">Company Settings</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:auditor_list' pk=company_details.pk %}">Auditor list</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                    <strong>Find Auditor</strong>
+                    </li>
+                </ol>
+                <br>
+                <a href="{% url 'company:auditor_list' pk=company_details.pk %}" class="btn btn-warning" role="button">View Auditor list</a>
+                </div>
+            </div>
+<br>
+            <div class="row wrapper border-bottom white-bg page-heading">
+            <br>
+                <div class="col-lg-12">
+                <br>
+                    <form method='GET' class="form-horizontal" id="search-form" action="{% url 'company:search_auditors' pk=company_details.pk %}">
+
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-10">
+                          <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Audotors Here">
+                         
+                        </div>
+                    
+                      <div >
+
+                        <span class="col-lg-1 col-md-1 col-sm-1 col-xs-2 input-group-btn">
+                          <button type="submit" class="btn btn-info pull-right">Go</button>
+                        </span>
+
+                      </div>
+
+
+                    </form>
+                </div>
+            </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+        {% for prof in users %}
+            <div class="col-lg-3">
+                <div class="contact-box center-version">
+
+
+                    <a href="{% url 'userprofile:specific_profile' pk=prof.pk %}">
+                        {% if prof.image %}
+                            <img alt="image" class="rounded-circle" src="{{ prof.image.url }}/">
+                        {% else %}
+                            <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}">
+                        {% endif %}
+
+
+                        <h3 class="m-b-xs"><strong>{{ prof.Name }}</strong></h3>
+
+                        <div class="font-bold">{{ prof.user_type }}</div>
+                        <address class="m-t-md">
+                            <strong>{{ prof.Name.organisation_user.name }}</strong><br>
+                            {{ prof.Permanant_Address }}<br>
+                            State: {{ prof.State }}<br>
+                            <abbr title="Phone">P:</abbr> {{ prof.Phone_no }}
+                        </address>
+
+                    </a>
+                    <div class="contact-box-footer">
+                        <div class="m-t-xs btn-group">
+                            {% if not user in company_details.auditor.all %}
+                                <a href="{% url 'company:add_auditor' pk=company_details.pk pk2=prof.pk %}" class="btn btn-success" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add auditor</a>
+                            {% else %}
+                                <a href="#" class="btn btn-primary" role="button">Already added</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+
+        </div>
+        </div>
+
+{% endblock %}

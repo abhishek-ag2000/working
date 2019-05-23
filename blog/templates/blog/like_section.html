@@ -1,0 +1,38 @@
+<div class="row">
+    <div class="col-md-6">
+        <form action="{% url 'blog:like_post' %}" method="post">
+            {% csrf_token %}
+            {% if is_liked %}
+                <button type="submit" id="like" name="blog_details_id" value="{{ blog_details.id}}" class='btn btn-danger btn-xs'>
+                  <i class="fa fa-fw fa-thumbs-down"></i>
+
+               Remove Upvote   
+              </button>
+            {% else %}
+                  <button type="submit" id="like" name="blog_details_id" value="{{ blog_details.id}}" class='btn btn-primary btn-xs'>
+                  <i class="fa fa-fw fa-thumbs-up"></i>
+
+                Upvote   
+                </button>
+            {% endif %}
+
+        </form>
+        <br>
+
+          {% if blog_details.User == user %}
+              <p><a class='btn btn-warning btn-md' href="{% url 'blog:blogupdate' pk=blog_details.pk %}">Update This Blog</a>
+                <a class='btn btn-danger btn-md' href="{% url 'blog:blogdelete' pk=blog_details.pk %}">Delete This Blog</a></p>
+
+          {% endif %}
+
+           
+    </div>
+    <div class="col-md-6">
+        <div class="small text-right">
+            <h5>Stats:</h5>
+            <div> <i class="fa fa-thumbs-up"> </i> {{ total_likes }} upvote </div>
+            <div> <i class="fa fa-comments-o"> </i> {{ blog_details.blog_comments.count }} comments </div>
+            <i class="fa fa-eye"> </i> {{ blog_details.blog_views }} views
+        </div>
+    </div>
+</div>

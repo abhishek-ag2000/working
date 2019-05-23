@@ -1,0 +1,219 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+    {% if not form.instance.pk %}
+    Create Ledger
+    {% else %}
+    Update Ledger
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-10">
+                    {% if not form.instance.pk %}
+                      <h3>Create Ledger</h3>
+                    {% else %}
+                      <h3>Update Ledger</h3>
+                    {% endif %}
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                    {% if not form.instance.pk %}
+                        <strong>Create Ledger</strong>
+                    {% else %}
+                        <strong>Update Ledger</strong>
+                    {% endif %}
+                    </li>
+                </ol>
+           <br>
+              <a href="{% url 'accounting_double_entry:ledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Select Ledger </a>
+                <a href="{% url 'accounting_double_entry:ledgercreate' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-warning" role="button">Create Ledger</a>
+           
+                </div>
+
+<br>
+<div class="col-lg-12">
+    <div class="ibox ">
+        <div class="ibox-title">
+        {% if not form.instance.pk %}
+            <h5>Create Ledger</h5>
+        {% else %}
+            <h5>Update Ledger</h5>
+        {% endif %}
+
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content">
+        {% if not form.instance.pk %}
+            <form method="POST" action="{% url 'accounting_double_entry:ledgercreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">
+        {% else %}
+            <form method="POST">
+        {% endif %}
+        
+            {% csrf_token %}
+
+            <style type="text/css">
+                .errorlist {
+                    color: red;
+                }
+            </style>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Ledger name<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.name.errors }}
+                    {{ form.name }}
+
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Under Group<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.group1_Name.errors }}
+                    {{ form.group1_Name }}
+
+                    </div>
+                </div>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Opening Balance</label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.Opening_Balance.errors }}
+                    {{ form.Opening_Balance }}
+
+                    </div>
+                </div>
+
+            <hr>
+
+
+                <p><h3>Mailing Details</h3></p>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Name</label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.User_Name.errors }}
+                    {{ form.User_Name }}
+
+                    </div>
+                </div>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Address</label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.Address.errors }}
+                    {{ form.Address }}
+
+                    </div>
+                </div>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">State</label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.State.errors }}
+                    {{ form.State }}
+
+                    </div>
+                </div>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Pin Code</label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.Pin_Code.errors }}
+                    {{ form.Pin_Code }}
+
+                    </div>
+                </div>
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">Pan No</label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.PanIt_No.errors }}
+                    {{ form.PanIt_No }}
+
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+
+                <label class="col-lg-2 col-form-label">GST No</label>
+
+                    <div class="col-lg-10">
+
+                    {{ form.GST_No.errors }}
+                    {{ form.GST_No }}
+
+                    </div>
+                </div>
+
+
+
+                <div class="form-group row">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        {% if not form.instance.pk %}
+                        <button type="submit" class="btn btn-info pull-right" value="Submit">Create Ledger</button>
+                        {% else %}
+                        <button type="submit" class="btn btn-info pull-right" value="Submit">Update Ledger</button>
+                        {% endif %}
+                        <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+{% endblock %}

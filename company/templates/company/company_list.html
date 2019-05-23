@@ -1,0 +1,278 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Companies{% endblock %}
+
+{% block content %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h2>Company list</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Company list</strong>
+                    </li>
+                </ol>
+            {% if Products %}
+              <a href="{% url 'company:create' %}" class="btn btn-warning" role="button">Create Company</a>
+              <a href="{% url 'company:import_company' %}" class="btn btn-primary" role="button">Upload Company</a>
+            {% endif %}
+                {% if not selectdates %}
+
+                     <button class="btn btn-primary show-form float-right" data-url="{% url 'accounting_double_entry:datecreate' %}">
+                      <span class="glyphicon glyphicon-plus"></span>
+                        Select Date Range
+                      </button>
+
+                {% else %} 
+
+              <table id="book-table-date">
+                <tbody>
+                  {% include "company/company_list_2.html" %}
+                </tbody>
+                
+              </table> 
+              {% endif %}
+                </div>
+            </div>
+    {% if company_list and Products %}
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+
+                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15" id="book-table">
+                                <thead>
+                                <tr>
+
+                                    <th data-toggle="true">Name</th>
+                                    <th data-hide="phone">Date Created</th>
+                                    <th data-hide="all">Capital</th>
+                                    <th data-hide="phone">Business Type</th>
+                                    <th data-hide="phone,tablet" >Assets</th>
+                                    <th data-hide="phone,tablet" >Last updated</th>
+                                    <th data-hide="phone,tablet" >P/L</th>
+                                    <th data-hide="phone,tablet" >Download Backup</th>
+                                    <th data-hide="phone,tablet" >Delete Company</th>
+                                    <th data-hide="phone,tablet" >Company Settings</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    {% include "company/companies.html" %}
+
+                                </tbody>
+
+                                <tfoot>
+                                <tr>
+                                    <td colspan="6">
+                                        <ul class="pagination float-right"></ul>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    {% endif %}
+
+{% for products in user.profile.subscribed_role_products.all %}
+
+    {% for productactivate in products.role_product_activate.all %}
+        {% if productactivate.User == user %}
+            {% if productactivate.is_active == True %}
+
+                <div class="row wrapper border-bottom white-bg page-heading">
+                    <div class="col-lg-10">
+                        <h2>Shared Company</h2>
+                    </div>
+                    <div class="col-lg-2">
+
+                    </div>
+                </div>
+
+                {% if auditor_company or accountant_company or purchase_company or sales_company or cb_company %}
+
+                    <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="ibox">
+                                    <div class="ibox-content">
+
+                                        <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
+                                            <thead>
+                                            <tr>
+
+                                                <th data-toggle="true">Name</th>
+                                                <th data-hide="phone">Date Created</th>
+                                                <th data-hide="all">Owner</th>
+                                                <th data-hide="phone">Capital</th>
+                                                <th data-hide="phone">Detail</th>
+                                                <th data-hide="phone">Assets</th>
+                                                <th data-hide="phone">Last updated</th>
+                                                <th data-hide="phone">P/L</th>
+                                                <th data-hide="phone">Role</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for i in shared_companys %}
+
+                                                  {% for j in i|slice:"0:1" %}
+                                                    {% if j != None %}
+                                                    {% for selectdatefield in selectdates %}
+
+                                                      <tr>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.Name}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.Books_Begining_From}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.User}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.capital|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.Type_of_company}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.asset|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.modified_date}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=j.pk pk3=selectdatefield.pk %}">{{j.pl|abs}}</a></td>
+                                                        <th>Auditor</th>
+                                                        
+
+                                                    {% endfor %}
+                                                    {% endif %} 
+                                                  {% endfor %}
+
+                                                   {% for k in i|slice:"1:2" %}
+                                                    {% if k != None %}
+                                                    {% for selectdatefield in selectdates %}
+
+                                                      <tr>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.Name}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.Books_Begining_From}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.User}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.capital|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.Type_of_company}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.asset|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.modified_date}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=k.pk pk3=selectdatefield.pk %}">{{k.pl|abs}}</a></td>
+                                                        <th>Accountant</th>
+                                                        
+
+                                                    {% endfor %}
+                                                    {% endif %} 
+                                                  {% endfor %}
+
+                                                   {% for l in i|slice:"2:3" %}
+                                                    {% if l != None %}
+                                                    {% for selectdatefield in selectdates %}
+
+                                                      <tr>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.Name}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.Books_Begining_From}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.User}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.capital|floatformat:2|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.Type_of_company}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.asset|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.modified_date}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=l.pk pk3=selectdatefield.pk %}">{{l.pl|abs}}</a></td>
+                                                        <th>Purchase Personnel</th>
+                                                       
+
+                                                    {% endfor %}
+                                                    {% endif %} 
+                                                  {% endfor %}
+
+
+                                                   {% for m in i|slice:"3:4" %}
+                                                    {% if m != None %}
+                                                    {% for selectdatefield in selectdates %}
+
+                                                      <tr>
+                                                        <td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.Name}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.Books_Begining_From}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.User}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.capital|floatformat:2|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.Type_of_company}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.asset|floatformat:2|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.modified_date}}</a></td>
+                                                        <<td><a href="{% url 'company:Dashboard' pk=m.pk pk3=selectdatefield.pk %}">{{m.pl|abs}}</a></td>
+                                                        <th>Sales Personnel</th>
+                                                        
+
+                                                    {% endfor %}
+                                                    {% endif %} 
+                                                  {% endfor %}
+
+                                                   {% for n in i|slice:"4:5" %}
+                                                    {% if n != None %}
+                                                    {% for selectdatefield in selectdates %}
+
+                                                      <tr>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.Name}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.Books_Begining_From}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.User}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.capital|floatformat:2|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.Type_of_company}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.asset|floatformat:2|abs}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.modified_date}}</a></td>
+                                                        <td><a href="{% url 'company:Dashboard' pk=n.pk pk3=selectdatefield.pk %}">{{n.pl|abs}}</a></td>
+                                                        <th>Cash Bank Personnel</th>
+                                                        
+
+                                                    {% endfor %}
+                                                    {% endif %} 
+                                                  {% endfor %}
+                                                                      
+                                                  {% endfor %}
+ 
+                                            </tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <td colspan="6">
+                                                    <ul class="pagination float-right"></ul>
+                                                </td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                {% endif %}
+
+            {% endif %}
+        {% endif %}
+
+    {% endfor %}
+{% endfor %}
+
+  <div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated fadeIn"></div>
+    </div>
+  </div>
+
+  <div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+    </div>
+  </div>
+  
+
+
+{% endblock %}

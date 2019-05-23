@@ -1,0 +1,552 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+        <div class="wrapper wrapper-content">
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+            
+        <div class="row wrapper border-bottom white-bg page-heading">
+                   <div class="col-lg-12">
+                    <h2>Dashboard</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong> Dashboard</strong>
+                    </li>
+                </ol>
+                <br>
+            <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Select Company </a>
+            {% if Products %}
+              <a href="{% url 'company:update' pk=company_details.pk %}" class="btn btn-warning" role="button">Update Company details</a>
+            {% endif %}
+            
+              
+              {% if not selectdatefield_details %}
+  
+                    <button id="book-table-date" class="btn btn-info show-form pull-right" data-url="{% url 'accounting_double_entry:datecreate' %}">
+                      <span class="glyphicon glyphicon-plus"></span>
+                        Select Date Range
+                      </button>
+
+                {% else %} 
+                
+                
+                    <button class="btn btn-info show-form-update pull-right" data-url="{% url 'accounting_double_entry:dateupdate' pk=selectdatefield_details.pk %}">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                              Update Period 
+                    </button>
+
+                     <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+                      <strong>Selected Period: From</strong>
+                       {{ selectdatefield_details.Start_Date|date }}
+                        <strong>To</strong>
+                         {{ selectdatefield_details.End_Date|date }}  &nbsp;
+
+                      </a>  
+
+                 
+                {% endif %} 
+            </div> 
+        </div>
+<br>
+
+<div class="row">
+            <div class="col-lg-8">
+                <div class="ibox ">
+                    <div class="ibox-content">
+                        <div>
+                                        <span class="float-right text-right">
+                                        <small>Average value of sales of the the past months are: <strong>{{ sales_per_month|abs|floatformat:2 }}</strong></small>
+                                            <br/>
+                                            Average per day sales: {{ sales_per_day|abs|floatformat:2 }}
+                                        </span>
+                            <h3 class="font-bold no-margins">
+                                Purchase and Sales data from {{ selectdatefield_details.Start_Date }} to {{ selectdatefield_details.End_Date }}
+                            </h3>
+                            <small>Actual Data</small>
+                        </div>
+
+                        <div class="m-t-sm">
+
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div>
+                                        <canvas id="lineChart_2" height="114"></canvas>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-4">
+                                    <ul class="stat-list m-t-lg">
+                                        <li>
+                                            <h2 class="no-margins">2,346</h2>
+                                            <small>Total orders in period</small>
+                                            <div class="progress progress-mini">
+                                                <div class="progress-bar" style="width: 48%;"></div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <h2 class="no-margins ">4,422</h2>
+                                            <small>Orders in last month</small>
+                                            <div class="progress progress-mini">
+                                                <div class="progress-bar" style="width: 60%;"></div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div> -->
+                            </div>
+
+                        </div>
+
+                        <div class="m-t-md">
+                            <center>
+                            <small>
+                                <strong>Analysis of sales:</strong> N/A
+                            </small>
+                            </center>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <span class="label label-warning float-right">Data has changed</span>
+                        <h5>Ratio Analysis</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-4">
+                                <small class="stats-label">Total Dues to collect</small>
+                                <h4>{{ total_dues_to_collect|abs|floatformat:2|intcomma }}</h4>
+                            </div>
+
+                            <div class="col-4">
+                                <small class="stats-label">Total Dues to pay</small>
+                                <h4>{{ total_dues_to_pay|abs|floatformat:2|intcomma }}</h4>
+                            </div>
+                            <div class="col-4">
+                                <small class="stats-label">Working Capital</small>
+                                <h4>{{ working_capital|abs|floatformat:2|intcomma }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-4">
+                                <small class="stats-label">GP(%)</small>
+                                <h4>{{ gross_profit|abs|floatformat:2 }}%</h4>
+                            </div>
+
+                            <div class="col-4">
+                                <small class="stats-label">NP(%)</small>
+                                <h4>{{ nett_profit|abs|floatformat:2 }}%</h4>
+                            </div>
+                            <div class="col-4">
+                                <small class="stats-label">Cost of goods sold</small>
+                                <h4>{{ cost_goods_sold|abs|floatformat:2|intcomma }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                        <div class="col-4">
+                                <small class="stats-label">Operating Cost</small>
+                                <h4>{{ operating_cost|abs|floatformat:2|intcomma }}</h4>
+                            </div>
+                            <div class="col-4">
+                                <small class="stats-label">ROI(%)</small>
+                                <h4>{{ roi|abs|floatformat:2 }}%</h4>
+                            </div>
+
+                            <div class="col-4">
+                                <small class="stats-label" style="font-size: 75%;">Return on working capital</small>
+                                <h4>{{ return_working_capital|abs|floatformat:2 }}%</h4>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                        <div class="col-4">
+                                <small class="stats-label">Total tax liability</small>
+                                <h4>124.990</h4>
+                            </div>
+                            <div class="col-4">
+                                <small class="stats-label">GST Liability</small>
+                                <h4>436 547.20</h4>
+                            </div>
+
+                            <div class="col-4">
+                                <small class="stats-label">Estimated Penalty</small>
+                                <h4>150.23%</h4>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-2">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <span class="label label-success pull-right"><sub>on {{ selectdatefield_details.End_Date }}</sub></span>
+                        <h5>Asset</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <h3 class="no-margins">{{ company_details.asset|abs|floatformat:2|intcomma }}</h3>
+                        <!-- <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div> -->
+                        <small>Fixed Assets + Current Assets</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <span class="label label-info pull-right"><sub>on {{ selectdatefield_details.End_Date }}</sub></span>
+                        <h5>Capital</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <h3 class="no-margins">{{ company_details.capital|abs|floatformat:2|intcomma }}</h3>
+                        <!-- <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div> -->
+                        <small>Total Owners Equity</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <span class="label label-primary float-right">Today</span>
+                        {% if company_details.pl > 0 %}
+                            <h5>Net Profit</h5>
+                        {% else %}
+                             <h5>Net Loss</h5>
+                        {% endif %}
+                    </div>
+                    <div class="ibox-content">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3 class="no-margins">{{ company_details.pl|abs|floatformat:2|intcomma }}</h3>
+                                
+                                {% if company_details.pl > 0 %}
+                            <div class="font-bold text-navy">{{ nett_profit|abs|floatformat:2 }}% <i class="fa fa-level-up"></i> <small>&nbsp; Average</small></div>
+                                     {% else %}
+                                <div class="font-bold text-red">{{ nett_profit|abs|floatformat:2 }}% <i class="fa fa-level-down"></i> <small>&nbsp; Average</small></div>
+                         {% endif %}
+
+
+                            </div>
+                            <div class="col-md-6">
+                                <center><h1 class="no-margins"><a href="{% url 'company:backup' pk=company_details.pk %}" class="btn btn-default"><i class="fa fa-download"></i></a></h1></center>
+                                <!-- <div class="font-bold text-navy">22% <i class="fa fa-level-up"></i> <small>Slow pace</small></div> -->
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <span class="label label-primary pull-right">Today</span>
+                        <h5>Expected Sales</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <h3 class="no-margins">{{ sales_next_day|abs|floatformat:2|intcomma }}</h3>
+                        <!-- <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div> -->
+                        <small>Based on Avg</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <span class="label label-primary pull-right">Today</span>
+                        <h5>Inv.  Turnover</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <h3 class="no-margins">{{ inventory_turnover|abs|floatformat:2|intcomma }}</h3>
+                        <!-- <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div> -->
+                        <small>Sales Account / Closing Stock</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        
+
+        <div class="row">
+
+    <div class="col-lg-8">
+        <div class="ibox ">
+        <div class="ibox-title">
+            <h5>Business decision Analysis </h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-wrench"></i>
+                </a> -->
+                <!-- <ul class="dropdown-menu dropdown-user">
+                    <li><a href="#" class="dropdown-item">Config option 1</a>
+                    </li>
+                    <li><a href="#" class="dropdown-item">Config option 2</a>
+                    </li>
+                </ul> -->
+                <!-- <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a> -->
+            </div>
+        </div>
+        <div class="ibox-content">
+            <div class="row">
+                <div class="col-sm-9 m-b-xs">
+                    <div data-toggle="buttons" class="btn-group btn-group-toggle">
+                        <label class="btn btn-sm btn-white"><a href="#top_customer" data-toggle="collapse">Top Customer</a></label>
+                        <label class="btn btn-sm btn-white"><a href="#top_suppliers" data-toggle="collapse">Top Suppliers</a></label>
+                        <label class="btn btn-sm btn-white"><a href="#top_margin_stock" data-toggle="collapse">Maximum Margin stock</a></label>
+                        <label class="btn btn-sm btn-white"><a href="#top_stock" data-toggle="collapse">Maximum Selling Stock</a></label>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="row">
+
+                <div class="col">
+                <div class="hidden-md" id="mobile-info">
+                    <div class="panel-collapse collapse show" id="top_customer" data-parent="#mobile-info">
+                        <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+
+                                <th>#</th>
+                                <th>Particulars </th>
+                                <th>Name </th>
+                                <th>Address </th>
+                                <th>Graph</th>
+                                <th>Share</th>
+                                <th>Last Billed Date</th>
+                                <th>Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for ledger in top_ledger_sales %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ ledger.name }}</td>
+                                    {% for sales in ledger.partyledgersales.all|slice:":1" %}
+                                        <td>{{ sales.billname }}</td>
+                                        <td>{{ sales.Address }}</td>
+                                        {% if total_ledger != 0 %}
+                                            <td><span class="pie">{{ sales.sub_total }}/{{ total_ledger }}</span></td>
+                                            <td>{{ sales.sub_total|div:total_ledger|mul:100|abs|floatformat:2 }}%</td>
+                                        {% else %}
+                                            <td><span class="pie">No sales</span></td>
+                                            <td>No sales</td>
+                                        {% endif %}
+                                        <td>{{ sales.date }}</td>
+                                        
+                                    {% endfor %}
+                                    <td>{{ ledger.total|abs|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+
+                    <div class="panel-collapse collapse" id="top_suppliers" data-parent="#mobile-info">
+                        <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+
+                            <tr>
+                               <th>#</th>
+                                <th>Particulars </th>
+                                <th>Name </th>
+                                <th>Address </th>
+                                <th>Graph</th>
+                                <th>Share</th>
+                                <th>Last Billed Date</th>
+                                <th>Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for ledger in top_ledger_purchase %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ ledger.name }}</td>
+                                    {% for purchase in ledger.partyledger.all|slice:":1" %}
+                                        <td>{{ purchase.billname }}</td>
+                                        <td>{{ purchase.Address }}</td>
+                                        {% if total_ledger_purchase != 0 %}
+                                            <td><span class="pie">{{ purchase.sub_total }}/{{ total_ledger_purchase }}</span></td>
+                                            <td>{{ purchase.sub_total|div:total_ledger_purchase|mul:100|abs|floatformat:2 }}%</td>
+                                        {% else %}
+                                            <td><span class="pie">No sales</span></td>
+                                            <td>No sales</td>
+                                        {% endif %}
+                                        <td>{{ purchase.date }}</td>
+                                        
+                                    {% endfor %}
+                                    <td>{{ ledger.total|abs|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+
+                    <div class="panel-collapse collapse" id="top_margin_stock" data-parent="#mobile-info">
+                        <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+
+                                <th>#</th>
+                                <th>Stock Name</th>
+                                <th>Purchase rate Avg</th>
+                                <th>Sales rate Avg</th>
+                                <th>Average p/l rate</th>
+                                <th>Graph</th>
+                                <th>Share</th>
+                                <th>Total Sales</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for stock in stock_margin %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ stock.stock_name }}</td>
+                                    <td>{{ stock.Avg_purchase|abs|floatformat:2|intcomma }}</td>
+                                    <td>{{ stock.Avg_sales|abs|floatformat:2|intcomma }}</td>
+                                    <td>{{ stock.Avg_sales|sub:stock.Avg_purchase|abs|floatformat:2|intcomma }}</td>
+                                    {% if top_stock_total != 0 %}
+                                        <td><span class="pie">{{ stock.total }}/{{ top_stock_total }}</span></td>
+                                        <td>{{ stock.total|div:top_stock_total|mul:100|abs|floatformat:2 }}%</td>
+                                    {% else %}
+                                        <td><span class="pie">No sales</span></td>
+                                         <td>No sales</td>
+                                    {% endif %}    
+                                    <td>{{ stock.total|abs|floatformat:2|intcomma }}</td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+
+                    <div class="panel-collapse collapse" id="top_stock" data-parent="#mobile-info">
+                        <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+
+                                <th>#</th>
+                                <th>Stock Name</th>
+                                <th>Quantity</th>
+                                <th>Graph</th>
+                                <th>Share</th>
+                                <th>Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for stock in top_stock %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ stock.stock_name }}</td>
+                                    <td>{{ stock.quantity }}</td>
+                                    {% if top_stock_total != 0 %}
+                                        <td><span class="pie">{{ stock.total }}/{{ top_stock_total }}</span></td>
+                                        <td>{{ stock.total|div:top_stock_total|mul:100|abs|floatformat:2 }}%</td>
+                                    {% else %}
+                                        <td><span class="pie">No sales</span></td>
+                                         <td>No sales</td>
+                                    {% endif %}    
+                                    <td>{{ stock.total|abs|floatformat:2|intcomma }}</td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+                    
+                    
+                </div>
+            </div>
+                
+        </div>
+        </div>
+        </div>
+            <div class="col-lg-4">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        {% if company_details.pl > 0 %}
+                            <h5>Net Profit</h5>
+                        {% else %}
+                             <h5>Net Loss</h5>
+                        {% endif %}
+                        <div class="ibox-tools">
+                            <span class="label label-primary">Updated 12.2015</span>
+                        </div>
+                    </div>
+                    <div class="ibox-content no-padding">
+                        <div class="m-t-lg">
+                            <canvas id="myChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        </div> 
+
+
+  <div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+
+      $(document).ready(function(){
+        $('.collapse').on('show.bs.collapse', function () {
+            $('.collapse.show').each(function(){
+                $(this).collapse('hide');
+            });
+        });
+    });
+
+  </script>
+
+
+{% endblock %}
