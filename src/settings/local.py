@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     # bcrypt = pip install bcrypt
     # pillow = pip install pillow
     # xhtml2pdf = pip install --pre xhtml2pdf
+    # pip install social-auth-app-django
+    # pip install sorl-thumbnail
 
 
 
