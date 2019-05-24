@@ -16,9 +16,12 @@
                     <li class="breadcrumb-item active">
                         <strong>GSTR-Overview</strong>
                     </li>
+                     <li class="breadcrumb-item active">
+                        <strong>GSTR-1</strong>
+                    </li>
                 </ol>
        
-              <a href="{% url 'company:create' %}" class="btn btn-warning" role="button">GSTR-1</a>
+              <a href="{% url 'company:create' %}" class="btn btn-warning" role="button">GSTR-Overview</a>
               <a href="{% url 'company:import_company' %}" class="btn btn-primary" role="button">GSTR-2A</a>
               <a href="{% url 'company:create' %}" class="btn btn-success" role="button">GSTR-3B</a>
               <a href="{% url 'company:create' %}" class="btn btn-info" role="button">GSTR-4</a>
@@ -42,14 +45,13 @@
                 </div>
             </div>
 
-
-
-
+<!-- for formatting the boxes evenly -->
+ <div class="wrapper wrapper-content animated fadeInRight ecommerce">
 		<div class="row">
 			<div class="col-lg-4">
                     <div class="ibox ">
                         <div class="ibox-title">
-                            <h5>Overview </h5>
+                            <h5>GSTR-1 Summary </h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -82,78 +84,53 @@
                                 <tbody>
                                 <tr>
                                     
-                                    <td>Company Name</td>
+                                    <td><strong>Total no of Invoices</strong></td>
                                     <td>-----</td>
                                    
                                 </tr>
                                 <tr>
                                    
-                                   <td>Date fo registration</td>
+                                   <td>Included in returns</td>
                                     <td>-----</td>
                                   
                                 </tr>
                                 <tr>
                                   
-                                    <td>Applicable from Month</td>
+                                    <td>Excluded in Returns</td>
                                     <td>-----</td>
                                   
                                 </tr>
                                 <tr>
                                   
-                                    <td>ITC Claimed</td>
+                                    <td>Mismatched Invoices</td>
                                     <td>-----</td>
                                   
                                 </tr>
                                 <tr>
                                   
-                                    <td>ITC pending</td>
+                                    <td>Invoices Filed</td>
                                     <td>-----</td>
                                   
                                 </tr>
                                 <tr>
                                   
-                                    <td>Electronic CL balance</td>
+                                    <td>Invoices pending</td>
                                     <td>-----</td>
                                   
                                 </tr>
                                 <tr>
                                   
-                                    <td>CGST Credit</td>
+                                    <td>HSN wise Summary</td>
                                     <td>-----</td>
                                   
                                 </tr>
                                 <tr>
                                   
-                                    <td>SGST Credit</td>
+                                    <td>Document Summary</td>
                                     <td>-----</td>
                                   
                                 </tr>
-                                <tr>
-                                  
-                                    <td>IGST Credit</td>
-                                    <td>-----</td>
-                                  
-                                </tr>
-                                <tr>
-                                  
-                                    <td>Total Invoices</td>
-                                    <td>-----</td>
-                                  
-                                </tr>
-
-                                <tr>
-                                  
-                                    <td>Pending Invoices</td>
-                                    <td>-----</td>
-                                  
-                                </tr>
-                                <tr>
-                                  
-                                    <td>Late Fees</td>
-                                    <td>-----</td>
-                                  
-                                </tr>
-
+                                
 
 
 
@@ -163,6 +140,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-8">
                     <div class="ibox ">
                         <div class="ibox-title">
@@ -192,9 +170,10 @@
                                 <tr>
                                     <th>Filing Status</th>
                                     <th>GSTR-1</th>
-                                    <th>GSTR-2A</th>
-                                    <th>GSTR-3B</th>
-                                    <th>GSTR-4</th>
+                                    <th>Due Date of filing</th>
+                                    <th>Date of filing</th>
+                                    <th>Late fees</th>
+                                    <th>Status</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -204,24 +183,59 @@
 
                                     <td>July 2018</td>
                                     <td>Filed</td>
-                                    <td>Generated</td>
-                                    <td>Filed</td>
+                                    <td>10th August 2018</td>
+                                    <td>9th August 2018</td>
                                     <td>N/A</td>
+                                    <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
                                     
                                 </tr>
                                 <tr>
                                     <td>August 2018</td>
                                     <td>Filed</td>
-                                    <td>Generated</td>
-                                    <td>Filed</td>
+                                    <td>10th August 2018</td>
+                                    <td>9th August 2018</td>
                                     <td>N/A</td>
+                                    <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
                                 </tr>
                                 <tr>
                                     <td>September 2018</td>
                                     <td>Filed</td>
-                                    <td>Generated</td>
-                                    <td>Filed</td>
+                                    <td>10th August 2018</td>
+                                    <td>9th August 2018</td>
                                     <td>N/A</td>
+                                    <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>Ocotober 2018</td>
+                                    <td>Filed</td>
+                                    <td>10th August 2018</td>
+                                    <td>9th August 2018</td>
+                                    <td>N/A</td>
+                                    <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>November 2018</td>
+                                    <td>Filed</td>
+                                    <td>10th August 2018</td>
+                                    <td>9th August 2018</td>
+                                    <td>N/A</td>
+                                    <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>December 2018</td>
+                                    <td>Filed</td>
+                                    <td>10th August 2018</td>
+                                    <td>9th August 2018</td>
+                                    <td>N/A</td>
+                                    <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>January 2018</td>
+                                    <td>Filed</td>
+                                    <td>10th August 2018</td>
+                                    <td>9th August 2018</td>
+                                    <td>N/A</td>
+                                    <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
                                 </tr>
                                 
                                 </tbody>
@@ -233,6 +247,279 @@
 
 		</div>
 
+
+
+<div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Custom responsive table </h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                                <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-wrench"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user">
+                                    <li><a href="#" class="dropdown-item">Config option 1</a>
+                                    </li>
+                                    <li><a href="#" class="dropdown-item">Config option 2</a>
+                                    </li>
+                                </ul>
+                                <a class="close-link">
+                                    <i class="fa fa-times"></i>
+                                </a> -->
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-sm-5 m-b-xs"><select class="form-control-sm form-control input-s-sm inline">
+                                    <option value="0">Option 1</option>
+                                    <option value="1">Option 2</option>
+                                    <option value="2">Option 3</option>
+                                    <option value="3">Option 4</option>
+                                </select>
+                                </div>
+                                <div class="col-sm-4 m-b-xs">
+                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-sm btn-white ">
+                                            <input type="radio" name="options" id="option1" autocomplete="off" checked> Day
+                                        </label>
+                                        <label class="btn btn-sm btn-white active">
+                                            <input type="radio" name="options" id="option2" autocomplete="off"> Week
+                                        </label>
+                                        <label class="btn btn-sm btn-white">
+                                            <input type="radio" name="options" id="option3" autocomplete="off"> Month
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="input-group"><input placeholder="Search" type="text" class="form-control form-control-sm"> <span class="input-group-append"> <button type="button" class="btn btn-sm btn-primary">Go!
+                                    </button> </span></div>
+
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+
+                                        <th>#</th>
+                                        <th>Particulars </th>
+                                        <th>Vouchers </th>
+                                        <th>Taxable Value</th>
+                                        <th>Central Tax</th>
+                                        <th>State Tax</th>
+                                        <th>Integrated Tax</th>
+                                        <th>Cess</th>
+                                        <th>Tax Amount</th>
+                                        <th>Invoice Amount</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                    <tr>
+
+                                <td>1</td>
+                                <td>B2B Invoices<small>- 4A,4B,4C,6B,6C
+                                <br><i> Taxable Sales
+                                <br>Reverse charge suppies</i></small>
+                                        </td>
+
+                                        <td>52</td>
+
+                                <td>1742510
+                                <br><small>1742510
+                                <br>--</small>
+
+                                </td>
+                                        <td>15478</td>
+                                        <td>15487</td>
+                                        <td>1547</td>
+                                        <td>0.0</td>
+                                 <td>1742510
+                                <br><small>1742510
+                                <br>--</small>
+
+                                </td>
+                                  <td>1742510
+                                <br><small>1742510
+                                <br>--</small>
+
+                                </td>
+                        </tr>
+                                   <tr>
+
+                                <td>2</td>
+                                <td>B2C Large Invoices<small>- 5A, 5B
+                                </small>
+                                        </td>
+
+                                        <td></td>
+
+                                <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                 <td></td>
+                                  <td></td>
+                        </tr>
+
+                        <tr>
+
+                                <td>3</td>
+                                <td>B2C Small Invoices<small>- 7
+                                </small>
+                                        </td>
+
+                                        <td>3</td>
+
+                                <td>254111</td>
+                                        <td>25415</td>
+                                        <td>25687</td>
+                                        <td>N/A</td>
+                                        <td>0.0</td>
+                                 <td>125447</td>
+                                  <td>258965</td>
+                        </tr>
+                        <tr>
+
+                                <td>4</td>
+                                <td>Credit/Debit notes(Registered)<small>- 9B
+                                </small>
+                                        </td>
+
+                                        <td></td>
+
+                                <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                 <td></td>
+                                  <td></td>
+                        </tr>
+
+                        <tr>
+
+                                <td>5</td>
+                                <td>Credit/Debit notes(Unregistered)<small>- 9B
+                                </small>
+                                        </td>
+
+                                        <td></td>
+
+                                <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                 <td></td>
+                                  <td></td>
+                        </tr>
+
+                        <tr>
+
+                                <td>6</td>
+                                <td>Export Invoices<small>- 6A
+                                </small>
+                                        </td>
+
+                                        <td></td>
+
+                                <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                 <td></td>
+                                  <td></td>
+                        </tr>
+
+                        <tr>
+
+                                <td>7</td>
+                                <td>Tax Liability(Advanced Recieved)<small>- 11A(1), 11A(2)
+                                </small>
+                                        </td>
+
+                                        <td></td>
+
+                                <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                 <td></td>
+                                  <td></td>
+                        </tr>
+
+                        <tr>
+
+                                <td>8</td>
+                                <td>Adjustment of Advances<small>- 11B(1), 11B(2)
+                                </small>
+                                        </td>
+
+                                        <td></td>
+
+                                <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                 <td></td>
+                                  <td></td>
+                        </tr>
+
+                        <tr>
+
+                                <td>9</td>
+                                <td>Nil Rated Invoices Invoices<small>- 8A, 8B, 8C, 8D
+                                </small>
+                                        </td>
+
+                                        <td></td>
+
+                                <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                 <td></td>
+                                  <td></td>
+                        </tr>
+                                    </tbody>
+
+                                    <thead>
+                                    <tr>
+
+                                        <th>#</th>
+                                        <th>Total </th>
+                                        <th></th>
+                                        <th>254785121</th>
+                                        <th>152487</th>
+                                        <th>45874</th>
+                                        <th>456985</th>
+                                        <th>0.0</th>
+                                        <th>125478</th>
+                                        <th>4569852</th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+<!-- for footer missing div -->
+<div>
 
 
 {% endblock %}
