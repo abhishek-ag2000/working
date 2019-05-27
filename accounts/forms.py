@@ -1,18 +1,29 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
+from django import forms
 
 User = get_user_model()
 
 
 class UserCreateForm(UserCreationForm):
+	email = forms.EmailField()
+	tandc = forms.BooleanField()
+	# gives us a nested namespace for cofigurations and keepst hte configs in one place 
 	class Meta:
-	    fields = ("username", "email", "password1", "password2")
+	    fields = ("username", "email", "password1", "password2","tandc")
 	    model = get_user_model()
 
 	def __init__(self, *args, **kwargs):
 		super(UserCreateForm, self).__init__(*args, **kwargs)
+		# for terms and conditions checkbox
+		# if check_something():
+		self.fields['tandc'].initial  = True
+		self.fields['tandc'].required = True 
+		self.fields['email'].required = True 
 
+		self.fields['tandc'].widget.attrs = {'class': 'checkbox i-checks form-control',}
+		
 		for fieldname in ['username', 'password1', 'password2']:
 			self.fields[fieldname].help_text = None
 
@@ -20,6 +31,6 @@ class UserCreateForm(UserCreationForm):
 		email = self.cleaned_data.get('email')
 		username = self.cleaned_data.get('username')
 		if email and User.objects.filter(email=email).exclude(username=username).exists():
-			raise ValidationError(u'Email addresses must be unique.')
+			raise ValidationError(u'This Email addresses was already registered')
 		return email
 

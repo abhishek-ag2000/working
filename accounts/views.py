@@ -12,16 +12,27 @@ from todogst.models import Todo
 from django.db.models.functions import Coalesce 
 from django.db.models import Count, Value
 from . import forms
+from .forms import UserCreateForm # thisis our created form with email and checkbox
 
+# https://www.youtube.com/watch?v=q4jPR-M0TAQ&list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&index=6
+def signup(request):
+    #template_name = "accounts/Signup.html"
+    if request.method == 'POST':
+        form = UserCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request,f'Account created successfully for {username}')
+            return redirect('accounts:login')
+    else:
+        form = UserCreateForm()
+    return render(request, 'accounts/Signup.html', {'form': form})
 
-
-
-
-class SignUp(CreateView):
-    form_class = forms.UserCreateForm
-    success_url = reverse_lazy("login")
-    template_name = "accounts/Signup.html"
-
+# class SignUp(CreateView):
+#     form_class = forms.UserCreateForm
+#     success_url = reverse_lazy("login")
+#     template_name = "accounts/Signup.html"
+ 
 
 @login_required
 def change_password(request):
