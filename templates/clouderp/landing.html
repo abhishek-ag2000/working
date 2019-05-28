@@ -52,10 +52,10 @@
         <div class="carousel-item active">
             <div class="container">
                 <div class="carousel-caption">
-                    <h1>Where Technology <br/>
-                       meets your daily needs!<br/>
+                    <h1>Let Technology <br/>
+                       meet your daily needs!<br/>
                        </h1>
-                     <p>An AI empowered Business Ecosystem!</p>
+                     <p>An AI powered Business Ecosystem!</p>
                      <center>
                         <p>
                         <a class="btn btn-lg btn-primary" href="{% url 'accounts:signup' %}" role="button">Register</a>
@@ -128,7 +128,7 @@
         <div class="col-lg-12 text-center">
             <div class="navy-line"></div>
             <h1>Why Us?<br/> <span class="navy"> Bracketline Pvt Ltd</span> </h1>
-            <p>Building technology that connects !</p>
+            <p>An amazon of services !</p>
         </div>
     </div>
     <div class="row">
@@ -136,12 +136,12 @@
             <div>
                 <i class="fa fa-plus features-icon"></i>
                 <h2>Simplicity</h2>
-                <p>Working with BracketLine is extremely simple. All you need is to log in to our website, just like any other social platform &amp; start working. There are no prerequisites, procedures or set rules to follow.</p>
+                <p>Tired of conventional installation procedures, followups with customercare, hassle in integrating previous data then you need not worry here because BracketLine-apps start working right out of the box &amp; theres a click for everything you need.</p>
             </div>
             <div>
                 <i class="fa fa-mobile features-icon"></i>
                 <h2>Flexibility</h2>
-                <p>Whatever your requirement is, BracketLine will adapt to the ways of your business. From simplistic configurations to customization everything is possible with BracketLine. No further worry of any unexpected situations BracketLine will handle all.</p>
+                <p>Whatever your requirement is, BracketLine will adapt itself to the ways of your business processes. From simplistic configurations to customizations everything is possible with BracketLine. Our features are carefully designed for flexiblility to ensure 100% control and ease of use.</p>
             </div>
             <!-- <div class="m-t-lg">
                 <i class="fa fa-bar-chart features-icon"></i>
@@ -159,15 +159,15 @@
             <div>
                 <i class="fa fa-bar-chart features-icon"></i>
                 <h2>Speed</h2>
-                <p>Get real-time Report on the Go. BracketLine will give you all the reports which will aid you in making fast & effective decisions.
+                <p>Get real-time Report on the Go. BracketLine will give you all the reports which will aid you in making fast &amp; effective decisions.
 
-                And Good news is all this is available on the click of a button with One-time minimal & simplistic configuration.
+                And Good news is all this is available on the click of a button with One-time minimal &amp; simplistic configuration.
             </p>
             </div>
             <div class="m-t-lg">
                 <i class="fa fa-envelope features-icon"></i>
                 <h2>Affordability</h2>
-                <p>BracketLine can work on any Computer, all you need is an active internet connection. No requirement of high-end Devices &amp; Costly Hardware. A simple device which supports a web browser is all what you need to run your Business</p>
+                <p>BracketLine can work from anywhere, all you need is an active internet connection. No requirement of high-end Devices &amp; Costly Hardware. A simple device which supports a web browser is all what you need to run your Business and manage with flexible pricing.</p>
             </div>
         </div>
     </div>
@@ -347,7 +347,7 @@
                     <div class="col-lg-3">
                         <div class="ibox">
                             <div class="ibox-content" style="border-radius:20%;">
-                                <p><strong>PRODUCT SOLUTION PATNERS</strong></p>
+                                <p><strong>PRODUCT SOLUTION PARTNERS</strong></p>
                                 <p style="font-size: large;"><strong>{{ Professional_users }}/{{ users }}</strong></p>
                                 <div class="text-center">
                                     <div id="sparkline6"></div>
@@ -358,7 +358,7 @@
                     <div class="col-lg-3">
                         <div class="ibox">
                             <div class="ibox-content" style="border-radius:20%;">
-                                <p><strong>Data Operators</strong></p>
+                                <p><strong>DATA OPERATORS</strong></p>
                                 <p style="font-size: large;"><strong>{{ Data_users }}/{{ users }}</strong></p>
                                 <div class="text-center">
                                     <div id="sparkline7"></div>
@@ -643,7 +643,521 @@
 
 </section>
 
+<section section id="pricing" class="comments dark-section" style="margin-top: 0">
 
+
+ <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="navy-line"></div>
+                <h1>Our Services!</h1>
+                <p>Provided by Industry experts. </p>
+            </div>
+        </div>
+
+            <style type="text/css">
+        .product_img {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 100%;
+        }
+    </style>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+{% for products in Products %}
+                <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div>
+
+                            {% if products.image %}
+                               <img class="product_img" src="{{ products.image.url }}/" alt="product picture" height="200" width="100">
+                            {% else %}
+                                <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}" height="200" width="100">
+                            {% endif %}
+
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    <strong> &#8377; {{ products.price }}/-</strong>   annually.
+                                </span>
+                                
+                                <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="product-name">{{ products.title}}</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    {{ products.summary|safe|truncatewords:"9" }}
+                                </div>
+                                <div class="ratings">
+                                <p class="pull-right">{{ products.product_review.count }} review{{ products.product_review.count|pluralize }}</p>
+
+                                <style type="text/css">
+                                  .checked {
+                                     color: orange;
+                                }
+                                </style>
+                                <p>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star-o empty "></span>
+                                    <span class="fa fa-star-o empty"></span>
+                                </p>
+                            </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="row">
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+            </div>
+
+
+
+
+        </div>
+
+
+
+
+
+
+    
+       <!-- <div class="row features-block">
+            <div class="col-lg-4">
+                <div class="bubble">
+                    "Uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+                </div>
+                <div class="comments-avatar">
+                    <a href="" class="float-left">
+                        <img alt="image" src="img/landing/avatar3.jpg">
+                    </a>
+                    <div class="media-body">
+                        <div class="commens-name">
+                            Andrew Williams
+                        </div>
+                        <small class="text-muted">Company X from California</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="bubble">
+                    "Uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+                </div>
+                <div class="comments-avatar">
+                    <a href="" class="float-left">
+                        <img alt="image" src="img/landing/avatar1.jpg">
+                    </a>
+                    <div class="media-body">
+                        <div class="commens-name">
+                            Andrew Williams
+                        </div>
+                        <small class="text-muted">Company X from California</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="bubble">
+                    "Uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+                </div>
+                <div class="comments-avatar">
+                    <a href="" class="float-left">
+                        <img alt="image" src="img/landing/avatar2.jpg">
+                    </a>
+                    <div class="media-body">
+                        <div class="commens-name">
+                            Andrew Williams
+                        </div>
+                        <small class="text-muted">Company X from California</small>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div> -->
+
+</section>
+
+<section section id="pricing" class="comments gray-section" style="margin-top: 0">
+
+
+ <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="navy-line"></div>
+                <h1>Our APIs !</h1>
+                <p>Tested for Industry level Automation. </p>
+            </div>
+        </div>
+
+            <style type="text/css">
+        .product_img {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 100%;
+        }
+    </style>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+{% for products in Products %}
+                <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div>
+
+                            {% if products.image %}
+                               <img class="product_img" src="{{ products.image.url }}/" alt="product picture" height="200" width="100">
+                            {% else %}
+                                <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}" height="200" width="100">
+                            {% endif %}
+
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    <strong> &#8377; {{ products.price }}/-</strong>   annually.
+                                </span>
+                                
+                                <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="product-name">{{ products.title}}</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    {{ products.summary|safe|truncatewords:"9" }}
+                                </div>
+                                <div class="ratings">
+                                <p class="pull-right">{{ products.product_review.count }} review{{ products.product_review.count|pluralize }}</p>
+
+                                <style type="text/css">
+                                  .checked {
+                                     color: orange;
+                                }
+                                </style>
+                                <p>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star-o empty "></span>
+                                    <span class="fa fa-star-o empty"></span>
+                                </p>
+                            </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="row">
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-content product-box">
+
+                            <div class="product-imitation">
+                                [ INFO ]
+                            </div>
+                            <div class="product-desc">
+                                <span class="product-price">
+                                    $10
+                                </span>
+                                <small class="text-muted">Category</small>
+                                <a href="#" class="product-name"> Product</a>
+
+
+
+                                <div class="small m-t-xs">
+                                    Many desktop publishing packages and web page editors now.
+                                </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+            </div>
+
+
+
+
+        </div>
+
+
+
+
+
+
+    
+       <!-- <div class="row features-block">
+            <div class="col-lg-4">
+                <div class="bubble">
+                    "Uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+                </div>
+                <div class="comments-avatar">
+                    <a href="" class="float-left">
+                        <img alt="image" src="img/landing/avatar3.jpg">
+                    </a>
+                    <div class="media-body">
+                        <div class="commens-name">
+                            Andrew Williams
+                        </div>
+                        <small class="text-muted">Company X from California</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="bubble">
+                    "Uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+                </div>
+                <div class="comments-avatar">
+                    <a href="" class="float-left">
+                        <img alt="image" src="img/landing/avatar1.jpg">
+                    </a>
+                    <div class="media-body">
+                        <div class="commens-name">
+                            Andrew Williams
+                        </div>
+                        <small class="text-muted">Company X from California</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="bubble">
+                    "Uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+                </div>
+                <div class="comments-avatar">
+                    <a href="" class="float-left">
+                        <img alt="image" src="img/landing/avatar2.jpg">
+                    </a>
+                    <div class="media-body">
+                        <div class="commens-name">
+                            Andrew Williams
+                        </div>
+                        <small class="text-muted">Company X from California</small>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div> -->
+
+</section>
 
 <!-- <section class="features">
     <div class="container">
@@ -808,25 +1322,26 @@
         <div class="row">
             <div class="col-lg-12 text-center">
                 <div class="navy-line"></div>
-                <h1>Even more great feautres</h1>
-                <p>Built to create seamless business processes! </p>
+                <h1>Customers that trust Us !</h1>
+                <p> Various brands that have given us the opportunity to deliver cutting edge technology to them!  </p>
             </div>
         </div>
         <div class="row features-block">
             <div class="col-lg-3 features-text wow fadeInLeft">
-                <small>Play Store & App Store</small>
-                <h2>Perfectly designed </h2>
-                <p>Download the app for perfect experience on your smart phone and get the latest updates and everything done on your mobile seamlessly.</p>
-                <a href="" class="btn btn-primary">Learn more</a>
+                <small>For Android</small>
+                <h2>Play Store </h2>
+                <p>Download the app for perfect experience on your android smart phone and get the latest updates and everything done on your mobile seamlessly. We have integrated our app to work with all gestures keeping in mind the Android Users. Deeply integrated with latest android kernels and versions.</p>
+                <!-- <a href="" class="btn btn-primary">Download now !</a> -->
+                <input type="image" src="{% static 'img/landing/googleplay.png' %}" onclick="alert('This will redirect you to the Play Store !')" width="112" height="41" />
             </div>
-            <div class="col-lg-6 text-right m-t-n-lg wow zoomIn">
-                <img src="{% static 'img/landing/iphone.jpg' %}" class="img-fluid" alt="dashboard">
+            <div class="col-lg-6 m-t-n-lg wow zoomIn">
+                <img src="{% static 'img/landing/branding.png' %}" class="img-fluid" alt="dashboard">
             </div>
             <div class="col-lg-3 features-text text-right wow fadeInRight">
-                <small>Cost</small>
-                <h2>Affordability </h2>
-                <p>BracketLine can work on any Computer, all you need is an active internet connection. No requirement of high-end Devices & Costly Hardware. A simple device which supports a web browser is all what you need to run your Business </p>
-                <a href="" class="btn btn-primary">Learn more</a>
+                <small>For IOS devices</small>
+                <h2>App Store </h2>
+                <p> Download the app for perfect experience on your Apple Devices including Ipads and iwatches notifications and get the latest updates and everything done on your mobile seamlessly. We have integrated our app to work with all gestures keeping in mind the IOS Users ecosystem needs.</p>
+                <input type="image" src="{% static 'img/landing/appstore.png' %}" onclick="alert('This will redirect you to the App Store !')" width="112" height="41" />
             </div>
         </div>
     </div>
@@ -839,7 +1354,7 @@
             <div class="col-lg-12 text-center">
                 <div class="navy-line"></div>
                 <h1>Contact Us</h1>
-                <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod.</p>
+                <p>We would love to adress your needs with an in-office discussion over coffee. </p>
             </div>
         </div>
         <div class="row m-b-lg justify-content-center">
@@ -848,12 +1363,13 @@
                     <strong><span class="navy">Bracketline Pvt Ltd.</span></strong><br/>
                     PNB building ,Hill Cart Road<br/>
                     Siliguri, West Bengal.734001<br/>
-                    <abbr title="Phone">P:</abbr> (123) 456-7890
+                    <abbr title="Phone">P:</abbr> (1800) 456-7890
                 </address>
             </div>
             <div class="col-lg-4">
                 <p class="text-color">
-                    GSTIN: quis ad perspiciatis, totam corporis laboriosam veritatis, consectetur adipisicing elit quos non quis ad perspiciatis, totam corporis ea,
+                    GSTIN: 19AAICB1614Q1ZB<br>
+                    Registered under Start-Up-India with valid DIPP registration.
                 </p>
             </div>
         </div>
