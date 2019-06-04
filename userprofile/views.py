@@ -18,7 +18,7 @@ from consultancy.models import consultancy,Answer
 from django.http import HttpResponseRedirect, JsonResponse
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
-
+from django.contrib.messages.views import SuccessMessageMixin
 # Create your views here.
 
 class profiledetailview(LoginRequiredMixin,DetailView):
@@ -63,11 +63,12 @@ class profiledetailview(LoginRequiredMixin,DetailView):
 			context['case_count'] = achivements.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		return context
 
-class profileupdateview(LoginRequiredMixin,UpdateView):
+class profileupdateview(SuccessMessageMixin,LoginRequiredMixin,UpdateView):
 	model = Profile
 	form_class = profileform
 	template_name = 'userprofile/profile_form.html'
-
+	#success_url = '../find_professional.html'
+	success_message = 'profile updated successfully !!!!'
 	def get_object(self):
 		return self.request.user.profile
 

@@ -27,6 +27,7 @@ urlpatterns = [
     url(r"^$", views.HomePage.as_view(), name="home"),
     url(r"^base/$", views.base.as_view(), name="base"),
     path('admin/', admin.site.urls),
+    url(r"^helpandsupport/", include("helpandsupport.urls", namespace="helpandsupport")),
     url(r"^message/", include("messaging.urls", namespace="messaging")),
     url(r"^accounts/", include("accounts.urls", namespace="accounts")),
     url(r"^accounts/", include("django.contrib.auth.urls")),

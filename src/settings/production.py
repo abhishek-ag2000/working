@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     'Gst',
     'aggrement',
     'company_accounts',
+    'helpandsupport',
 
 ]
 

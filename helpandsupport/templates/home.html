@@ -1,0 +1,153 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+{% block title %}My Blogs{% endblock %}
+
+{% block content %}
+
+
+
+
+{% for object in HelpCategories %}
+
+	{{ object.Title }}
+	{{ object.image }}<br>
+
+
+
+
+{% endfor %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2>Help and Support</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Help</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Categories</strong>
+                    </li>
+                </ol>
+                <br>
+                        <!-- <div class="btn-group">
+                            <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">View Posts By</button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'blog:latestbloglist' %}">Most Recent</a></li>
+                                <li><a class="dropdown-item" href="{% url 'blog:viewbloglist' %}">Most Popular</a></li>
+                                <li><a class="dropdown-item" href="{% url 'blog:likebloglist' %}">Most Helpful</a></li>     
+                            </ul>
+                            
+
+                        </div> -->
+                        <!-- <div class="btn-group">
+                            <button data-toggle="dropdown" class="btn btn-success dropdown-toggle pull-right">Categories</button>
+                            <ul class="dropdown-menu">
+                            {% for categories in categories_list %}
+                                <li><a class="dropdown-item" href="{% url 'blog:categoryDetail' pk=categories.pk  %}"><strong>{{ categories.Title }}</strong>
+                                <span class="label label-success pull-right">
+                                  {{ categories.blogs.count }}</span></a></li>
+                            {% endfor %}    
+                            </ul>
+                        </div> -->
+                        <!-- <div class='pull-right'>
+                            <a href="{% url 'blog:bloglist' %}" class="btn btn-info" role="button">Show my Posts</a>
+                            <a href="{% url 'blog:blogcreate' %}" class="btn btn-warning" role="button">Create Post</a>
+                        </div> -->
+            </div>
+</div>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2>Search Articles</h2>
+             <form method='GET' class="form-horizontal" id="search-form" action="#">
+
+                <div class="input-group input-group-sm">
+                    <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Blogs Here">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-info pull-right">Go</button>
+                    </div>
+                </div>
+
+
+            </form>
+            </div>
+</div>
+
+    <style type="text/css">
+        .product_img {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 100%;
+        }
+    </style>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+
+            {% for obj in HelpCategories %}
+                <div class="col-md-3">
+                    <div class="ibox">
+                        <!-- <div class="ibox-content product-box">
+
+                            <div> -->
+
+                            {% if obj.image %}
+                               <img class="product_img" src="{{ obj.image.url }}/" alt="product picture" height="200" width="200">
+                            {% endif %}
+
+                            </div>
+                            <div class="product-desc">
+                                
+                                <a href="{% url 'helpandsupport:CategoriesDetail' pk=obj.pk %}" class="product-name">{{ obj.title|safe|truncatewords:"5" }}</a>
+
+
+
+                                
+
+                            </div>
+                                <div class="m-t text-righ">
+
+                                    <a href="#" class="btn btn-xs btn-outline btn-primary">Read Articles <i class="fa fa-long-arrow-right"></i> </a>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+       
+
+        <!-- Pagination -->
+
+            </div>
+
+        <ul class="text-center">
+                  {% if is_paginated %}
+                      <ul class="pagination">
+                       {% if page_obj.has_previous %}
+                          <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                        {% else %}
+                          <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for i in paginator.page_range %}
+                            {% if page_obj.number == i %}
+                               <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                            {% else %}
+                                <li><a href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+        </ul>
+        </div>
+
+{% endblock %}
