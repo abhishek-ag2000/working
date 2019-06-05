@@ -5,5 +5,5 @@ app_name = 'helpandsupport'
 
 urlpatterns = [
 	url(r'^$',views.CategoriesListView.as_view(),name='CategoriesList'),
-	url(r'^(?P<pk>\d+)/$',views.CategoryDetailView.as_view(),name='CategoriesDetail'),
+	url(r'^(?P<slug>[\w-]+)/$',views.CategoryDetailView.as_view(),name='CategoriesDetail'),
 ]

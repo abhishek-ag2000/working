@@ -8,6 +8,9 @@
 	{{ object.Title }}
 	{{ object.image }}<br>
 
+{%for obj in object.category.all %}
+	{{obj.Article_title}}
 
+	{% endfor %}
 
 {% endblock %}
