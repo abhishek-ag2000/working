@@ -23,6 +23,6 @@ admin.site.register(Article_Questions, article_questions)
 
 class article_answers(admin.ModelAdmin):
 	model = Article_Answers
-	list_display = ['User','Questions','text','Answers']
+	list_display = ['User','Question_of_article','text','Answers']
 
 admin.site.register(Article_Answers, article_answers)

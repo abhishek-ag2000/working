@@ -1,16 +1,107 @@
 {% extends "clouderp/base_2.html" %}
 {% load staticfiles %}
 
-{% block title %}My Blogs{% endblock %}
+{% block title %}Help &amp; Support{% endblock %}
 
 {% block content %}
 
-	{{ object.Title }}
-	{{ object.image }}<br>
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2>Help and Support</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'helpandsupport:CategoriesList' %}"><strong>Help &amp; Support</strong></a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Categories</strong>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>{{object.Title}}</strong>
+                    </li>
+                </ol>
+                <br>
+                       
+            </div>
+</div>
 
-{%for obj in object.category.all %}
-	{{obj.Article_title}}
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2>Search Articles</h2>
+             <form method='GET' class="form-horizontal" id="search-form" action="#">
 
-	{% endfor %}
+                <div class="input-group input-group-sm">
+                    <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Here">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-info pull-right">Go</button>
+                    </div>
+                </div>
+
+
+            </form>
+            </div>
+	</div>
+
+<div class="wrapper wrapper-content">
+            <div class="row animated fadeInRight">
+                <div class="col-lg-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h3> &nbsp; {{ object.Title }} - {{ object.desc }}</h3>
+                        <!-- <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-wrench"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                <li><a href="#" class="dropdown-item">Config option 1</a>
+                                </li>
+                                <li><a href="#" class="dropdown-item">Config option 2</a>
+                                </li>
+                            </ul>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div> -->
+                    </div>
+
+            {%for obj in object.category.all %}        
+
+                    <div class="ibox-content inspinia-timeline">
+
+                        <div class="timeline-item">
+                            <div class="row">
+                                <div class="col-3 date">
+                                    <i class="fa fa-file-text"></i>
+                                    <a href="{% url 'helpandsupport:ArticleDetail' slug1=object.slug slug=obj.slug %}">Title</a>
+                                    <br/>
+                                    <small class="text-navy">Content</small>
+                                </div>
+                                <div class="col-xs-7 content no-top-border"> <a href="{% url 'helpandsupport:ArticleDetail' slug1=object.slug slug=obj.slug %}">
+                                    <p class="m-b-xs"><strong>&nbsp;&nbsp;{{ obj.Article_title }}</strong></p>
+
+                                    <p>{{ obj.Description|safe|truncatewords:"10" }}</p>
+                                    	</a>
+                                </div>
+                            </div>
+                        </div>
+
+
+{% endfor %}
+
+
+
+
+                 
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+
+
 
 {% endblock %}

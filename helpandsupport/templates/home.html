@@ -1,7 +1,7 @@
 {% extends "clouderp/base_2.html" %}
 {% load staticfiles %}
 
-{% block title %}My Blogs{% endblock %}
+{% block title %}Help &amp; Support{% endblock %}
 
 {% block content %}
 
@@ -11,7 +11,7 @@
                 <h2>Help and Support</h2>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Help</a>
+                        <a href="{% url 'helpandsupport:CategoriesList' %}"><strong>Help &amp; Support</strong></a>
                     </li>
                     <li class="breadcrumb-item active">
                         <strong>Categories</strong>
@@ -28,7 +28,7 @@
              <form method='GET' class="form-horizontal" id="search-form" action="#">
 
                 <div class="input-group input-group-sm">
-                    <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Blogs Here">
+                    <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Here">
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-info pull-right">Go</button>
                     </div>
@@ -49,7 +49,7 @@
                     <div class="col-4">
                         <div class="text-center">
                         {% if obj.image %}
-                            <img alt="image" class="rounded-circle m-t-xs img-fluid" src="{{ obj.image.url }}/">
+                            <img alt="image" class="m-t-xs img-fluid" src="{{ obj.image.url }}/">
                            <!--  <div class="m-t-xs font-bold"></div> -->
                         </div>
                         {% endif %}
@@ -59,9 +59,9 @@
                         
                         <address>
                             <strong>{{obj.Title}}</strong><br>
-                            795 Folsom Ave, Suite 600<br>
-                            San Francisco, CA 94107<br>
-                            <abbr title="Phone">P:</abbr> (123) 456-7890<br>
+                            {{obj.desc}}<br>
+                            <br>
+                            
                             <button type="button" class="btn btn-info btn-rounded" href="#">See Articles</button>
                              <!-- url 'helpandsupport:CategoriesDetail' pk=obj.pk  -->
                         </address>

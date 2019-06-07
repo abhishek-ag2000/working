@@ -47,4 +47,31 @@ class CategoryDetailView(DetailView):
 		return context
 
 
+class ArticleDetailView(DetailView):
+	model = Articles
+	template_name = 'articledetail.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(ArticleDetailView, self).get_context_data(**kwargs) 
+		context['categories_slug'] = get_object_or_404(HelpCategories,slug=self.kwargs['slug1'])
+
+		if self.request.user.is_authenticated:
+			context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['inbox'] = Message.objects.filter(reciever=self.request.user)
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+
+		else:
+			context['Products'] = Product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+			context['inbox'] = Message.objects.all()
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']		
+
+		return context
 
