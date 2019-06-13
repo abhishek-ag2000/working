@@ -93,91 +93,47 @@
                                 <tbody>
                                 {% if new %}
                                     {% for i in new %}
-                                        {% if ledger1_details.name == 'Profit & Loss A/c'%}
-                                            {% for j in i|slice:"0:1" %}
-                                                {% if j != None %}
-                                                <tr>
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.Date}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.To}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.voucher_type}}</a></center></td>
-                                                    {% if j.voucher_id == None %}
-                                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.id}}</a></center></td>
-                                                    {% else %}
-                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.voucher_id}}</a></center></td>
-
-                                                    {% endif %}
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{ j.Debit|abs|floatformat:2 }}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}"></a></center></td>
-                                                </tr>
+                                        {% for j in i|slice:"0:1" %}
+                                            {% if j != None %}
+                                            <tr>
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.Date}}</a></center></td>
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.To}}</a></center></td>
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.voucher_type}}</a></center></td>
+                                                {% if j.voucher_id == None %}
+                                                                    
+                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.id}}</a></center></td>
+                                                {% else %}
                                                     
+                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.voucher_id}}</a></center></td>
+
                                                 {% endif %}
-                                            {% endfor %}
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{ j.Debit|abs|floatformat:2 }}</a></center></td>
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}"></a></center></td>
+                                            </tr>
+                                                
+                                            {% endif %}
+                                        {% endfor %}
 
-                                            {% for k in i|slice:"1:2" %}
-                                                {% if k != None %}
-                                                <tr>
-                                                   <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.Date}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.By}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.voucher_type}}</a></center></td>
-                                                    {% if k.voucher_id == None %}
-                                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.id}}</a></center></td>
-                                                    {% else %}
-                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.voucher_id}}</a></center></td>
-
-                                                    {% endif %}
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}"></a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:pl_detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.Credit}}</a></center></td> 
-                                                </tr>
+                                        {% for k in i|slice:"1:2" %}
+                                            {% if k != None %}
+                                            <tr>
+                                               <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.Date}}</a></center></td>
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.By}}</a></center></td>
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.voucher_type}}</a></center></td>
+                                                {% if k.voucher_id == None %}
+                                                                    
+                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.id}}</a></center></td>
+                                                {% else %}
                                                     
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}    
-                                            {% for j in i|slice:"0:1" %}
-                                                {% if j != None %}
-                                                <tr>
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.Date}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.To}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.voucher_type}}</a></center></td>
-                                                    {% if j.voucher_id == None %}
-                                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.id}}</a></center></td>
-                                                    {% else %}
-                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{j.voucher_id}}</a></center></td>
+                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.voucher_id}}</a></center></td>
 
-                                                    {% endif %}
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}">{{ j.Debit|abs|floatformat:2 }}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=j.pk pk3=selectdatefield_details.pk %}"></a></center></td>
-                                                </tr>
-                                                    
                                                 {% endif %}
-                                            {% endfor %}
-
-                                            {% for k in i|slice:"1:2" %}
-                                                {% if k != None %}
-                                                <tr>
-                                                   <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.Date}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.By}}</a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.voucher_type}}</a></center></td>
-                                                    {% if k.voucher_id == None %}
-                                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.id}}</a></center></td>
-                                                    {% else %}
-                                                        
-                                                        <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{k.voucher_id}}</a></center></td>
-
-                                                    {% endif %}
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}"></a></center></td>
-                                                    <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{ k.Credit|abs|floatformat:2 }}</a></center></td> 
-                                                </tr>
-                                                    
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}"></a></center></td>
+                                                <td><center><a href="{% url 'accounting_double_entry:detail' pk1=company_details.pk pk2=k.pk pk3=selectdatefield_details.pk %}">{{ k.Credit|abs|floatformat:2 }}</a></center></td> 
+                                            </tr>
+                                                
+                                            {% endif %}
+                                        {% endfor %}
 
                                         {% for l in i|slice:"2:3" %}
                                             {% if l != None %}
@@ -243,15 +199,15 @@
                                         <td></td>
                                         <th></th>
                                         <th>Current total</th>
-                                        <th><center>{{ total_debitcb|add:total_debitcbpl|abs|floatformat:2 }}</center></th>
-                                        <th><center>{{ total_creditcb|add:total_creditcbpl|abs|floatformat:2 }}</center></th>
+                                        <th><center>{{ total_debitcb|abs|floatformat:2  }}</center></th>
+                                        <th><center>{{ total_creditcb|abs|floatformat:2  }}</center></th>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <th>Closing Balance</th>
-                                        <th><center>{{ closing_balance|abs|floatformat:2 }}</center></th>
+                                        <th><center>{{ closing_balance|abs|floatformat:2  }}</center></th>
                                         <th></th>
 
                                     </tr>

@@ -3,6 +3,18 @@
 
 {% block title %}Blogs{% endblock %}
 
+{% block adsense %}
+
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+         google_ad_client: "ca-pub-7219420363532911",
+        enable_page_level_ads: true
+    });
+</script> 
+    
+{% endblock %}
+
 {% block content %}
 
 <div class="row wrapper border-bottom white-bg page-heading">
@@ -90,7 +102,7 @@
                             <div>
 
                             {% if blog_details.Blog_image %}
-                              <center> <img class="product_img" src="{{ blog_details.Blog_image.url }}/" alt="product picture" height="300" width="800"></center>
+                              <center> <img class="product_img" src="{{ blog_details.Blog_image.url }}/" alt="product picture" height="300" width="700"></center>
                             {% endif %}
 
                             </div>
@@ -115,17 +127,7 @@
                                     <h2>Comments:</h2>
                                     {% include 'blog/blog_comment.html' %}
 
-                                <form method="post">
-                                    {% csrf_token %}
-
-                                    <div class="input-group input-group-sm">
-                                        {{ Blog_comments_user_form.text}}
-                                        <div class="input-group-append">
-                                            <input type="submit" class="btn btn-info pull-right" value="Submit">
-                                        </div>
-                                      </div>     
-                                  
-                                  </form>
+                                
                                 </div>
                             </div>
 

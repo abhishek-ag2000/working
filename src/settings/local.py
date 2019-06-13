@@ -60,8 +60,6 @@ INSTALLED_APPS = [
     # bcrypt = pip install bcrypt
     # pillow = pip install pillow
     # xhtml2pdf = pip install --pre xhtml2pdf
-    # pip install social-auth-app-django
-    # pip install sorl-thumbnail
 
 
 
@@ -92,6 +90,7 @@ INSTALLED_APPS = [
     'Gst',
     'aggrement',
     'company_accounts',
+    'legal_database',
     'helpandsupport',
 
 ]

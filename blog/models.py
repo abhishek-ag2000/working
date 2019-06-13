@@ -26,7 +26,7 @@ class categories(models.Model):
 
 class Blog(models.Model):
 	User = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True,blank=True)
-	Date = models.DateTimeField(default=datetime.now)
+	Date = models.DateTimeField(auto_now_add=True)
 	Blog_title = models.CharField(max_length=255,unique=True)
 	likes = models.ManyToManyField(settings.AUTH_USER_MODEL,related_name='likes',blank=True)
 	Description = RichTextUploadingField(blank=True, null=True,config_name='special')

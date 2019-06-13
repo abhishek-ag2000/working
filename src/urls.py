@@ -27,7 +27,6 @@ urlpatterns = [
     url(r"^$", views.HomePage.as_view(), name="home"),
     url(r"^base/$", views.base.as_view(), name="base"),
     path('admin/', admin.site.urls),
-    url(r"^helpandsupport/", include("helpandsupport.urls", namespace="helpandsupport")),
     url(r"^message/", include("messaging.urls", namespace="messaging")),
     url(r"^accounts/", include("accounts.urls", namespace="accounts")),
     url(r"^accounts/", include("django.contrib.auth.urls")),
@@ -46,6 +45,8 @@ urlpatterns = [
     url(r"^stockkeeping/", include("stockkeeping.urls", namespace="stockkeeping")),
     url(r"^company_accounts/", include("company_accounts.urls", namespace="company_accounts")),
     url(r"^aggrement/", include("aggrement.urls", namespace="aggrement")),
+    url(r"^legal/", include("legal_database.urls", namespace="legal")),
+    url(r"^helpsupport/", include("helpandsupport.urls", namespace="helpandsupport")),
     url(r'^ratings/', include('star_ratings.urls', namespace='ratings')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

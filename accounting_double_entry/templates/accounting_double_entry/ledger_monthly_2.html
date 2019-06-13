@@ -123,7 +123,7 @@
 
                                       {% else %}
 
-                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Dr</center></th>
+                                        <th><center>{{ opening_balance|abs|floatformat:2|intcomma }} Dr</center></th>
 
                                       {% endif %}
                                       
@@ -136,7 +136,7 @@
 
                                       {% else %}
 
-                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Cr</center></th>
+                                        <th><center>{{ opening_balance|abs|floatformat:2|intcomma }} Cr</center></th>
                                       {% endif %}
 
                                     {% endif %}

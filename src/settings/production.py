@@ -25,7 +25,7 @@ SECRET_KEY = 'jdc#ewbwngw0nbdxj6il05f2pdbr75fhjni@j_ut+o2ev8(fm$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["www.bracketline.com","35.200.221.172","bracketline.com"]
+ALLOWED_HOSTS = ["bracketline.com","www.bracketline.com","35.200.221.172"]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY ='954744097986-2c65ubrgiggh2nbb532es23go3a30s8c.apps.googleusercontent.com'  #Paste CLient Key
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'TBPj7U1_ieD5Ge8YKslwqeFj'
@@ -60,8 +60,6 @@ INSTALLED_APPS = [
     # bcrypt = pip install bcrypt
     # pillow = pip install pillow
     # xhtml2pdf = pip install --pre xhtml2pdf
-    # pip install social-auth-app-django
-    # pip install sorl-thumbnail
 
 
 
@@ -92,6 +90,7 @@ INSTALLED_APPS = [
     'Gst',
     'aggrement',
     'company_accounts',
+    'legal_database',
     'helpandsupport',
 
 ]

@@ -41,10 +41,8 @@
                 </ol>
            <br>
 
-                <a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}" class="btn btn-success" role="button">Create Purchase Invoice</a>
-
-          
-                <a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}" class="btn btn-warning" role="button">Create Sales Invoice</a>
+                 <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk  %}" class="btn btn-success" role="button">Select Payment </a>
+            
 
             {% if not selectdatefield_details %}
 
@@ -98,7 +96,7 @@
             </div>
         </div>
         <div class="ibox-content">
-            <form class="form-payment-ajax" method="POST" action="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">
+            <form class="form-payment-ajax" method="POST">
             {% csrf_token %}
                 <div class="form-group row">
 
@@ -186,7 +184,7 @@
 
 <script type="text/javascript">
     $('.formset_row').formset({
-        addText: 'add contra',
+        addText: 'add payments',
         deleteText: 'remove',
         prefix: 'contras'
     });

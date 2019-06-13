@@ -31,7 +31,7 @@
         <div class="small text-right">
             <h5>Stats:</h5>
             <div> <i class="fa fa-thumbs-up"> </i> {{ total_likes }} upvote </div>
-            <div> <i class="fa fa-comments-o"> </i> {{ blog_details.blog_comments.count }} comments </div>
+            <div> <i class="fa fa-comments-o"> </i> {{ blog_details.blog_comments.count }} comment{{ blog_details.blog_comments.count|pluralize }} </div>
             <i class="fa fa-eye"> </i> {{ blog_details.blog_views }} views
         </div>
     </div>

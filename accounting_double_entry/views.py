@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import (ListView,DetailView,
 								  CreateView,UpdateView,DeleteView)
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy, reverse
 from accounting_double_entry.models import Pl_journal,journal,group1,ledger1,selectdatefield,Payment,Particularspayment,Receipt,Particularsreceipt,Contra,Particularscontra,Multijournal,Multijournaltotal,Bank_reconcilation
 from stockkeeping.models import stock_journal,Stockgroup,Simpleunits,Compoundunits,Stockdata,Purchase,Sales,Stock_Total,Stock_Total_sales
@@ -10,7 +10,7 @@ from userprofile.models import Profile, Product_activation, Role_product_activat
 from todogst.models import Todo
 from company.models import company
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from messaging.models import Message 
 import datetime
 from django.db.models.functions import Coalesce 
@@ -28,7 +28,7 @@ from django.template.loader import render_to_string
 from ecommerce_integration.decorators import product_1_activation
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
-from .resources import journalResource,Pl_journalResource
+from .resources import journalResource,ledgerResource
 from django.http import HttpResponse
 from tablib import Dataset
 import pandas as pd
@@ -36,6 +36,7 @@ import xlrd
 from django.core.exceptions import ValidationError
 from decimal import Decimal
 import numpy as np
+import xlwt
 
 class ProductExistsRequiredMixin:
 
@@ -43,7 +44,7 @@ class ProductExistsRequiredMixin:
         if Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True) or Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True):
             return super().dispatch(request, *args, **kwargs)
         else:
-            raise PermissionDenied
+            raise PermissionDenied("You do not have permission to access this link, Please activate the related product and try again")
 
 # Create your views here.
 
@@ -69,9 +70,7 @@ def journal_upload(request,pk,pk3):
 	if request.method == 'POST':
 		journal_resource = journalResource()
 		dataset = Dataset()
-		new_journal = request.FILES['myfile']
-
-		
+		new_journal = request.FILES['myfile']	
 		
 		data = pd.ExcelFile(new_journal)
 		dfex = pd.read_excel(data,'Tablib Dataset')
@@ -126,7 +125,7 @@ def journal_upload(request,pk,pk3):
 
 ###################### Views For Group Display ############################################
 
-class groupsummaryListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
+class groupsummaryListView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = group1
 	paginate_by = 15
 
@@ -138,6 +137,15 @@ class groupsummaryListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListVie
 
 	def get_queryset(self):
 		return self.model.objects.filter(Company=self.kwargs['pk'])
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		groups = group1.objects.filter(Company= company_details.pk)
+		for g in groups:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
+
 
 	def get_context_data(self, **kwargs):
 		context = super(groupsummaryListView, self).get_context_data(**kwargs) 
@@ -158,12 +166,21 @@ class groupsummaryListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListVie
 
 
 
-class group1ListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
+class group1ListView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = group1
 	paginate_by = 15
 
 	def get_queryset(self):
 		return self.model.objects.filter(Company=self.kwargs['pk']).exclude(group_Name__icontains='Primary').order_by('id')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		groups = group1.objects.filter(Company= company_details.pk)
+		for g in groups:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
+
 
 	def get_context_data(self, **kwargs):
 		context = super(group1ListView, self).get_context_data(**kwargs) 
@@ -192,27 +209,27 @@ def groupsummary_detail_view(request, pk, pk2, pk3):
 
 	# purchases
 	gs_purchase = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Purchase Accounts")
-	gs_purchase_total = gs_purchase.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_purchase_total = gs_purchase.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# sales
 	gs_sales = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Sales Account")
-	gs_sales_total = gs_sales.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_sales_total = gs_sales.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Expense
 	gs_directexp = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Direct Expenses")
-	gs_directexp_total = gs_directexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_directexp_total = gs_directexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Income
 	gs_directinc = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Direct Incomes")
-	gs_directinc_total = gs_directinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_directinc_total = gs_directinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Indirect Expense
 	gs_indirectexp = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Indirect Expense")
-	gs_indirectexp_total = gs_indirectexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_indirectexp_total = gs_indirectexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Indirect Income
 	gs_indirectinc = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Indirect Income")
-	gs_indirectinc_total = gs_indirectinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_indirectinc_total = gs_indirectinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 
 	inbox = Message.objects.filter(reciever=request.user)
@@ -250,7 +267,7 @@ def groupsummary_detail_view(request, pk, pk2, pk3):
 
 
 
-class group1DetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView):
+class group1DetailView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,DetailView):
 	context_object_name = 'group1_details'
 	model = group1
 	template_name = 'accounting_double_entry/group1_details.html'
@@ -263,6 +280,13 @@ class group1DetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView)
 		get_object_or_404(company, pk=pk1)
 		group = get_object_or_404(group1, pk=pk2)
 		return group
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		groups = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == groups.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -318,7 +342,7 @@ class group1CreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView)
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		return context
 
-class group1UpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView):
+class group1UpdateView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = group1
 	form_class  = group1Form
 	template_name = "accounting_double_entry/group1_form.html"
@@ -333,7 +357,6 @@ class group1UpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView)
 	def get_object(self):
 		pk1 = self.kwargs['pk1']
 		pk2 = self.kwargs['pk2']
-		get_object_or_404(company, pk=pk1)
 		group = get_object_or_404(group1, pk=pk2)
 		return group
 
@@ -344,6 +367,13 @@ class group1UpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView)
 			Company=company.objects.get(pk=self.kwargs['pk1'])
 			)
 		return data
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		groups = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == groups.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -373,7 +403,7 @@ def save_all(request,form,template_name,pk, pk3):
 			data['form_is_valid'] = False
 	context = {
 
-		'form':form,
+		'form': form,
 		'company_details' : company_details,
 		'selectdatefield_details' : selectdatefield_details
 	}
@@ -417,32 +447,35 @@ def group_delete_view(request, pk, pk2, pk3):
 
 @login_required
 @product_1_activation
+def getledgerObject_in_excel(request,pk,pk3):
+	company_details = get_object_or_404(company, pk=pk)
+	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
+	ledger_resource = ledgerResource()
+	queryset = ledger1.objects.filter(Company= company_details.pk)
+	dataset = ledger_resource.export(queryset)
+	dataset.title = 'Ledgers'
+	response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
+	response['Content-Disposition'] = 'attachment; filename="ledger.xls"'
+	return response
+
+
+@login_required
+@product_1_activation
 def ledger_monthly_detail_view(request, pk, pk2, pk3):
 	company_details = get_object_or_404(company, pk=pk)
 	ledger1_details = get_object_or_404(ledger1, pk=pk2)
 	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
-
-
 	
 	# opening balance
 	if company_details.gst_enabled == True:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qsob  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
-			qsob2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
-		else:
-			qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
-			qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
+		qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
+		qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
 	else:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qsob  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
-			qsob2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
-		else:
-			qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
-			qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
+		qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
+		qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
 
 	total_debitob = qsob.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
 	total_creditob = qsob2.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
-
 
 
 	if(ledger1_details.group1_Name.balance_nature == 'Debit'):
@@ -454,30 +487,12 @@ def ledger_monthly_detail_view(request, pk, pk2, pk3):
 	results = collections.OrderedDict()
 
 
-	if company_details.gst_enabled == True:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qscb  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))
-			qscb3 = Pl_journal.objects.filter(id=0).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb4 = Pl_journal.objects.filter(id=0).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))	
-		
-		else:
-			qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))	
-			qscb3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))	
-	else:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qscb  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))
-			qscb3 = Pl_journal.objects.filter(id=0).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb4 = Pl_journal.objects.filter(id=0).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))	
-		
-		else:
-			qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))	
-			qscb3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-			qscb4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))
+	if company_details.gst_enabled == True:	
+		qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
+		qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))	
+	else:		
+		qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
+		qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))	
 
 
 	date_cursor = selectdatefield_details.Start_Date
@@ -488,8 +503,6 @@ def ledger_monthly_detail_view(request, pk, pk2, pk3):
 	while date_cursor <= selectdatefield_details.End_Date:
 		month_partial_total_debit = qscb.filter(Date__month=date_cursor.month).aggregate(partial_total_debit=Sum('real_total_debit'))['partial_total_debit']
 		month_partial_total_credit = qscb2.filter(Date__month=date_cursor.month).aggregate(partial_total_credit=Sum('real_total_credit'))['partial_total_credit']
-		month_partial_total_debit_pl = qscb3.filter(Date__month=date_cursor.month).aggregate(partial_total_debit=Sum('real_total_debit'))['partial_total_debit']
-		month_partial_total_credit_pl = qscb4.filter(Date__month=date_cursor.month).aggregate(partial_total_credit=Sum('real_total_credit'))['partial_total_credit']
 
 		if month_partial_total_debit == None:
 
@@ -512,60 +525,38 @@ def ledger_monthly_detail_view(request, pk, pk2, pk3):
 
 			f = month_partial_total_credit
 
-		if month_partial_total_debit_pl == None:
-
-			month_partial_total_debit_pl = int(0)
-
-			g = month_partial_total_debit_pl 
-
-		else:
-
-			g = month_partial_total_debit_pl
-
-		if month_partial_total_credit_pl == None:
-
-			month_partial_total_credit_pl = int(0)
-
-			h = month_partial_total_credit_pl 
-
-		else:
-
-			h = month_partial_total_credit_pl
-
 
 		if (ledger1_details.name != 'Profit & Loss A/c'):
 			if(ledger1_details.group1_Name.balance_nature == 'Debit'):
 
-				z = z + e + g - f - h 
+				z = z + e - f  
 
 			else:
-				z = z + f + h - e - g 
+				z = z + f - e 
 		else:
 			if(ledger1_details.group1_Name.balance_nature == 'Debit'):
 
-				z = z + e  - f  
+				z = z + e - f  
 
 			else:
-				z = z + f  - e  
+				z = z + f - e  
 
 		k = z + opening_balance
 
-		results[date_cursor.month] =  [e,f,k,g,h]
+		results[date_cursor.month] =  [e,f,k]
 
 		date_cursor += dateutil.relativedelta.relativedelta(months=1)
 
 	total_debit = qscb.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
 	total_credit = qscb2.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
-	total_debit_pl = qscb3.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
-	total_credit_pl = qscb4.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
 
 
 	if (ledger1_details.name != 'Profit & Loss A/c'):
 		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
 
-			total1 = total_debit + total_debit_pl - total_credit - total_credit_pl
+			total1 = total_debit  - total_credit 
 		else:
-			 total1 = total_credit + total_credit_pl - total_debit - total_debit_pl
+			 total1 = total_credit  - total_debit 
 	else:
 		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
 
@@ -588,8 +579,6 @@ def ledger_monthly_detail_view(request, pk, pk2, pk3):
 		'selectdatefield_details' 	: selectdatefield_details,
 		'total_debit'     			: total_debit,
 		'total_credit'   			: total_credit,
-		'total_debit_pl'			: total_debit_pl,
-		'total_credit_pl'			: total_credit_pl,
 		'total'			  			: total,
 		'data'			  			: results.items(),
 		'opening_balance' 			: opening_balance,
@@ -598,8 +587,6 @@ def ledger_monthly_detail_view(request, pk, pk2, pk3):
 		'send_count'				: send_count,
 		'Todos'			  			: Todo.objects.filter(User=request.user, complete=False),
 		'Todos_total' 	  			: Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
-
-
 				
 	}
 
@@ -614,19 +601,11 @@ def ledger_register_datewise(request,month,pk,pk2,pk3):
 
 	# opening balance
 	if company_details.gst_enabled == True:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qsob  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__lt=selectdatefield_details.Start_Date)
-			qsob2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__lt=selectdatefield_details.Start_Date)
-		else:
-			qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date)
-			qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date)
+		qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date)
+		qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date)
 	else:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qsob  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST')
-			qsob2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST')
-		else:
-			qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST')
-			qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST')
+		qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST')
+		qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST')
 
 
 	total_debitob = qsob.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
@@ -639,92 +618,40 @@ def ledger_register_datewise(request,month,pk,pk2,pk3):
 
 
 	if company_details.gst_enabled == False:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qscb  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST')
-			qscb2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST')
-			qscb3 = Pl_journal.objects.filter(id=0)
-			qscb4 = Pl_journal.objects.filter(id=0)	
-		
-		else:
-			qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST')
-			qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST')	
-			qscb3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST')
-			qscb4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST')	
+		qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST')
+		qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST')	
 	else:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qscb  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
-			qscb2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
-			qscb3 = Pl_journal.objects.filter(id=0)
-			qscb4 = Pl_journal.objects.filter(id=0)	
-		
-		else:
-			qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
-			qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)	
-			qscb3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
-			qscb4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)	
+		qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
+		qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month=month, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)	
 
-	new   = zip_longest(qscb,qscb2,qscb3,qscb4)
+	new   = zip_longest(qscb,qscb2)
 
 	total_debitcb = qscb.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
 	total_creditcb = qscb2.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
-	total_debitcbpl = qscb3.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
-	total_creditcbpl = qscb4.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
 
 
-	if company_details.gst_enabled == True:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qs  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)
-			qs2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)
-			qs3 = Pl_journal.objects.filter(id=0)
-			qs4 = Pl_journal.objects.filter(id=0)	
-		
-		else:
-			qs  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)
-			qs2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)	
-			qs3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)
-			qs4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)	
-	else:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qs  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(To__group1_Name__group_Name__icontains='GST')
-			qs2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(By__group1_Name__group_Name__icontains='GST')
-			qs3 = Pl_journal.objects.filter(id=0)
-			qs4 = Pl_journal.objects.filter(id=0)	
-		
-		else:
-			qs  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(To__group1_Name__group_Name__icontains='GST').exclude(To__group1_Name__group_Name__icontains='GST')
-			qs2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(By__group1_Name__group_Name__icontains='GST')	
-			qs3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(To__group1_Name__group_Name__icontains='GST')
-			qs4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(By__group1_Name__group_Name__icontains='GST')	
-
+	if company_details.gst_enabled == True:		
+		qs  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)
+		qs2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month)	
+	else:		
+		qs  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(To__group1_Name__group_Name__icontains='GST').exclude(To__group1_Name__group_Name__icontains='GST')
+		qs2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__month__gte=selectdatefield_details.Start_Date.month, Date__month__lte=month).exclude(By__group1_Name__group_Name__icontains='GST')	
 
 
 	total_debit = qs.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
 	total_credit = qs2.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
-	total_debitpl = qs3.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
-	total_creditpl = qs4.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
 
-	if (ledger1_details.name != 'Profit & Loss A/c'):
-		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
-			closing_balance = opening_balance + abs(total_debit) + abs(total_debitpl) - abs(total_credit) - abs(total_creditpl) 
-		else:
-			closing_balance = opening_balance + abs(total_credit) + abs(total_creditpl) - abs(total_debit) - abs(total_debitpl)
-	else:
-		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
-			closing_balance = opening_balance + abs(total_debit) - abs(total_credit) 
-		else:
-			closing_balance = opening_balance + abs(total_credit) - abs(total_debit) 
 
-	if (ledger1_details.name != 'Profit & Loss A/c'):
-		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
-			#closing_balance = opening_balance + abs(total_debit) + abs(total_debitpl) - abs(total_credit) - abs(total_creditpl) 
-			opening_balancerev =  closing_balance - abs(total_debitcb) - abs(total_debitcbpl) + abs(total_creditcb) + abs(total_creditcbpl)
-		else:
-			opening_balancerev =  closing_balance - abs(total_creditcb) - abs(total_creditcbpl) + abs(total_debitcb) + abs(total_debitcbpl)
+	if(ledger1_details.group1_Name.balance_nature == 'Debit'):
+		closing_balance = opening_balance + abs(total_debit) - abs(total_credit)
 	else:
-		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
-			opening_balancerev =  closing_balance - abs(total_debitcb) + abs(total_creditcb) 
-		else:
-			opening_balancerev =  closing_balance - abs(total_creditcb) + abs(total_debitcb) 
+		closing_balance = opening_balance + abs(total_credit) - abs(total_debit)
+
+
+	if(ledger1_details.group1_Name.balance_nature == 'Debit'):
+		opening_balancerev =  closing_balance - abs(total_debitcb) + abs(total_creditcb)
+	else:
+		opening_balancerev =  closing_balance - abs(total_creditcb) + abs(total_debitcb)
 
 
 	inbox = Message.objects.filter(reciever=request.user)
@@ -740,8 +667,6 @@ def ledger_register_datewise(request,month,pk,pk2,pk3):
 		'new'						  : new,
 		'total_debitcb' 			  : total_debitcb,
 		'total_creditcb'			  : total_creditcb,
-		'total_debitcbpl' 			  : total_debitcbpl,
-		'total_creditcbpl' 			  : total_creditcbpl,
 		'closing_balance' 			  : closing_balance,
 		'opening_balance' 			  : opening_balancerev,
 		'm' 					  	  : calendar.month_name[int(month)],
@@ -986,11 +911,19 @@ def ledger_register_datewise_2(request,month,pk,pk2,pk3):
 ################## Views For Ledger Display ###################################
 
 
-class ledger1ListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
+class ledger1ListView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = ledger1
 
 	def get_queryset(self):
 		return ledger1.objects.filter(Company=self.kwargs['pk'])
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		ledgers = ledger1.objects.filter(Company= company_details.pk)
+		for g in ledgers:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(ledger1ListView, self).get_context_data(**kwargs) 
@@ -998,11 +931,11 @@ class ledger1ListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		context['company_details'] = company_details
 		if company_details.gst_enabled == True and company_details.composite_enable == True:
-			context['ledger1s'] = ledger1.objects.filter(Company=company_details.pk)
+			context['ledger1s'] = ledger1.objects.filter(Company=company_details.pk).order_by('id')
 		elif company_details.gst_enabled == True:
-			context['ledger1s'] = ledger1.objects.filter(Company=company_details.pk).exclude(Q(name__icontains='Tax'), Q(Closing_balance=0))
+			context['ledger1s'] = ledger1.objects.filter(Company=company_details.pk).exclude(Q(name__iexact='Tax'), Q(Closing_balance=0)).order_by('id')
 		else:
-			context['ledger1s'] = ledger1.objects.filter(Company=company_details.pk).exclude(Q(group1_Name__group_Name__icontains='GST') | Q(name__icontains='Tax'))
+			context['ledger1s'] = ledger1.objects.filter(Company=company_details.pk).exclude(Q(group1_Name__group_Name__icontains='GST') | Q(name__iexact='Tax')).order_by('id')
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		context['selectdatefield_details'] = selectdatefield_details
 		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
@@ -1022,19 +955,11 @@ def ledger1_detail_view(request, pk, pk2, pk3):
 	
 	# opening balance
 	if company_details.gst_enabled == True:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qsob  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
-			qsob2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
-		else:
-			qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
-			qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
+		qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
+		qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).order_by('Date')
 	else:
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qsob  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
-			qsob2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
-		else:
-			qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
-			qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
+		qsob  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
+		qsob2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk,  Date__lt=selectdatefield_details.Start_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
 
 
 	total_debitob = qsob.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
@@ -1050,42 +975,24 @@ def ledger1_detail_view(request, pk, pk2, pk3):
 
 	if company_details.gst_enabled == True:
 		# closing balance
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qscb  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')
-			qscb2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')
-		else:
-			qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')
-			qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')	
+		qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')
+		qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')	
 		new   = zip_longest(qscb,qscb2)
-
-		qscb3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')
-		qscb4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('Date')
-		new2   = zip_longest(qscb3,qscb4)
 	else:
 		# closing balance
-		if (ledger1_details.name == 'Profit & Loss A/c'):
-			qscb  = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
-			qscb2 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
-		else:
-			qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
-			qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')	
+		qscb  = journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
+		qscb2 = journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')	
 		new   = zip_longest(qscb,qscb2)
-
-		qscb3 = Pl_journal.objects.filter(Company=company_details.pk, By=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(To__group1_Name__group_Name__icontains='GST').order_by('Date')
-		qscb4 = Pl_journal.objects.filter(Company=company_details.pk, To=ledger1_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).exclude(By__group1_Name__group_Name__icontains='GST').order_by('Date')
-		new2   = zip_longest(qscb3,qscb4)
 
 
 	total_debitcb = qscb.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
 	total_creditcb = qscb2.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
-	total_debitcbpl = qscb3.aggregate(the_sum=Coalesce(Sum('Debit'), Value(0)))['the_sum']
-	total_creditcbpl = qscb4.aggregate(the_sum=Coalesce(Sum('Credit'), Value(0)))['the_sum']
 
 	if (ledger1_details.name != 'Profit & Loss A/c'):
 		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
-			closing_balance = abs(opening_balance) + abs(total_debitcb) + abs(total_debitcbpl) - abs(total_creditcb) - abs(total_creditcbpl) 
+			closing_balance = abs(opening_balance) + abs(total_debitcb) - abs(total_creditcb)
 		else:
-			closing_balance = abs(opening_balance) + abs(total_creditcb) + abs(total_creditcbpl) - abs(total_debitcb) - abs(total_debitcbpl)
+			closing_balance = abs(opening_balance) + abs(total_creditcb) - abs(total_debitcb)
 	else:
 		if(ledger1_details.group1_Name.balance_nature == 'Debit'):
 			closing_balance = abs(opening_balance) + abs(total_debitcb) - abs(total_creditcb) 
@@ -1109,12 +1016,9 @@ def ledger1_detail_view(request, pk, pk2, pk3):
 		'selectdatefield_details' 	: selectdatefield_details,
 		'total_debit'     			: abs(total_debitcb),
 		'total_credit'    			: abs(total_creditcb),
-		'total_debit_pl'			: abs(total_debitcbpl),
-		'total_credit_pl'			: abs(total_creditcbpl),
 		'journal_debit'   			: qscb,
 		'journal_credit'  			: qscb2,
 		'n'				  			: new,
-		'n2'						: new2,
 		'closing_balance' 			: closing_balance,
 		'opening_balance' 			: opening_balance,		
 		'company_list'    			: company.objects.all(),
@@ -1140,7 +1044,9 @@ class ledger1CreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:ledgerlist', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		ledger_list = ledger1.objects.filter(Company=company_details.pk).order_by('-id')
+		for l in ledger_list:
+			return reverse('accounting_double_entry:ledgerdetail', kwargs={'pk':company_details.pk, 'pk2':l.pk, 'pk3' : selectdatefield_details.pk})
 
 	def form_valid(self, form):
 		form.instance.User = self.request.user
@@ -1172,7 +1078,7 @@ class ledger1CreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView
 		return context
 
 
-class ledger1UpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView):
+class ledger1UpdateView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = ledger1
 	form_class = Ledgerform
 	template_name = "accounting_double_entry/ledger1_form.html"
@@ -1197,6 +1103,13 @@ class ledger1UpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView
 			Company=company.objects.get(pk=self.kwargs['pk'])
 			)
 		return data
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		groups = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == groups.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -1331,7 +1244,7 @@ def journal_register_datewise(request,month,pk,pk3):
 ################## Views For journal Display ###################################
 
 
-class journalListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
+class journalListView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = journal
 	paginate_by = 15
 
@@ -1339,6 +1252,15 @@ class journalListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		return journal.objects.filter(Company=self.kwargs['pk'], Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('-id')
 
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		journals = journal.objects.filter(Company=self.kwargs['pk'], Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
+		for g in journals:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(journalListView, self).get_context_data(**kwargs) 
@@ -1357,7 +1279,7 @@ class journalListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
 		context['new']   = zip_longest(context['pl_journals'],context['journal_list'])
 		return context
 
-class DaybookListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
+class DaybookListView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = journal
 	paginate_by = 15
 
@@ -1370,6 +1292,15 @@ class DaybookListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
 	def get_queryset(self):
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		return journal.objects.filter(Company=self.kwargs['pk'], Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('-id')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		journals = journal.objects.filter(Company=self.kwargs['pk'], Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
+		for g in journals:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 
 	def get_context_data(self, **kwargs):
@@ -1396,6 +1327,9 @@ def journal_detail(request, pk1, pk2, pk3):
 	journal_details = get_object_or_404(journal, pk=pk2)
 	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
 
+	journal_details.By.save()
+	journal_details.To.save()
+
 	inbox = Message.objects.filter(reciever=request.user)
 	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 	send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -1421,7 +1355,9 @@ class journalCreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:list', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		journal_list = journal.objects.filter(Company=company_details.pk).order_by('-id')
+		for j in journal_list:
+			return reverse('accounting_double_entry:detail', kwargs={'pk1':company_details.pk, 'pk2':j.pk, 'pk3':selectdatefield_details.pk})
 
 	def form_valid(self, form):
 		form.instance.User = self.request.user
@@ -1453,7 +1389,7 @@ class journalCreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		return context
 
-class journalUpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView):
+class journalUpdateView(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = journal
 	form_class  = journalForm
 
@@ -1477,6 +1413,13 @@ class journalUpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView
 			Company=company.objects.get(pk=self.kwargs['pk1'])
 			)
 		return data
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		groups = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == groups.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -1524,104 +1467,104 @@ def journal_delete_view(request, pk, pk2, pk3):
 
 ################## Views For P&L Journal ###################################
 
-@login_required
-@product_1_activation
-def pl_journal_detail(request, pk1, pk2, pk3):
-	company_details = get_object_or_404(company, pk=pk1)
-	pl_details = get_object_or_404(Pl_journal, pk=pk2)
-	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
+# @login_required
+# @product_1_activation
+# def pl_journal_detail(request, pk1, pk2, pk3):
+# 	company_details = get_object_or_404(company, pk=pk1)
+# 	pl_details = get_object_or_404(Pl_journal, pk=pk2)
+# 	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
 
-	inbox = Message.objects.filter(reciever=request.user)
-	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
-	send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+# 	inbox = Message.objects.filter(reciever=request.user)
+# 	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+# 	send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 
-	context = {
-		'pl_details'          	   : pl_details,
-		'company_details'          : company_details,
-		'inbox'					   : inbox,
-		'inbox_count'			   : inbox_count,
-		'send_count'			   : send_count,
-		'selectdatefield_details'  : selectdatefield_details,
-		'Todos'					   : Todo.objects.filter(User=request.user, complete=False),
-		'Todos_total'			   : Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
-	}
-	return render(request, 'P&L/pl_details.html', context)
-
-
-
-class pl_journalUpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView):
-	model = Pl_journal
-	form_class  = pl_journalForm
-	template_name = 'P&L/pl_journal_form.html'
-
-	def get_success_url(self,**kwargs):
-		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
-		pl_journals = get_object_or_404(Pl_journal, pk=self.kwargs['pk2'])
-		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:pl_detail', kwargs={'pk1':company_details.pk, 'pk2':pl_journals.pk, 'pk3':selectdatefield_details.pk})
-
-	def get_object(self):
-		pk1 = self.kwargs['pk1']
-		pk2 = self.kwargs['pk2']
-		get_object_or_404(company, pk=pk1)
-		pl_journal = get_object_or_404(Pl_journal, pk=pk2)
-		return pl_journal
-
-	def get_form_kwargs(self):
-		data = super(pl_journalUpdateView, self).get_form_kwargs()
-		data.update(
-			User=self.request.user,
-			Company=company.objects.get(pk=self.kwargs['pk1'])
-			)
-		return data
+# 	context = {
+# 		'pl_details'          	   : pl_details,
+# 		'company_details'          : company_details,
+# 		'inbox'					   : inbox,
+# 		'inbox_count'			   : inbox_count,
+# 		'send_count'			   : send_count,
+# 		'selectdatefield_details'  : selectdatefield_details,
+# 		'Todos'					   : Todo.objects.filter(User=request.user, complete=False),
+# 		'Todos_total'			   : Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+# 	}
+# 	return render(request, 'P&L/pl_details.html', context)
 
 
-	def get_context_data(self, **kwargs):
-		context = super(pl_journalUpdateView, self).get_context_data(**kwargs) 
-		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
-		context['company_details'] = company_details
-		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		context['selectdatefield_details'] = selectdatefield_details
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
-		context['inbox'] = Message.objects.filter(reciever=self.request.user)
-		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		return context
 
-@login_required
-@product_1_activation
-def pl_journal_delete_view(request, pk, pk2, pk3):
-	data = dict()
-	company_details = get_object_or_404(company, pk=pk)
-	pl_journal_details = get_object_or_404(Pl_journal, pk=pk2)
-	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
+# class pl_journalUpdateView(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView):
+# 	model = Pl_journal
+# 	form_class  = pl_journalForm
+# 	template_name = 'P&L/pl_journal_form.html'
 
-	if request.method == "POST":
-		pl_journal_details.delete()
-		data['form_is_valid'] = True
-		pl_journals = Pl_journal.objects.filter(User= request.user, Company=company_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('-id')
-		context = {
-			'pl_journals':pl_journals,
-			'company_details' : company_details,
-			'selectdatefield_details' : selectdatefield_details,
-		}
-		data['pl_journals_list'] = render_to_string('accounting_double_entry/journal_list_2.html',context)
-	else:
-		context = {
-			'pl_journal_details': pl_journal_details,
-			'company_details' : company_details,
-			'selectdatefield_details' : selectdatefield_details,
-		}
-		data['html_form'] = render_to_string('P&L/pl_journal_confirm_delete.html',context,request=request)
+# 	def get_success_url(self,**kwargs):
+# 		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+# 		pl_journals = get_object_or_404(Pl_journal, pk=self.kwargs['pk2'])
+# 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+# 		return reverse('accounting_double_entry:pl_detail', kwargs={'pk1':company_details.pk, 'pk2':pl_journals.pk, 'pk3':selectdatefield_details.pk})
 
-	return JsonResponse(data)
+# 	def get_object(self):
+# 		pk1 = self.kwargs['pk1']
+# 		pk2 = self.kwargs['pk2']
+# 		get_object_or_404(company, pk=pk1)
+# 		pl_journal = get_object_or_404(Pl_journal, pk=pk2)
+# 		return pl_journal
+
+# 	def get_form_kwargs(self):
+# 		data = super(pl_journalUpdateView, self).get_form_kwargs()
+# 		data.update(
+# 			User=self.request.user,
+# 			Company=company.objects.get(pk=self.kwargs['pk1'])
+# 			)
+# 		return data
+
+
+# 	def get_context_data(self, **kwargs):
+# 		context = super(pl_journalUpdateView, self).get_context_data(**kwargs) 
+# 		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+# 		context['company_details'] = company_details
+# 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+# 		context['selectdatefield_details'] = selectdatefield_details
+# 		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+# 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+# 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+# 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+# 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+# 		return context
+
+# @login_required
+# @product_1_activation
+# def pl_journal_delete_view(request, pk, pk2, pk3):
+# 	data = dict()
+# 	company_details = get_object_or_404(company, pk=pk)
+# 	pl_journal_details = get_object_or_404(Pl_journal, pk=pk2)
+# 	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
+
+# 	if request.method == "POST":
+# 		pl_journal_details.delete()
+# 		data['form_is_valid'] = True
+# 		pl_journals = Pl_journal.objects.filter(User= request.user, Company=company_details.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('-id')
+# 		context = {
+# 			'pl_journals':pl_journals,
+# 			'company_details' : company_details,
+# 			'selectdatefield_details' : selectdatefield_details,
+# 		}
+# 		data['pl_journals_list'] = render_to_string('accounting_double_entry/journal_list_2.html',context)
+# 	else:
+# 		context = {
+# 			'pl_journal_details': pl_journal_details,
+# 			'company_details' : company_details,
+# 			'selectdatefield_details' : selectdatefield_details,
+# 		}
+# 		data['html_form'] = render_to_string('P&L/pl_journal_confirm_delete.html',context,request=request)
+
+# 	return JsonResponse(data)
 
 
 ################## Views For Multijournal ###################################
 
 
-class Multijournal_listview(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
+class Multijournal_listview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Multijournaltotal
 	template_name = 'Multijournal/multi_journal_list.html'
 	paginate_by = 15
@@ -1630,6 +1573,15 @@ class Multijournal_listview(ProductExistsRequiredMixin,LoginRequiredMixin,ListVi
 	def get_queryset(self):
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		return self.model.objects.filter(Company=self.kwargs['pk'], Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).order_by('-id')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		multi_journals = Multijournaltotal.objects.filter(Company=self.kwargs['pk'], Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date)
+		for g in multi_journals:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Multijournal_listview, self).get_context_data(**kwargs) 
@@ -1719,7 +1671,7 @@ class Multijournal_createview(ProductExistsRequiredMixin,LoginRequiredMixin,Crea
 
 
 
-class Multijournal_updateview(ProductExistsRequiredMixin,LoginRequiredMixin,UpdateView):
+class Multijournal_updateview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = Multijournaltotal
 	form_class  = MultijournaltotalForm
 	template_name = 'Multijournal/multi_journal_form.html'
@@ -1737,6 +1689,14 @@ class Multijournal_updateview(ProductExistsRequiredMixin,LoginRequiredMixin,Upda
 		get_object_or_404(company, pk=pk1)
 		multijournaltotal = get_object_or_404(Multijournaltotal, pk=pk2)
 		return multijournaltotal
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		multi_journal = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == multi_journal.User:
+			return True
+		return False
+
 
 	def get_context_data(self, **kwargs):
 		context = super(Multijournal_updateview, self).get_context_data(**kwargs) 
@@ -1804,7 +1764,7 @@ class Multijournal_updateview(ProductExistsRequiredMixin,LoginRequiredMixin,Upda
 
 # 	return render(request, 'Multijournal/multi_journal_form.html', context)
 
-class multijournal_deleteview(ProductExistsRequiredMixin,LoginRequiredMixin,DeleteView):
+class multijournal_deleteview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
 	model = Multijournaltotal
 	template_name = 'Multijournal/multijournal_delete.html'
 
@@ -1819,6 +1779,13 @@ class multijournal_deleteview(ProductExistsRequiredMixin,LoginRequiredMixin,Dele
 		get_object_or_404(company, pk=pk1)
 		multijournal = get_object_or_404(Multijournaltotal, pk=pk2)
 		return multijournal
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		groups = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == groups.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super(multijournal_deleteview, self).get_context_data(**kwargs) 
@@ -1915,7 +1882,83 @@ def selectdate_update(request,pk):
 
 ################## Views For Payment ###################################
 
-class Payment_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView):
+class Payment_listview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
+	model = Payment
+	template_name = 'Payments/payment_list.html'
+	paginate_by = 15
+
+
+	def get_queryset(self):
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		return self.model.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		payments = Payment.objects.filter(Company= company_details.pk)
+		for g in payments:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all()  or self.request.user == g.User:
+				return True
+			return False
+
+	def get_context_data(self, **kwargs):
+		context = super(Payment_listview, self).get_context_data(**kwargs) 
+		context['profile_details'] = Profile.objects.all()
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		context['payment_list'] = Payment.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+class Payment_detailsview(ProductExistsRequiredMixin,LoginRequiredMixin,UserPassesTestMixin,DetailView):
+	context_object_name = 'payment_details'
+	model = Payment
+	template_name = 'Payments/payment_details.html'
+
+	def get_object(self):
+		pk1 = self.kwargs['pk1']
+		pk2 = self.kwargs['pk2']
+		pk3 = self.kwargs['pk3']
+		get_object_or_404(selectdatefield, pk=pk3)
+		get_object_or_404(company, pk=pk1)
+		payment = get_object_or_404(Payment, pk=pk2)
+		return payment
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		payments = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == payments.User:
+			return True
+		return False
+
+
+	def get_context_data(self, **kwargs):
+		context = super(Payment_detailsview, self).get_context_data(**kwargs) 
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		payment_details = get_object_or_404(Payment, pk=self.kwargs['pk2'])
+		context['payment_details'] = payment_details
+		payment_details.account.save()
+		Particularspayment_details = Particularspayment.objects.filter(payment=payment_details)
+		for obj in Particularspayment_details:
+			obj.save()
+			obj.particular.save()
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+
+class Payment_createview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = PaymentForm
 	success_message = "%(account)s is submitted successfully"
 	template_name = 'Payments/payment_form.html'
@@ -1924,7 +1967,20 @@ class Payment_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateVie
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:paymentcreate', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		payment = Payment.objects.filter(Company=company_details.pk, date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		for p in payment:
+			if p:
+				return reverse('accounting_double_entry:paymentdetail', kwargs={'pk1':company_details.pk, 'pk2':p.pk,'pk3':selectdatefield_details.pk})
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		payment = Payment.objects.filter(Company=company_details.pk, date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		for g in payment:
+			if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == g.User:
+				return True
+			return False
+
 
 	def get_context_data(self, **kwargs):
 		context = super(Payment_createview, self).get_context_data(**kwargs) 
@@ -1967,42 +2023,193 @@ class Payment_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateVie
 			)
 		return data
 
-class ParticularspaymentCreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView):
-	form_class  = ParticularspaymentForm
+
+class Payment_updateview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
+	model = Payment
+	form_class  = PaymentForm
 	template_name = 'Payments/payment_form.html'
+
+
+	def get_success_url(self,**kwargs):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		Payment_details  = get_object_or_404(Payment, pk=self.kwargs['pk2'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		return reverse('accounting_double_entry:paymentdetail', kwargs={'pk1':company_details.pk, 'pk2':Payment_details.pk,'pk3':selectdatefield_details.pk})
+
+
+	def get_object(self):
+		pk1 = self.kwargs['pk1']
+		pk2 = self.kwargs['pk2']
+		get_object_or_404(company, pk=pk1)
+		payment = get_object_or_404(Payment, pk=pk2)
+		return payment
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		payments = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == payments.User:
+			return True
+		return False
+
+
+	def get_context_data(self, **kwargs):
+		context = super(Payment_updateview, self).get_context_data(**kwargs)
+		Payment_details  = get_object_or_404(Payment, pk=self.kwargs['pk2'])
+		payments = Payment.objects.get(pk=Payment_details.pk)
+		context['profile_details'] = Profile.objects.all()
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		if self.request.POST:
+			context['payments'] = Payment_formSet(self.request.POST,instance=payments, form_kwargs = {'Company': company_details.pk})
+		else:
+			context['payments'] = Payment_formSet(instance=payments, form_kwargs = {'Company': company_details.pk})
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+	def form_valid(self, form):
+		form.instance.User = self.request.user
+		c = company.objects.get(pk=self.kwargs['pk1'])
+		form.instance.Company = c
+		context = self.get_context_data()
+		payments = context['payments']
+		if payments.is_valid():
+			payments.save()
+		return super(Payment_updateview, self).form_valid(form)
+
+	def get_form_kwargs(self):
+		data = super(Payment_updateview, self).get_form_kwargs()
+		data.update(
+			User=self.request.user,
+			Company=company.objects.get(pk=self.kwargs['pk1'])
+			)
+		return data
+
+class Payment_deleteview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
+	model = Payment
+	template_name = "Payments/payment_confirm_delete.html"
 
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:paymentcreate', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		return reverse('accounting_double_entry:paymentlist', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
 
+	def get_object(self):
+		pk1 = self.kwargs['pk']
+		pk2 = self.kwargs['pk2']
+		get_object_or_404(company, pk=pk1)
+		payment = get_object_or_404(Payment, pk=pk2)
+		return payment
 
-	def get_form_kwargs(self):
-		data = super(ParticularspaymentCreateView, self).get_form_kwargs()
-		data.update(
-			User=self.request.user,
-			Company=company.objects.get(pk=self.kwargs['pk'])
-			)
-		return data
-
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		payments = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == payments.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
-		context = super(ParticularspaymentCreateView, self).get_context_data(**kwargs) 
+		context = super(Payment_deleteview, self).get_context_data(**kwargs) 
+		context['profile_details'] = Profile.objects.all()
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		context['company_details'] = company_details
+		context['payment']  = get_object_or_404(Payment, pk=self.kwargs['pk2'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		context['selectdatefield_details'] = selectdatefield_details
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
-		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
 
 ################## Views For Receipt ###################################
 
-class Receipt_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView):
+
+class Receipt_listview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
+	model = Receipt
+	template_name = 'Receipt/receipt_list.html'
+	paginate_by = 15
+
+
+	def get_queryset(self):
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		return self.model.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		receipts = Receipt.objects.filter(Company= company_details.pk)
+		for g in receipts:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == g.User:
+				return True
+			return False
+
+
+	def get_context_data(self, **kwargs):
+		context = super(Receipt_listview, self).get_context_data(**kwargs) 
+		context['profile_details'] = Profile.objects.all()
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		context['receipt_list'] = Receipt.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+class Receipt_detailsview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,DetailView):
+	context_object_name = 'receipt_details'
+	model = Receipt
+	template_name = 'Receipt/receipt_details.html'
+
+	def get_object(self):
+		pk1 = self.kwargs['pk1']
+		pk2 = self.kwargs['pk2']
+		pk3 = self.kwargs['pk3']
+		get_object_or_404(selectdatefield, pk=pk3)
+		get_object_or_404(company, pk=pk1)
+		receipt = get_object_or_404(Receipt, pk=pk2)
+		return receipt
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		receipts = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == receipts.User:
+			return True
+		return False
+
+
+	def get_context_data(self, **kwargs):
+		context = super(Receipt_detailsview, self).get_context_data(**kwargs) 
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		Receipt_details = get_object_or_404(Receipt, pk=self.kwargs['pk2'])
+		context['Receipt_details'] = Receipt_details
+		Receipt_details.account.save()
+		receipt_ac = Particularsreceipt.objects.filter(receipt=Receipt_details)
+		for obj in receipt_ac:
+			obj.save()
+			obj.particular.save()
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+
+class Receipt_createview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = ReceiptForm
 	success_message = "%(account)s is submitted successfully"
 	template_name = 'Receipt/receipt_form.html'
@@ -2011,7 +2218,21 @@ class Receipt_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateVie
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:receiptcreate', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		receipt = Receipt.objects.filter(Company=company_details.pk, date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		for p in receipt:
+			if p:
+				return reverse('accounting_double_entry:receiptdetail', kwargs={'pk1':company_details.pk, 'pk2':p.pk,'pk3':selectdatefield_details.pk})
+
+	
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		receipt = Receipt.objects.filter(Company=company_details.pk, date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		for g in receipt:
+			if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == g.User:
+				return True
+			return False
+
 
 	def get_context_data(self, **kwargs):
 		context = super(Receipt_createview, self).get_context_data(**kwargs) 
@@ -2053,41 +2274,193 @@ class Receipt_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateVie
 			)
 		return data
 
-class ParticularspayreceiptCreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView):
-	form_class  = ParticularsreceiptForm
+class Receipt_updateview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
+	model = Receipt
+	form_class  = PaymentForm
 	template_name = 'Receipt/receipt_form.html'
+
+
+	def get_success_url(self,**kwargs):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		Receipt_details  = get_object_or_404(Receipt, pk=self.kwargs['pk2'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		return reverse('accounting_double_entry:receiptdetail', kwargs={'pk1':company_details.pk, 'pk2':Receipt_details.pk,'pk3':selectdatefield_details.pk})
+
+
+	def get_object(self):
+		pk1 = self.kwargs['pk1']
+		pk2 = self.kwargs['pk2']
+		get_object_or_404(company, pk=pk1)
+		receipt = get_object_or_404(Receipt, pk=pk2)
+		return receipt
+
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		receipts = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == receipts.User:
+			return True
+		return False
+
+
+	def get_context_data(self, **kwargs):
+		context = super(Receipt_updateview, self).get_context_data(**kwargs)
+		Receipt_details  = get_object_or_404(Receipt, pk=self.kwargs['pk2'])
+		receipts = Receipt.objects.get(pk=Receipt_details.pk)
+		context['profile_details'] = Profile.objects.all()
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		if self.request.POST:
+			context['receipts'] = Receipt_formSet(self.request.POST,instance=receipts, form_kwargs = {'Company': company_details.pk})
+		else:
+			context['receipts'] = Receipt_formSet(instance=receipts,form_kwargs = {'Company': company_details.pk})
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+	def form_valid(self, form):
+		form.instance.User = self.request.user
+		c = company.objects.get(pk=self.kwargs['pk1'])
+		form.instance.Company = c
+		context = self.get_context_data()
+		receipts = context['receipts']
+		if receipts.is_valid():
+			receipts.save()
+		return super(Receipt_updateview, self).form_valid(form)
+
+	def get_form_kwargs(self):
+		data = super(Receipt_updateview, self).get_form_kwargs()
+		data.update(
+			User=self.request.user,
+			Company=company.objects.get(pk=self.kwargs['pk1'])
+			)
+		return data
+
+class Receipt_deleteview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
+	model = Receipt
+	template_name = "Receipt/receipt_confirm_delete.html"
 
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:receiptcreate', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		return reverse('accounting_double_entry:receiptlist', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+
+	def get_object(self):
+		pk1 = self.kwargs['pk']
+		pk2 = self.kwargs['pk2']
+		get_object_or_404(company, pk=pk1)
+		receipt = get_object_or_404(Receipt, pk=pk2)
+		return receipt
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		receipts = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == receipts.User:
+			return True
+		return False
+
+	def get_context_data(self, **kwargs):
+		context = super(Receipt_deleteview, self).get_context_data(**kwargs) 
+		context['profile_details'] = Profile.objects.all()
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		context['company_details'] = company_details
+		context['receipt']  = get_object_or_404(Receipt, pk=self.kwargs['pk2'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
 
 
-	def get_form_kwargs(self):
-		data = super(ParticularspayreceiptCreateView, self).get_form_kwargs()
-		data.update(
-			User=self.request.user,
-			Company=company.objects.get(pk=self.kwargs['pk'])
-			)
-		return data
+
+################## Views For Contra ###################################
+
+
+class Contra_listview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
+	model = Contra
+	template_name = 'Contra/contra_list.html'
+	paginate_by = 15
+
+
+	def get_queryset(self):
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		return self.model.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		contras = Contra.objects.filter(Company= company_details.pk)
+		for g in contras:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == g.User:
+				return True
+			return False
 
 
 	def get_context_data(self, **kwargs):
-		context = super(ParticularspayreceiptCreateView, self).get_context_data(**kwargs) 
+		context = super(Contra_listview, self).get_context_data(**kwargs) 
+		context['profile_details'] = Profile.objects.all()
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		context['company_details'] = company_details
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		context['selectdatefield_details'] = selectdatefield_details
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['contra_list'] = Contra.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
-		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
-		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-################## Views For Contra ###################################
+class Contra_detailsview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,DetailView):
+	context_object_name = 'contra_details'
+	model = Contra
+	template_name = 'Contra/contra_details.html'
 
-class Contra_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView):
+	def get_object(self):
+		pk1 = self.kwargs['pk1']
+		pk2 = self.kwargs['pk2']
+		pk3 = self.kwargs['pk3']
+		get_object_or_404(selectdatefield, pk=pk3)
+		get_object_or_404(company, pk=pk1)
+		contra = get_object_or_404(Contra, pk=pk2)
+		return contra
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		receipts = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == receipts.User:
+			return True
+		return False
+
+
+	def get_context_data(self, **kwargs):
+		context = super(Contra_detailsview, self).get_context_data(**kwargs) 
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		contra_details = get_object_or_404(Contra, pk=self.kwargs['pk2'])
+		context['contra_details'] = contra_details
+		contra_details.account.save()
+		contra_ac = Particularscontra.objects.filter(contra=contra_details)
+		for obj in contra_ac:
+			obj.save()
+			obj.particular.save()
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+class Contra_createview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = ContraForm
 	success_message = "%(account)s is submitted successfully"
 	template_name = 'Contra/contra_form.html'
@@ -2096,7 +2469,19 @@ class Contra_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:contracreate', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		contra = Contra.objects.filter(Company=company_details.pk, date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		for p in contra:
+			if p:
+				return reverse('accounting_double_entry:contradetail', kwargs={'pk1':company_details.pk, 'pk2':p.pk,'pk3':selectdatefield_details.pk})
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		contra = Contra.objects.filter(Company=company_details.pk, date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		for g in contra:
+			if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Contra_createview, self).get_context_data(**kwargs) 
@@ -2138,36 +2523,108 @@ class Contra_createview(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView
 			)
 		return data
 
-class ParticularspaycontraCreateView(ProductExistsRequiredMixin,LoginRequiredMixin,CreateView):
-	form_class  = ParticularscontraForm
+class Contra_updateview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
+	model = Contra
+	form_class  = ContraForm
 	template_name = 'Contra/contra_form.html'
+
+
+	def get_success_url(self,**kwargs):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		contra_details  = get_object_or_404(Contra, pk=self.kwargs['pk2'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		return reverse('accounting_double_entry:contradetail', kwargs={'pk1':company_details.pk, 'pk2':contra_details.pk,'pk3':selectdatefield_details.pk})
+
+
+	def get_object(self):
+		pk1 = self.kwargs['pk1']
+		pk2 = self.kwargs['pk2']
+		get_object_or_404(company, pk=pk1)
+		contra = get_object_or_404(Contra, pk=pk2)
+		return contra
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		contras = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.cb_personal.all() or self.request.user == contras.User:
+			return True
+		return False
+
+
+	def get_context_data(self, **kwargs):
+		context = super(Contra_updateview, self).get_context_data(**kwargs)
+		contra_details  = get_object_or_404(Contra, pk=self.kwargs['pk2'])
+		contras = Contra.objects.get(pk=contra_details.pk)
+		context['profile_details'] = Profile.objects.all()
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		context['company_details'] = company_details
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		context['selectdatefield_details'] = selectdatefield_details
+		if self.request.POST:
+			context['contras'] = Contra_formSet(self.request.POST,instance=contras, form_kwargs = {'Company': company_details.pk})
+		else:
+			context['contras'] = Contra_formSet(instance=contras,form_kwargs = {'Company': company_details.pk})
+		context['inbox'] = Message.objects.filter(reciever=self.request.user)
+		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		return context
+
+	def form_valid(self, form):
+		form.instance.User = self.request.user
+		c = company.objects.get(pk=self.kwargs['pk1'])
+		form.instance.Company = c
+		context = self.get_context_data()
+		contras = context['contras']
+		if contras.is_valid():
+			contras.save()
+		return super(Contra_updateview, self).form_valid(form)
+
+	def get_form_kwargs(self):
+		data = super(Contra_updateview, self).get_form_kwargs()
+		data.update(
+			User=self.request.user,
+			Company=company.objects.get(pk=self.kwargs['pk1'])
+			)
+		return data
+
+class Contra_deleteview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
+	model = Contra
+	template_name = "Contra/contra_confirm_delete.html"
 
 	def get_success_url(self,**kwargs):
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('accounting_double_entry:contracreate', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
+		return reverse('accounting_double_entry:contralist', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
 
+	def get_object(self):
+		pk1 = self.kwargs['pk']
+		pk2 = self.kwargs['pk2']
+		get_object_or_404(company, pk=pk1)
+		contra = get_object_or_404(Contra, pk=pk2)
+		return contra
 
-	def get_form_kwargs(self):
-		data = super(ParticularspaycontraCreateView, self).get_form_kwargs()
-		data.update(
-			User=self.request.user,
-			Company=company.objects.get(pk=self.kwargs['pk'])
-			)
-		return data
-
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		contras = self.get_object()
+		if self.request.user in company_details.cb_personal.all() or self.request.user == contras.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
-		context = super(ParticularspaycontraCreateView, self).get_context_data(**kwargs) 
+		context = super(Contra_deleteview, self).get_context_data(**kwargs) 
+		context['profile_details'] = Profile.objects.all()
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
 		context['company_details'] = company_details
+		context['contra']  = get_object_or_404(Contra, pk=self.kwargs['pk2'])
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		context['selectdatefield_details'] = selectdatefield_details
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
 ################## Views For Profit & Loss Display ###################################
@@ -2187,35 +2644,35 @@ def profit_and_loss_condensed_view(request,pk,pk3):
 	qo2 = ldstck.aggregate(the_sum=Coalesce(Sum('opening_stock'), Value(0)))['the_sum']
 
 	# purchases #debit
-	ld = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Purchase Accounts')
-	ldc = ld.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	ld = group1.objects.filter(Q(Company=company_details.pk), Q(group_Name__icontains='Purchase Accounts'))
+	ldc = ld.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Expense #debit
-	ldd = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Expenses')
-	lddt = ldd.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	ldd = group1.objects.filter(Q(Company=company_details.pk), Q(group_Name__icontains='Direct Expenses'))
+	lddt = ldd.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Income #credit
-	ldii = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Incomes')
-	lddi = ldii.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldii = group1.objects.filter(Q(Company=company_details.pk), Q(group_Name__icontains='Direct Incomes'))
+	lddi = ldii.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 	
 	# sales #credit
-	lds = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Sales Account')
-	ldsc = lds.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	lds = group1.objects.filter(Q(Company=company_details.pk), Q(group_Name__icontains='Sales Account'))
+	ldsc = lds.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	#Indirect Expense  #debit
-	lde = group1.objects.filter(Company=company_details.pk,group_Name__icontains='Indirect Expense')
-	ldse = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
-	ldsecr = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
-	if ldse == 0 or ldse == None:
-		total = - ldsecr 
-	elif ldsecr == 0 or ldsecr == None:
-		total = ldse
-	else:
-		total = ldse - ldsecr
+	lde = group1.objects.filter(Q(Company=company_details.pk),Q(group_Name__icontains='Indirect Expense'))
+	total = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+	# ldsecr = lde.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
+	# if ldse == 0 or ldse == None:
+	# 	total = - ldsecr 
+	# elif ldsecr == 0 or ldsecr == None:
+	# 	total = ldse
+	# else:
+	# 	total = ldse - ldsecr
 
 	#Indirect Income #credit
-	ldi = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Indirect Income')
-	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldi = group1.objects.filter(Q(Company=company_details.pk), Q(group_Name__icontains='Indirect Income'),Q(ledgergroups__Debitledgers__Date__gte=selectdatefield_details.Start_Date) | Q(ledgergroups__Debitledgers__Date__lt=selectdatefield_details.End_Date) | Q(ledgergroups__Creditledgers__Date__gte=selectdatefield_details.Start_Date) | Q(ledgergroups__Creditledgers__Date__lt=selectdatefield_details.End_Date))
+	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 	# qo1 means opening stock exists
 
 	# lddt = Direct Expenses
@@ -2490,27 +2947,28 @@ def trial_balance_condensed_view(request,pk,pk3):
 
 	# purchases
 	gs_purchase = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Purchase Accounts")
-	gs_purchase_total = gs_purchase.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_purchase_total = gs_purchase.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# sales
 	gs_sales = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Sales Account")
-	gs_sales_total = gs_sales.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_sales_total = gs_sales.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Expense
 	gs_directexp = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Direct Expenses")
-	gs_directexp_total = gs_directexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_directexp_total = gs_directexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Income
 	gs_directinc = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Direct Incomes")
-	gs_directinc_total = gs_directinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_directinc_total = gs_directinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Indirect Expense
 	gs_indirectexp = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Indirect Expense")
-	gs_indirectexp_total = gs_indirectexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_indirectexp_total = gs_indirectexp.aggregate(the_sum=Coalesce(Sum('positive_closing'), Value(0)))['the_sum']
+	gs_indirectexp_total_neg = gs_indirectexp.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
 
 	# Indirect Income
 	gs_indirectinc = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Indirect Income")
-	gs_indirectinc_total = gs_indirectinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_indirectinc_total = gs_indirectinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	#Net profit/loss
 	ledger_pl = ledger1.objects.get(Company=company_details.pk,name__icontains="Profit & Loss A/c")
@@ -2604,15 +3062,14 @@ def balance_sheet_condensed_view(request,pk,pk3):
 		)
 
 	# Total of positive liabilities
-	total_lia_positive = lia_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_lia_positive = lia_particular.filter(difference__gte = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 
 	# Total of negative liabilities
-	total_lia_negative = lia_particular.filter(difference__gte = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_lia_negative = lia_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 	
 	# closing stock
 	ldstckcb = stock_journal.objects.filter(Company=company_details.pk)
 	qs2 = ldstckcb.aggregate(the_sum=Coalesce(Sum('closing_stock'), Value(0)))['the_sum']
-
 
 	
 	# All primary groups with nature of group is 'Assets'
@@ -2630,10 +3087,10 @@ def balance_sheet_condensed_view(request,pk,pk3):
 		)
 
 	# Total of positive Assets
-	total_ast_positive = ast_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_ast_positive = ast_particular.filter(difference__gte = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 	
 	# Total of negative Assets
-	total_ast_negative = ast_particular.filter(difference__gt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_ast_negative = ast_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 
 	
 	# Current asset calculation
@@ -2652,24 +3109,24 @@ def balance_sheet_condensed_view(request,pk,pk3):
 
 	# purchases #debit
 	ld = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Purchase Accounts')
-	ldc = ld.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	ldc = ld.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Expense #debit
 	ldd = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Expenses')
-	lddt = ldd.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	lddt = ldd.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Income #credit
 	ldii = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Incomes')
-	lddi = ldii.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	lddi = ldii.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 	
 	# sales #credit
 	lds = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Sales Account')
-	ldsc = lds.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldsc = lds.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	#Indirect Expense  #debit
 	lde = group1.objects.filter(Company=company_details.pk,group_Name__icontains='Indirect Expense')
-	ldse = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
-	ldsecr = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldse = lde.aggregate(the_sum=Coalesce(Sum('positive_closing'), Value(0)))['the_sum']
+	ldsecr = lde.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
 	if ldse == 0 or ldse == None:
 		total = - ldsecr 
 	elif ldsecr == 0 or ldsecr == None:
@@ -2679,7 +3136,7 @@ def balance_sheet_condensed_view(request,pk,pk3):
 
 	#Indirect Income #credit
 	ldi = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Indirect Income')
-	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 	# qo1 means opening stock exists
 
 	# lddt = Direct Expenses
@@ -2777,28 +3234,37 @@ def balance_sheet_condensed_view(request,pk,pk3):
 	# Balance sheet total of liabilities side
 	if total_lia_positive or total_ast_negative:
 		if total_ca < 0:
-			if total_pl > 0:
-				total_liabilities_1 = total_lia_positive + total_ast_negative + qs2 + total_pl
-			else:
-				total_liabilities_1 = total_lia_positive + total_ast_negative + qs2
-		else:
-			if total_pl > 0:
-				total_liabilities_1 = total_lia_positive + total_ast_negative + total_pl
+			if total_pl >= 0:
+				total_liabilities_1 = total_lia_positive + total_ast_negative  + total_pl + qs2
 			else:
 				total_liabilities_1 = total_lia_positive + total_ast_negative 
+		else:
+			if total_pl >= 0:
+				total_liabilities_1 = total_lia_positive + total_pl + total_ast_negative
+			else:
+				total_liabilities_1 = total_lia_positive + total_ast_negative + qs2
+				
+	else:
+		total_liabilities_1 = 0
+
+
 
 	# Balance sheet total of assets side
 	if total_lia_negative or total_ast_positive:
 		if total_ca > 0:
 			if total_pl < 0:
-				total_asset_1 = total_lia_negative + total_ast_positive + qs2 + total_pl
+				total_asset_1 = total_lia_negative + total_ast_positive + total_pl
 			else:
 				total_asset_1 = total_lia_negative + total_ast_positive + qs2
 		else:
 			if total_pl < 0:
-				total_asset_1 = total_lia_negative + total_ast_positive + total_pl
+				total_asset_1 = total_lia_negative + total_ast_positive + total_pl + qs2
 			else:
 				total_asset_1 = total_lia_negative + total_ast_positive 
+	else:
+		total_asset_1 = 0
+
+
 
 	if gs_debit_opening > gs_credit_opening:
 		dif_ob = gs_debit_opening - gs_credit_opening
@@ -2846,6 +3312,7 @@ def balance_sheet_condensed_view(request,pk,pk3):
 
 
 	}
+
 
 	return render(request, 'accounting_double_entry/balance_sheet.html', context)
 
@@ -2929,12 +3396,20 @@ def cash_and_bank_view(request,pk,pk3):
 
 ################################################### Bank Reconcilation #################################################
 
-class Bank_ledgerlistview(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
+class Bank_ledgerlistview(ProductExistsRequiredMixin,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = ledger1
 	template_name = 'Bank/bank_ledger_list.html'
 
 	def get_queryset(self):
 		return ledger1.objects.filter(Q(Company=self.kwargs['pk']) , Q(group1_Name__group_Name__icontains='Bank Accounts') | Q(group1_Name__Master__group_Name__icontains='Bank Accounts'))
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		bank_ledgers = ledger1.objects.filter(Q(Company=self.kwargs['pk']) , Q(group1_Name__group_Name__icontains='Bank Accounts') | Q(group1_Name__Master__group_Name__icontains='Bank Accounts'))
+		for g in bank_ledgers:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Bank_ledgerlistview, self).get_context_data(**kwargs)
@@ -3004,10 +3479,10 @@ def Bank_ledger1_detail_view(request, pk, pk2, pk3):
 
 	per_bank_balance = (abs(closing_balance) + abs(total_debit)) - total_credit
 
-	ledger1_detail = ledger1.objects.get(pk=ledger1_details.pk)
-	ledger1_detail.Closing_balance = closing_balance
-	ledger1_detail.Balance_opening = opening_balance
-	ledger1_detail.save(update_fields=['Closing_balance', 'Balance_opening'])
+	# ledger1_detail = ledger1.objects.get(pk=ledger1_details.pk)
+	# ledger1_detail.Closing_balance = closing_balance
+	# ledger1_detail.Balance_opening = opening_balance
+	# ledger1_detail.save(update_fields=['Closing_balance', 'Balance_opening'])
 
 	inbox = Message.objects.filter(reciever=request.user)
 	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 

@@ -104,6 +104,8 @@ class company(models.Model):
 	gst  				= models.CharField(max_length=20,blank=True,null=True)
 	gst_enabled 		= models.BooleanField(default=False)
 	composite_enable 	= models.BooleanField(default=False)
+	enable_purchase 	= models.BooleanField(default=False)
+	enable_sales		= models.BooleanField(default=False)
 	pan  				= models.CharField(max_length=18,blank=True,null=True)
 	auditor 			= models.ManyToManyField(settings.AUTH_USER_MODEL,related_name='main_auditor',blank=True)
 	accountant 			= models.ManyToManyField(settings.AUTH_USER_MODEL,related_name='main_accountant',blank=True)
@@ -120,6 +122,8 @@ class company(models.Model):
 	def clean(self):
 		if self.gst_enabled == False and self.composite_enable == True:
 			raise ValidationError({'gst_enabled':["To enable composite billing GST should be enabled"],'composite_enable':["To enable composite billing GST should be enabled"]})
+		if self.State == 'Choose':
+			raise ValidationError({'State':["Select a state"]})
 
 	def save(self):
 		if self.id:
@@ -171,9 +175,9 @@ def total_asset(sender,instance,*args,**kwargs):
 		total_cl = 0
 	instance.asset = total_c + total_cl + total_f + total_fl
 
-@receiver(pre_save, sender=company)
-def total_pl(sender,instance,*args,**kwargs):
-	total = instance.Companys.filter(name='Profit & Loss A/c').aggregate(the_sum=Coalesce(Sum('Closing_balance'), Value(0)))['the_sum']
-	if total == None:
-		total = int(0)
-	instance.pl = total
+# @receiver(pre_save, sender=company)
+# def total_pl(sender,instance,*args,**kwargs):
+# 	total = instance.Companys.filter(name='Profit & Loss A/c').aggregate(the_sum=Coalesce(Sum('Closing_balance'), Value(0)))['the_sum']
+# 	if total == None:
+# 		total = int(0)
+# 	instance.pl = total

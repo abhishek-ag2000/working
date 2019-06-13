@@ -18,9 +18,17 @@ class UserCreateForm(UserCreationForm):
 		super(UserCreateForm, self).__init__(*args, **kwargs)
 		# for terms and conditions checkbox
 		# if check_something():
+		self.fields['username'].widget.attrs = {'class': 'form-control',}
+		self.fields['email'].widget.attrs = {'class': 'form-control',}
+		self.fields['password1'].widget.attrs = {'class': 'form-control',}
+		self.fields['password2'].widget.attrs = {'class': 'form-control',}
 		self.fields['tandc'].initial  = True
 		self.fields['tandc'].required = True 
 		self.fields['email'].required = True 
+		self.fields['username'].widget.attrs.update({'placeholder': 'Enter Username'})
+		self.fields['email'].widget.attrs.update({'placeholder': 'Enter Email'})
+		self.fields['password1'].widget.attrs.update({'placeholder': 'Enter Password'})
+		self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm Password'})
 
 		self.fields['tandc'].widget.attrs = {'class': 'checkbox i-checks form-control',}
 		

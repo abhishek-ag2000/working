@@ -71,6 +71,7 @@ class Aggrement_List_View(ProductExistsRequiredMixin,LoginRequiredMixin,ListView
 		context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
 		context['Products_aggrement'] = Product_activation.objects.filter(User=self.request.user,product__id = 9, is_active=True)
 		context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+		context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		return context
 
 
@@ -88,6 +89,7 @@ class Aggrement_createview(LoginRequiredMixin,CreateView):
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		return context
 
 
@@ -113,6 +115,7 @@ class Saved_aggrement_List_View(ProductExistsRequiredMixin,LoginRequiredMixin,Li
 		context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
 		context['Products_aggrement'] = Product_activation.objects.filter(User=self.request.user,product__id = 9, is_active=True)
 		context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+		context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		return context
 
 
@@ -139,6 +142,7 @@ class Aggrement_update_view(ProductExistsRequiredMixin,LoginRequiredMixin,Update
 		context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
 		context['Products_aggrement'] = Product_activation.objects.filter(User=self.request.user,product__id = 9, is_active=True)
 		context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+		context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		return context
 
 
@@ -163,6 +167,7 @@ def search(request):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)
 		
 	else:
 		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
@@ -173,6 +178,7 @@ def search(request):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 	
 	context = {
 		'aggrement_list'	 : result,

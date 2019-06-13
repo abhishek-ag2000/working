@@ -9,6 +9,7 @@ urlpatterns = [
 
     url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/export_journal/$',views.export_journal,name='export_journal'), 
     url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/import_journal/$',views.journal_upload,name='import_journal'), 
+    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)//export_ledger/$',views.getledgerObject_in_excel,name='export_ledger'),
 
 
 ####### Groups Urls ########################################
@@ -65,11 +66,6 @@ urlpatterns = [
     url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/journal/delete/(?P<pk2>\d+)/$',views.journal_delete_view,name='delete'),
 
 
-####### PL JOURNAL Urls ######################################## 
-
-    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/pl_journallist/(?P<pk2>\d+)/$',views.pl_journal_detail,name='pl_detail'),
-    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/pl_journal/update/(?P<pk2>\d+)/$',views.pl_journalUpdateView.as_view(),name='pl_update'),
-    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/pl_journal/delete/(?P<pk2>\d+)/$',views.pl_journal_delete_view,name='pl_delete'),
 
 ####### Multijournal Urls ######################################## 
 
@@ -87,15 +83,28 @@ urlpatterns = [
 
 ####### Payment Urls ######################################## 
 
+    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/payment/list/$',views.Payment_listview.as_view(),name='paymentlist'),
+    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/paymentdetails/(?P<pk2>\d+)/$',views.Payment_detailsview.as_view(),name='paymentdetail'),   
     url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/payment/create/$',views.Payment_createview.as_view(),name='paymentcreate'),
+    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/paymentupdate/(?P<pk2>\d+)/$',views.Payment_updateview.as_view(),name='paymentupdate'),
+    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/payment/delete/(?P<pk2>\d+)/$',views.Payment_deleteview.as_view(),name='paymentdelete'),
 
 ####### Receipt Urls ######################################## 
 
+    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/receipt/list/$',views.Receipt_listview.as_view(),name='receiptlist'),
+    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/receipt/details/(?P<pk2>\d+)/$',views.Receipt_detailsview.as_view(),name='receiptdetail'), 
     url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/receipt/create/$',views.Receipt_createview.as_view(),name='receiptcreate'),
+    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/receipt/update/(?P<pk2>\d+)/$',views.Receipt_updateview.as_view(),name='receiptupdate'),
+    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/receipt/delete/(?P<pk2>\d+)/$',views.Receipt_deleteview.as_view(),name='receiptdelete'),
+
 
 ####### Contra Urls ######################################## 
 
+    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/contra/list/$',views.Contra_listview.as_view(),name='contralist'),
+    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/contra/details/(?P<pk2>\d+)/$',views.Contra_detailsview.as_view(),name='contradetail'), 
     url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/contra/create/$',views.Contra_createview.as_view(),name='contracreate'),
+    url(r'^company/(?P<pk1>\d+)/date/(?P<pk3>\d+)/contra/update/(?P<pk2>\d+)/$',views.Contra_updateview.as_view(),name='contraupdate'),
+    url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/contra/delete/(?P<pk2>\d+)/$',views.Contra_deleteview.as_view(),name='contradelete'),
 
 ####### Daybook Urls ########################################
 
@@ -106,7 +115,7 @@ urlpatterns = [
 
     url(r'^company/(?P<pk>\d+)/trialbalance/date/(?P<pk3>\d+)/$',views.trial_balance_condensed_view,name='trialbalcond'),
 
-    url(r'^company/(?P<pk>\d+)/P&L/date/(?P<pk3>\d+)/$',views.profit_and_loss_condensed_view,name='P&Lcond'),
+    url(r'^company/(?P<pk>\d+)/PL/date/(?P<pk3>\d+)/$',views.profit_and_loss_condensed_view,name='PandLcond'),
 
     url(r'^company/(?P<pk>\d+)/balancesheet/date/(?P<pk3>\d+)/$',views.balance_sheet_condensed_view,name='blsht'),
 

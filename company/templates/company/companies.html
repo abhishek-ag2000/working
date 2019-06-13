@@ -13,6 +13,7 @@
       <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{company.modified_date}}</a></td>
       <td><a href="{% url 'company:Dashboard' pk=company.pk pk3=selectdatefield.pk %}">{{company.pl|abs}}</a></td>
       <td><center><a href="{% url 'company:backup' pk=company.pk %}" class="btn btn-default"><i class="fa fa-download"></i></a></center></td>
+      <td><center><a href="{% url 'company:backup_excel' pk=company.pk %}" class="btn btn-default"><i class="fa fa-download"></i></a></center></td>
       <td>
       <center>
         <button class="btn btn-danger show-form-delete" data-url="{% url 'company:delete' company.id %}">

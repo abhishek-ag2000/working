@@ -60,8 +60,6 @@ INSTALLED_APPS = [
     # bcrypt = pip install bcrypt
     # pillow = pip install pillow
     # xhtml2pdf = pip install --pre xhtml2pdf
-    # pip install social-auth-app-django
-    # pip install sorl-thumbnail
 
 
 
@@ -92,6 +90,7 @@ INSTALLED_APPS = [
     'Gst',
     'aggrement',
     'company_accounts',
+    'legal_database',
     'helpandsupport',
 
 ]
@@ -181,7 +180,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',

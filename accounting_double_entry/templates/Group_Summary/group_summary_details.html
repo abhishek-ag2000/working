@@ -323,7 +323,7 @@
                           {% elif group1_details.group_Name == 'Indirect Expense' %}
                             <tr>
                               <th><center>Grand Total</center></th>
-                              {% if gs_indirectexp_total > 0 %}
+                              {% if gs_indirectexp_total < 0 %}
                                 <th></th>
                                 <th>{{ gs_indirectexp_total|abs|floatformat:2 }}</th>
                               {% else %}
@@ -334,7 +334,7 @@
                           {% elif group1_details.group_Name == 'Indirect Income' %}
                             <tr>
                               <th><center>Grand Total</center></th>
-                              {% if gs_indirectinc_total > 0 %}
+                              {% if gs_indirectinc_total < 0 %}
                                 <th>{{ gs_indirectinc_total|abs|floatformat:2 }}</th>
                                 <th></th>
                               {% else %}

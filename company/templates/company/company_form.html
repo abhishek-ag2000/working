@@ -220,7 +220,7 @@
                 <label class="col-lg-2 col-form-label">Books Begining From<i class="material-icons" style="font-size:16px;color:red">*</i></label>
 
                     <div class="col-lg-10">
-
+                    {{ form.Books_Begining_From.errors }}
                     {{ form.Books_Begining_From }}
 
                     </div>
@@ -237,6 +237,30 @@
 
                     </div>
                 </div>
+
+                <div class="form-group row">
+
+                    <label class="col-lg-2 col-form-label">Enable Purchase Billing Mode</label>
+
+                        <div class="col-lg-10">
+
+                        {{ form.enable_purchase.errors }}
+                        {{ form.enable_purchase }}
+
+                        </div>
+                    </div>
+
+                <div class="form-group row">
+
+                    <label class="col-lg-2 col-form-label">Enable Sales Billing Mode</label>
+
+                        <div class="col-lg-10">
+
+                        {{ form.enable_sales.errors }}
+                        {{ form.enable_sales }}
+
+                        </div>
+                    </div>
 
                     <div class="form-group row">
 

@@ -47,11 +47,24 @@ class Purchaseadmin(admin.ModelAdmin):
 	search_fields = ['stock_name','id']
 	inlines = [Stock_Totalinline]
 
+	def get_form(self, request, obj=None, **kwargs):
+		form = super(Purchaseadmin, self).get_form(request, obj, **kwargs)
+		form.base_fields['Party_ac'].label_from_instance = lambda obj: "{} : {}".format(obj.name, obj.User)
+		form.base_fields['purchase'].label_from_instance = lambda obj: "{} : {}".format(obj.name, obj.User)
+		return form
+
+
 class Salesadmin(admin.ModelAdmin):
 	model = Sales
 	list_display = ['User', 'Company','ref_no','Party_ac','sales','sub_total']
 	search_fields = ['stock_name','hsn']
 	inlines = [Stock_Total_salesinline]
+
+	def get_form(self, request, obj=None, **kwargs):
+		form = super(Salesadmin, self).get_form(request, obj, **kwargs)
+		form.base_fields['Party_ac'].label_from_instance = lambda obj: "{} : {}".format(obj.name, obj.User)
+		form.base_fields['sales'].label_from_instance = lambda obj: "{} : {}".format(obj.name, obj.User)
+		return form
 
 
 admin.site.register(Stockgroup, Stockgroupadmin)

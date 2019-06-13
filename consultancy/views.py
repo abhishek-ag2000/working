@@ -30,7 +30,6 @@ class consultancyListView(ListView):
 		context = super(consultancyListView, self).get_context_data(**kwargs)
 		context['consultancy_count'] = consultancy.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		if self.request.user.is_authenticated:
-			context['Products_aggrement'] = Product_activation.objects.filter(User=self.request.user,product__id = 9, is_active=True)
 			context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
 			context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
 			context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
@@ -38,16 +37,16 @@ class consultancyListView(ListView):
 			context['inbox'] = Message.objects.filter(reciever=self.request.user)
 			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 			context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
-
+			context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		else:
-			context['Products_aggrement'] = Product_activation.objects.filter(product__id = 9, is_active=True)
 			context['Products'] = Product_activation.objects.filter(product__id = 1, is_active=True)
 			context['Role_products'] = Role_product_activation.objects.filter(product__id = 1, is_active=True)
 			context['Todos'] = Todo.objects.filter(complete=False)
 			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 			context['inbox'] = Message.objects.all()
 			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-			context['send_count'] = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']	
+			context['send_count'] = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']		
+			context['Products_legal'] = Product_activation.objects.filter(product__id = 10, is_active=True)	
 		return context
 
 
@@ -69,15 +68,24 @@ class myconsultancyListView(LoginRequiredMixin,ListView):
 
 	def get_context_data(self, **kwargs):
 		context = super(myconsultancyListView, self).get_context_data(**kwargs)
-		context['Products_aggrement'] = Product_activation.objects.filter(User=self.request.user,product__id = 9, is_active=True)
-		context['consultancy_count'] = consultancy.objects.filter(User=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
-		context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['inbox'] = Message.objects.filter(reciever=self.request.user)
-		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']  
+		if self.request.user.is_authenticated:
+			context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['inbox'] = Message.objects.filter(reciever=self.request.user)
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+			context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
+		else:
+			context['Products'] = Product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+			context['inbox'] = Message.objects.all()
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']		
+			context['Products_legal'] = Product_activation.objects.filter(product__id = 10, is_active=True)  
 		return context
 
 
@@ -105,7 +113,7 @@ def consultancy_detail(request, pk):
 	like_user = consultancy_details.like.all()[:5]
 
 	if not request.user.is_authenticated:
-		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
 		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(complete=False)
@@ -113,9 +121,9 @@ def consultancy_detail(request, pk):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
-		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(User=request.user,complete=False)
 		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -123,6 +131,7 @@ def consultancy_detail(request, pk):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	context = {
 
@@ -140,6 +149,7 @@ def consultancy_detail(request, pk):
 		'Role_products' 		: Role_products,
 		'like_user'				: like_user,
 		'Products_aggrement' 	: Products_aggrement,
+		'Products_legal' 		: Products_legal
 
 	}
 
@@ -179,14 +189,24 @@ class consultancycreate(LoginRequiredMixin,CreateView):
 
 	def get_context_data(self, **kwargs):
 		context = super(consultancycreate, self).get_context_data(**kwargs)
-		context['Products_aggrement'] = Product_activation.objects.filter(User=self.request.user,product__id = 9, is_active=True)
-		context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
-		context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['inbox'] = Message.objects.filter(reciever=self.request.user)
-		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		if self.request.user.is_authenticated:
+			context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['inbox'] = Message.objects.filter(reciever=self.request.user)
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+			context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
+		else:
+			context['Products'] = Product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+			context['inbox'] = Message.objects.all()
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']		
+			context['Products_legal'] = Product_activation.objects.filter(product__id = 10, is_active=True)
 		return context
 
 class consultancyupdate(LoginRequiredMixin,UpdateView):
@@ -196,14 +216,24 @@ class consultancyupdate(LoginRequiredMixin,UpdateView):
 
 	def get_context_data(self, **kwargs):
 		context = super(consultancyupdate, self).get_context_data(**kwargs)
-		context['Products_aggrement'] = Product_activation.objects.filter(User=self.request.user,product__id = 9, is_active=True)
-		context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
-		context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['inbox'] = Message.objects.filter(reciever=self.request.user)
-		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		if self.request.user.is_authenticated:
+			context['Products'] = Product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(User=self.request.user,product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['inbox'] = Message.objects.filter(reciever=self.request.user)
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+			context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
+		else:
+			context['Products'] = Product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Role_products'] = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+			context['Todos'] = Todo.objects.filter(complete=False)
+			context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+			context['inbox'] = Message.objects.all()
+			context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+			context['send_count'] = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']		
+			context['Products_legal'] = Product_activation.objects.filter(product__id = 10, is_active=True)
 		return context
 
 
@@ -296,7 +326,7 @@ def search(request):
 		result = consultancy.objects.all().order_by('id')
 
 	if not request.user.is_authenticated:
-		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
 		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(complete=False)
@@ -304,9 +334,9 @@ def search(request):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
-		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(User=request.user,complete=False)
 		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -314,6 +344,9 @@ def search(request):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
+
+
 	context = {
 		'consultancy_list'		: result,
 		'Products'				: Products,
@@ -323,7 +356,8 @@ def search(request):
 		'Todos'					: Todos,
 		'Todos_total' 			: Todos_total,
 		'Role_products' 		: Role_products,
-		'Products_aggrement'	: Products_aggrement
+		'Products_aggrement'	: Products_aggrement,
+		'Products_legal' 		: Products_legal
 
 	}
 

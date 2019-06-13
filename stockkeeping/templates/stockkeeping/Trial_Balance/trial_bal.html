@@ -27,7 +27,7 @@
                     </li>
                 </ol>
            <br>
-                <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Profit & Loss Overview</a>
+                <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Profit & Loss Overview</a>
           
                 <a href="{% url 'accounting_double_entry:blsht' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-warning" role="button">Balance Sheet Overview</a>
 
@@ -205,6 +205,8 @@
                                         {% endif %}
                                       {% endif %}
                                       {% if group.group_Name == 'Current Assets' %}
+                                        {% if group.positive_closing != 0 or group.negative_closing != 0 %}
+                                        {% if group.positive_closing != None or group.negative_closing != None %}
                                       <tr>
                                         <th><center>Opening Stock</center></th>
                                               {% if qo2 >= 0 %}
@@ -223,10 +225,13 @@
                                               {% endif %}
                                       </tr>
                                       {% endif %}
+                                      {% endif %}
+                                      {% endif %}
                                       {% for grp in group.master_group.all %}
                                        {% if grp.positive_closing != 0 or grp.negative_closing != 0 %}
                                         {% if grp.positive_closing != None or grp.negative_closing != None %}
                                           <tr>
+                                          
                                             <td><center><a href="{% url 'accounting_double_entry:groupdetailsummary' pk=company_details.pk pk2=grp.pk pk3=selectdatefield_details.pk %}">{{grp.group_Name}}</a></center></td>
                                             {% if grp.positive_opening == 0 %}
                                               <th></th>
@@ -256,29 +261,58 @@
                                       {% for ledger in group.ledgergroups.all %}
                                         <tr>
                                             <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly' pk=company_details.pk pk2=ledger.pk pk3=selectdatefield_details.pk %}"><em>{{ ledger.name }}</em></a></center></td>
-                                            {% if ledger.Balance_opening == 0 %}
-                                              <td></td>
-                                              <td></td>
-                                            {% else %}
-                                              {% if ledger.Balance_opening >= 0 %}
-                                              <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
-                                              <td></td>
+                                            {% if ledger.group1_Name.balance_nature == 'Debit' %}
+                                              {% if ledger.Balance_opening == 0 %}
+                                                <td></td>
+                                                <td></td>
                                               {% else %}
-                                              <td></td>
-                                              <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
+                                                {% if ledger.Balance_opening >= 0 %}
+                                                <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
+                                                <td></td>
+                                                {% else %}
+                                                <td></td>
+                                                <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
+                                                {% endif %}
+                                              {% endif %}
+                                            {% else %}
+                                              {% if ledger.Balance_opening == 0 %}
+                                                <td></td>
+                                                <td></td>
+                                              {% else %}
+                                                {% if ledger.Balance_opening >= 0 %}
+                                                <td></td>
+                                                <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
+                                                {% else %}
+                                                <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
+                                                <td></td>
+                                                {% endif %}
                                               {% endif %}
                                             {% endif %}
-
-                                            {% if ledger.Closing_balance == 0 %}
-                                              <td></td>
-                                              <td></td>
-                                            {% else %}
-                                              {% if ledger.Closing_balance >= 0 %}
-                                              <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
-                                              <td></td>
+                                            {% if ledger.group1_Name.balance_nature == 'Debit' %}
+                                              {% if ledger.Closing_balance == 0 %}
+                                                <td></td>
+                                                <td></td>
                                               {% else %}
-                                              <td></td>
-                                              <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                {% if ledger.Closing_balance >= 0 %}
+                                                <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                <td></td>
+                                                {% else %}
+                                                <td></td>
+                                                <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                {% endif %}
+                                              {% endif %}
+                                            {% else %}
+                                              {% if ledger.Closing_balance == 0 %}
+                                                <td></td>
+                                                <td></td>
+                                              {% else %}
+                                                {% if ledger.Closing_balance >= 0 %}
+                                                <td></td>
+                                                <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                {% else %}
+                                                <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                <td></td>
+                                                {% endif %}
                                               {% endif %}
                                             {% endif %}
                                           </tr>
@@ -304,8 +338,8 @@
                                             <th></th>
                                           </tr>
                                             {% for ledger in group.ledgergroups.all %}
-                                              {% if ledger.To_pl_debit != None %}
-                                                {% if ledger.To_pl_debit != 0 %}
+                                              {% if ledger.Closing_balance != None %}
+                                                {% if ledger.Closing_balance != 0 %}
                                                   <tr>
                                                       <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly_2' pk=company_details.pk pk2=ledger.pk pk3=selectdatefield_details.pk %}"><em>{{ ledger.name }}</em></a></center></td>
                                                        {% if ledger.Balance_opening == 0 %}
@@ -320,7 +354,7 @@
                                                           <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
                                                           {% endif %}
                                                         {% endif %}
-                                                      <td>{{ ledger.To_pl_debit|abs|floatformat:2|intcomma }}</td>
+                                                      <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
                                                       <td></td>
                                                     </tr>
                                                   {% endif %}
@@ -348,8 +382,8 @@
                                           </tr>
 
                                           {% for ledger in group.ledgergroups.all %}
-                                              {% if ledger.To_pl_credit != None %}
-                                                {% if ledger.To_pl_credit != 0 %}
+                                              {% if ledger.Closing_balance != None %}
+                                                {% if ledger.Closing_balance != 0 %}
                                                   <tr>
                                                       <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly_2' pk=company_details.pk pk2=ledger.pk pk3=selectdatefield_details.pk %}"><em>{{ ledger.name }}</em></a></center></td>
                                                        {% if ledger.Balance_opening == 0 %}
@@ -365,7 +399,7 @@
                                                           {% endif %}
                                                         {% endif %}
                                                       <td></td>
-                                                      <td>{{ ledger.To_pl_credit|abs|floatformat:2|intcomma }}</td>
+                                                      <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
                                                     </tr>
                                                   {% endif %}
                                                 {% endif %}
@@ -393,8 +427,8 @@
                                           </tr>
 
                                         {% for ledger in group.ledgergroups.all %}
-                                              {% if ledger.To_pl_debit != None %}
-                                                {% if ledger.To_pl_debit != 0 %}
+                                              {% if ledger.Closing_balance != None %}
+                                                {% if ledger.Closing_balance != 0 %}
                                                   <tr>
                                                       <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly_2' pk=company_details.pk pk2=ledger.pk pk3=selectdatefield_details.pk %}"><em>{{ ledger.name }}</em></a></center></td>
                                                        {% if ledger.Balance_opening == 0 %}
@@ -409,7 +443,7 @@
                                                           <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
                                                           {% endif %}
                                                         {% endif %}
-                                                      <td>{{ ledger.To_pl_debit|abs|floatformat:2|intcomma }}</td>
+                                                      <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
                                                       <td></td>
                                                     </tr>
                                                   {% endif %}
@@ -436,8 +470,8 @@
                                             <th>{{ gs_directinc_total|abs|floatformat:2|intcomma }}</th>
                                           </tr>
                                           {% for ledger in group.ledgergroups.all %}
-                                              {% if ledger.To_pl_credit != None %}
-                                                {% if ledger.To_pl_credit != 0 %}
+                                              {% if ledger.Closing_balance != None %}
+                                                {% if ledger.Closing_balance != 0 %}
                                                   <tr>
                                                       <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly_2' pk=company_details.pk pk2=ledger.pk pk3=selectdatefield_details.pk %}"><em>{{ ledger.name }}</em></a></center></td>
                                                       {% if ledger.Balance_opening == 0 %}
@@ -453,7 +487,7 @@
                                                           {% endif %}
                                                         {% endif %}
                                                       <td></td>
-                                                      <td>{{ ledger.To_pl_credit|abs|floatformat:2|intcomma }}</td>
+                                                      <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
                                                     </tr>
                                                   {% endif %}
                                                 {% endif %}
@@ -479,8 +513,8 @@
                                             <td></td>
                                           </tr>
                                           {% for ledger in group.ledgergroups.all %}
-                                              {% if ledger.To_pl_debit != None %}
-                                                {% if ledger.To_pl_debit != 0 %}
+                                              {% if ledger.Closing_balance != None %}
+                                                {% if ledger.Closing_balance != 0 %}
                                                   <tr>
                                                       <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly_2' pk=company_details.pk pk2=ledger.pk pk3=selectdatefield_details.pk %}"><em>{{ ledger.name }}</em></a></center></td>
                                                       {% if ledger.Balance_opening == 0 %}
@@ -495,7 +529,7 @@
                                                           <td>{{ ledger.Balance_opening|abs|floatformat:2|intcomma }}</td>
                                                           {% endif %}
                                                         {% endif %}
-                                                      <td>{{ ledger.To_pl_debit|abs|floatformat:2|intcomma }}</td>
+                                                      <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
                                                       <td></td>
                                                     </tr>
                                                   {% endif %}
@@ -523,8 +557,8 @@
                                           </tr>
 
                                           {% for ledger in group.ledgergroups.all %}
-                                              {% if ledger.To_pl_credit != None %}
-                                                {% if ledger.To_pl_credit != 0 %}
+                                              {% if ledger.Closing_balance != None %}
+                                                {% if ledger.Closing_balance != 0 %}
                                                   <tr>
                                                       <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly_2' pk=company_details.pk pk2=ledger.pk pk3=selectdatefield_details.pk %}"><em>{{ ledger.name }}</em></a></center></td>
                                                        {% if ledger.Balance_opening == 0 %}
@@ -540,7 +574,7 @@
                                                           {% endif %}
                                                         {% endif %}
                                                       <td></td>
-                                                      <td>{{ ledger.To_pl_credit|abs|floatformat:2|intcomma }}</td>
+                                                      <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
                                                     </tr>
                                                   {% endif %}
                                                 {% endif %}

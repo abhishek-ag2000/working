@@ -7,10 +7,34 @@
 {% url 'accounting_double_entry:ledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk as led_list %}
 {% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk as jornl_create %}
 {% url 'accounting_double_entry:list' pk=company_details.pk pk3=selectdatefield_details.pk as jornl_list %}
+{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  as sales_create %}
+{% url 'stockkeeping:saleslist' pk=company_details.pk pk3=selectdatefield_details.pk  as sales_list %}
+{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  as purchase_create %}
+{% url 'stockkeeping:purchaselist' pk=company_details.pk pk3=selectdatefield_details.pk  as purchase_list %}
+{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk  as payment_create %}
+{% url 'stockkeeping:stockgroupcreate' pk=company_details.pk pk3=selectdatefield_details.pk  as stgrp_create %}
+{% url 'stockkeeping:stockgrouplist' pk=company_details.pk pk3=selectdatefield_details.pk  as stgrp_list %}
+{% url 'stockkeeping:stockdatacreate' pk=company_details.pk pk3=selectdatefield_details.pk  as stitm_create %}
+{% url 'stockkeeping:stockdatalist' pk=company_details.pk pk3=selectdatefield_details.pk  as stitm_lst %}
+{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk  as st_sumary %}
+{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk  as bank %}
+{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk  as pl %}
+{% url 'accounting_double_entry:blsht' pk=company_details.pk pk3=selectdatefield_details.pk  as bl_sht %}
+{% url 'accounting_double_entry:trialbalcond' pk=company_details.pk pk3=selectdatefield_details.pk  as trial_bl %}
+{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk  as gst_2 %}
+{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk  as gst_1 %}
+{% url 'gst:gstr_3B' pk=company_details.pk pk3=selectdatefield_details.pk  as gst_3 %}
+{% url 'gst:income_tax' pk=company_details.pk pk3=selectdatefield_details.pk  as income_tax %}
+{% url 'accounting_double_entry:daybook' pk=company_details.pk pk3=selectdatefield_details.pk  as day_bk %}
+{% url 'accounting_double_entry:cash_and_bank' pk=company_details.pk pk3=selectdatefield_details.pk  as cb_bk %}
+{% url 'accounting_double_entry:groupsummary' pk=company_details.pk pk3=selectdatefield_details.pk  as gs %}
+{% url 'stockkeeping:sale_register' pk=company_details.pk pk3=selectdatefield_details.pk  as sale_reg %}
+{% url 'stockkeeping:purchase_register' pk=company_details.pk pk3=selectdatefield_details.pk  as pur_reg %}
+{% url 'accounting_double_entry:journalregister' pk=company_details.pk pk3=selectdatefield_details.pk  as jor_reg %}
 
 
 {% if user in company_details.auditor.all and company_details.accountant.all %}
-        <div class="sidebar-collapse">
+         <div class="sidebar-collapse">
             <ul class="nav metismenu" id="side-menu">
                 <li class="nav-header">
                     <div class="dropdown profile-element">
@@ -34,19 +58,35 @@
                         IN+
                     </div>
                 </li>
-
-                 <li class="{% if request.resolver_match.url_name == "company:list" %}active{% endif %}">
+                
+                 <li>
                     <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
                 </li>
                 
-                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+                <li>
+                <a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a>
+                </li>
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                 
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -99,18 +139,71 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk %}">Journal</a></li>
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
-                        <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}"> Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -139,7 +232,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -201,25 +302,35 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
                             <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
                             <ul class="nav nav-third-level">
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
                                 </li>
 
                             </ul>
@@ -248,12 +359,24 @@
                         </li>
                     </ul>
                 </li>
-                 <li>
+                <li class="{% if request.path == gst_1 %}
+                            active
+                            {% elif request.path == gst_2 %}
+                            active
+                            {% elif request.path == gst_3 %}
+                            active
+                            {% elif request.path == income_tax %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
                         <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk %}">GST Overview</a>
+                                </li>
+                                
                                 <li>
                                     <a href="{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk %}">GSTR-1</a>
                                 </li>
@@ -276,8 +399,19 @@
                     </li>
                     </ul>
                 </li>
-
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -306,7 +440,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                   <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -346,10 +480,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -393,13 +539,23 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
+                        <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -425,7 +581,11 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -473,15 +633,25 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -491,12 +661,23 @@
                         </li>
                     </ul>
                 </li>
-                 <li>
+                 <li class="{% if request.path == gst_1 %}
+                            active
+                            {% elif request.path == gst_2 %}
+                            active
+                            {% elif request.path == gst_3 %}
+                            active
+                            {% elif request.path == income_tax %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
                         <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk %}">GST Overview</a>
+                                </li>
                                 <li>
                                     <a href="{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk %}">GSTR-1</a>
                                 </li>
@@ -520,7 +701,19 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -550,8 +743,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
-
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
                
 
         </div>
@@ -582,7 +774,7 @@
                     </div>
                 </li>
 
-                 <li class="active">
+                 <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
                 </li>
                 
@@ -590,10 +782,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -646,13 +850,23 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -677,7 +891,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -725,15 +947,25 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                          <li>
@@ -743,12 +975,23 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == gst_1 %}
+                            active
+                            {% elif request.path == gst_2 %}
+                            active
+                            {% elif request.path == gst_3 %}
+                            active
+                            {% elif request.path == income_tax %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
                         <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk %}">GST Overview</a>
+                                </li>
                                 <li>
                                     <a href="{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk %}">GSTR-1</a>
                                 </li>
@@ -772,7 +1015,19 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -802,7 +1057,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -842,10 +1097,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -886,15 +1153,62 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -923,7 +1237,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -975,25 +1297,35 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
                             <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
                             <ul class="nav nav-third-level">
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
                                 </li>
 
                             </ul>
@@ -1022,12 +1354,23 @@
                         </li>
                     </ul>
                 </li>
-                 <li>
+                 <li class="{% if request.path == gst_1 %}
+                            active
+                            {% elif request.path == gst_2 %}
+                            active
+                            {% elif request.path == gst_3 %}
+                            active
+                            {% elif request.path == income_tax %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
                         <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk %}">GST Overview</a>
+                                </li>
                                 <li>
                                     <a href="{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk %}">GSTR-1</a>
                                 </li>
@@ -1050,7 +1393,19 @@
                     </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -1080,7 +1435,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -1120,10 +1475,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1176,18 +1543,72 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk %}">Journal</a></li>
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1216,7 +1637,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1278,15 +1707,25 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                          <li>
@@ -1298,7 +1737,15 @@
                 </li>
 
 
-                <li>
+                <li class="{% if request.path == gst_1 %}
+                            active
+                            {% elif request.path == gst_2 %}
+                            active
+                            {% elif request.path == gst_3 %}
+                            active
+                            {% elif request.path == income_tax %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -1328,7 +1775,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -1368,10 +1815,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1424,18 +1883,71 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk %}">Journal</a></li>
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                       <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1464,7 +1976,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1526,15 +2046,25 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                          <li>
@@ -1545,7 +2075,19 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -1575,7 +2117,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -1615,10 +2157,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1671,18 +2225,71 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk %}">Journal</a></li>
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1711,7 +2318,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1773,15 +2388,25 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         
@@ -1793,7 +2418,19 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -1823,7 +2460,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -1863,17 +2500,37 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -1927,7 +2584,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -1968,20 +2625,73 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
                
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2025,7 +2735,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -2065,19 +2775,72 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2122,7 +2885,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -2162,10 +2925,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2206,7 +2981,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2229,7 +3012,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2277,25 +3068,35 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
                             <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
                             <ul class="nav nav-third-level">
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
                                 </li>
 
                             </ul>
@@ -2324,12 +3125,23 @@
                         </li>
                     </ul>
                 </li>
-                 <li>
+                 <li class="{% if request.path == gst_1 %}
+                            active
+                            {% elif request.path == gst_2 %}
+                            active
+                            {% elif request.path == gst_3 %}
+                            active
+                            {% elif request.path == income_tax %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
                         <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk %}">GST Overview</a>
+                                </li>
                                 <li>
                                     <a href="{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk %}">GSTR-1</a>
                                 </li>
@@ -2353,7 +3165,19 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -2383,7 +3207,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -2424,10 +3248,22 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == grp_create %}
+                            active
+                        {% elif request.path == grp_details %}
+                            active
+                        {% elif request.path == led_create %}
+                            active
+                        {% elif request.path == led_list %}
+                            active
+                        {% elif request.path == jornl_list %}
+                            active
+                        {% elif request.path == jornl_create %}
+                            active
+                        {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2480,18 +3316,71 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk %}">Journal</a></li>
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2520,7 +3409,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2582,15 +3479,25 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                          <li>
@@ -2600,7 +3507,19 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -2630,7 +3549,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -2671,16 +3590,36 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2719,7 +3658,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
         </div>
 
 
@@ -2757,16 +3696,36 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -2806,7 +3765,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -2846,16 +3805,61 @@
 
                  <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
 
-                <li class="active">
+                <li class="{% if request.path == list_url %}active{% endif %}">
                     <a href="{% url 'company:Dashboard' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
                 </li>
                 
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
                 
@@ -2887,7 +3891,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp;amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp;amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 
@@ -3000,18 +4004,71 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == jornl_create %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% elif request.path == purchase_create %}
+                            active
+                            {% elif request.path == payment_create %}
+                            active
+                            {% elif request.path == receipt_create %}
+                            active
+                            {% elif request.path == contra_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li><a href="{% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk %}">Journal</a></li>
                         <li><a href="{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Sales Invoice</a></li>
                         <li><a href="{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}">Purchase Invoice</a></li>
-                        <li><a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Payment</a></li>
-                        <li><a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Receipts</a></li>
-                        <li><a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Contra</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == purchase_create %}
+                            active
+                            {% elif request.path == purchase_list %}
+                            active
+                            {% elif request.path == sales_list %}
+                            active
+                            {% elif request.path == sales_create %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -3040,7 +4097,15 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == stgrp_create %}
+                            active
+                            {% elif request.path == stgrp_list %}
+                            active
+                            {% elif request.path == stitm_create %}
+                            active
+                            {% elif request.path == stitm_lst %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
@@ -3102,25 +4167,35 @@
                     </ul>
                 </li>
 
-                <li>
+                <li class="{% if request.path == st_sumary %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == bank %}
+                            active
+                            {% endif %}">
                     <a href="{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
                 </li>
 
-                <li>
+                <li class="{% if request.path == pl %}
+                            active
+                            {% elif request.path == bl_sht %}
+                            active
+                            {% elif request.path == trial_bl %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         <li>
                             <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
                             <ul class="nav nav-third-level">
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Overview</a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">Profit &amp; Loss Schedule III</a>
                                 </li>
 
                             </ul>
@@ -3149,12 +4224,24 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == gst_1 %}
+                            active
+                            {% elif request.path == gst_2 %}
+                            active
+                            {% elif request.path == gst_3 %}
+                            active
+                            {% elif request.path == income_tax %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
                         <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk %}">GST Overview</a>
+                                </li>
+                                
                                 <li>
                                     <a href="{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk %}">GSTR-1</a>
                                 </li>
@@ -3177,7 +4264,19 @@
                     </li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if request.path == day_bk %}
+                            active
+                            {% elif request.path == cb_bk %}
+                            active
+                            {% elif request.path == gs %}
+                            active
+                            {% elif request.path == sale_reg %}
+                            active
+                            {% elif request.path == pur_reg %}
+                            active
+                            {% elif request.path == jor_reg %}
+                            active
+                            {% endif %}">
                     <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                     <li>
@@ -3206,7 +4305,7 @@
                     <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
                     <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
                     <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                    <li><a data-toggle="modal" data-target="#modal-default"><i class="fa fa-question-circle" style="color:aqua"></i> <span>Help &amp; Support</span></a></li>
+                    <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
                
 

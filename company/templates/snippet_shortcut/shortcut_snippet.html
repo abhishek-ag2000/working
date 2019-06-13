@@ -16,6 +16,12 @@
                                             <small class="font-bold" style="color: red;">Note : Shortcut keys will work only with Caps lock off</small>
                                         </div>
                                         <div class="modal-body">
+                                        <div class="pull-right">
+                                        <ol>
+                                          <li>&nbsp;<strong>For any expanded view</strong> --&nbsp; e + x </li>
+                                          <li>&nbsp;<strong>For any condensed view from expanded view</strong> --&nbsp; c + n </li>
+                                        </ol>
+                                        </div>
                                         <ol>
                                           <li>&nbsp;<strong>Go Back</strong> --&nbsp; escape </li> 
                                            <li>&nbsp;<strong>Group Creation</strong> --&nbsp; c + g </li> 
@@ -25,21 +31,25 @@
                                            <li>&nbsp;<strong>Journal Creation</strong> --&nbsp; c + j </li>
                                            <li>&nbsp;<strong>Journal List</strong> --&nbsp; v + j </li>
                                            <li>&nbsp;<strong>Payment Creation</strong> --&nbsp; c + a</li>
+                                           <li>&nbsp;<strong>Payment List</strong> --&nbsp; v + a</li>
                                            <li>&nbsp;<strong>Receipt Creation</strong> --&nbsp; c + r</li>
+                                           <li>&nbsp;<strong>Receipt List</strong> --&nbsp; v + r</li>
                                            <li>&nbsp;<strong>Contra Creation</strong> --&nbsp; c + o</li>
+                                           <li>&nbsp;<strong>Contra List</strong> --&nbsp; v + o</li>
                                            <li>&nbsp;<strong>Sales Invoice Creation</strong> --&nbsp; c + s</li>
                                            <li>&nbsp;<strong>Sales Invoice List</strong> --&nbsp; v + s </li>
                                            <li>&nbsp;<strong>Purchase Invoice Creation</strong> --&nbsp; c + p </li>
                                            <li>&nbsp;<strong>Purchase Invoice List</strong> --&nbsp; v + p </li>
                                            {% if company_details.maintain == 'Accounts with Inventory' %}
                                              <li>&nbsp;<strong>Stock group List</strong> --&nbsp; v + t</li>
-                                             <li>&nbsp;<strong>Stock item Create</strong> --&nbsp; c + m </li>
-                                             <li>&nbsp;<strong>Stock item List</strong> --&nbsp; v + m </li>
-                                             <li>&nbsp;<strong>Stock Summary</strong> --&nbsp; v + u </li>
+                                             <li>&nbsp;<strong>Stock item Create</strong> --&nbsp; c + t </li>
+                                             <li>&nbsp;<strong>Stock item List</strong> --&nbsp; v + t </li>
+                                             <li>&nbsp;<strong>Stock Summary</strong> --&nbsp; s + t </li>
                                             {% endif %}
-                                           <li>&nbsp;<strong>Bank Reconciliation</strong> --&nbsp; v + b </li>
+                                           <li>&nbsp;<strong>Bank Reconciliation</strong> --&nbsp; b + s </li>
+                                           <li>&nbsp;<strong>Profit & Loss Overview</strong> --&nbsp; p + l </li>
                                            <li>&nbsp;<strong>Balance Sheet Statement</strong> --&nbsp; b + c </li>
-                                           <li>&nbsp;<strong>Trial Balance</strong> --&nbsp; t + c </li>
+                                           <li>&nbsp;<strong>Trial Balance</strong> --&nbsp; t + b </li>
                                            <li>&nbsp;<strong>Day Book</strong> --&nbsp; d + v </li>
                                            <li>&nbsp;<strong>Cash/Bank Book</strong> --&nbsp; c + v </li>
                                            <li>&nbsp;<strong>Group summary</strong> --&nbsp; g + v </li>
@@ -47,6 +57,8 @@
                                            <li>&nbsp;<strong>Purchase Register</strong> --&nbsp; p + r </li>
                                            <li>&nbsp;<strong>Journal Register</strong> --&nbsp; j + r </li>
                                         </ol>
+                                        
+                                        
                                             
                                             
                                         </div>

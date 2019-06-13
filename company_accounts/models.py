@@ -15,6 +15,7 @@ from datetime import datetime
 from django.utils import timezone
 from stockkeeping.models import Stockdata,Stock_Total
 from stockkeeping.tasks import user_created_stock_ledger_task
+from accounting_double_entry.decorators import disable_for_loaddata
 
 # Create your models here.	
 
@@ -211,6 +212,7 @@ class Sales_total(models.Model):
 
 
 @receiver(pre_save, sender=Purchase_Total)
+@disable_for_loaddata
 def update_gst_rate_purchase_account(sender, instance, *args, **kwargs):
 	if instance.purchases.State == instance.purchases.Company.State:
 		instance.cgst = instance.gst_rate / 2
@@ -265,6 +267,7 @@ def update_amount_purchase_account(sender, instance, *args, **kwargs):
 	instance.Total_p = instance.rate_p * instance.Quantity_p * (1 - (instance.Disc_p/100))
 
 @receiver(pre_save, sender=Purchase_Total)
+@disable_for_loaddata
 def update_gst_rate_purchasetotal_account(sender, instance, *args, **kwargs):
 	if instance.purchases.State == instance.purchases.Company.State:
 		instance.cgst_total = instance.cgst * instance.Total_p / 100
@@ -308,6 +311,7 @@ def update_gst_rate_purchasetotal_account(sender, instance, *args, **kwargs):
 
 
 @receiver(pre_save, sender=Sales_total)
+@disable_for_loaddata
 def update_gst_rate_account(sender, instance, *args, **kwargs):
 	if instance.sales.State == instance.sales.Company.State:
 		instance.cgst = instance.gst_rate / 2
@@ -361,6 +365,7 @@ def update_amount_account(sender, instance, *args, **kwargs):
 
 
 @receiver(pre_save, sender=Sales_total)
+@disable_for_loaddata
 def update_gst_rate_saletotal_account(sender, instance, *args, **kwargs):
 	if instance.sales.State == instance.sales.Company.State:
 		instance.cgst_total = instance.cgst * instance.Total / 100
@@ -403,11 +408,13 @@ def update_gst_rate_saletotal_account(sender, instance, *args, **kwargs):
 			
 	
 @receiver(pre_save, sender=Purchase_accounts)
+@disable_for_loaddata
 def update_subtotal_account(sender,instance,*args,**kwargs):
 	total = instance.purchasetotal_accounts.aggregate(the_sum=Coalesce(Sum('Total_p'), Value(0)))['the_sum']
 	instance.sub_total = total
 
 @receiver(pre_save, sender=Purchase_accounts)
+@disable_for_loaddata
 def update_totalgst_account(sender,instance,*args,**kwargs):
 	total_cgst = instance.purchasetotal_accounts.aggregate(the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
 	total_gst = instance.purchasetotal_accounts.aggregate(the_sum=Coalesce(Sum('gst_total'), Value(0)))['the_sum']
@@ -417,11 +424,13 @@ def update_totalgst_account(sender,instance,*args,**kwargs):
 	instance.Total = total
 
 @receiver(pre_save, sender=Sales_accounts)
+@disable_for_loaddata
 def update_total_sales_account(sender,instance,*args,**kwargs):
 	total1 = instance.saletotal_accounts.aggregate(the_sum=Coalesce(Sum('Total'), Value(0)))['the_sum']
 	instance.sub_total = total1
 
 @receiver(pre_save, sender=Sales_accounts)
+@disable_for_loaddata
 def update_totalgst_sales_account(sender,instance,*args,**kwargs):
 	total_cgst = instance.saletotal_accounts.aggregate(the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
 	total_gst = instance.saletotal_accounts.aggregate(the_sum=Coalesce(Sum('gst_total'), Value(0)))['the_sum']
@@ -431,6 +440,7 @@ def update_totalgst_sales_account(sender,instance,*args,**kwargs):
 	instance.Total = total
 
 @receiver(pre_save, sender=Purchase_accounts)
+@disable_for_loaddata
 def user_created_account(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.sub_total != None:
@@ -452,32 +462,34 @@ def user_created_account(sender,instance,*args,**kwargs):
 def delete_related_journal_account(sender, instance, **kwargs):
 	journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
 
+# @receiver(pre_save, sender=Purchase_accounts)
+# @disable_for_loaddata
+# def user_created_plpurchase_account(sender,instance,*args,**kwargs):
+# 	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
+# 	if instance.sub_total != None:
+# 		Pl_journal.objects.update_or_create(
+# 			User=instance.User,
+# 			Company=instance.Company,
+# 			By=ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
+# 			To=instance.purchase,
+# 			voucher_id=instance.id,
+# 			defaults={
+# 				'counter' : c,
+# 				'Date': instance.date,
+# 				'voucher_type' : "Purchase",
+# 				'Debit': instance.sub_total,
+# 				'Credit': instance.sub_total,
+# 				'tax_expense':True,
+# 				'it_head': 'Profit_&_Gains_of_Business_and_Professions'}
+# 			)
+
+# @receiver(pre_delete, sender=Purchase_accounts)
+# def delete_related_pljournal_account(sender, instance, **kwargs):
+# 	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
+
+
 @receiver(pre_save, sender=Purchase_accounts)
-def user_created_plpurchase_account(sender,instance,*args,**kwargs):
-	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.sub_total != None:
-		Pl_journal.objects.update_or_create(
-			User=instance.User,
-			Company=instance.Company,
-			By=ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
-			To=instance.purchase,
-			voucher_id=instance.id,
-			defaults={
-				'counter' : c,
-				'Date': instance.date,
-				'voucher_type' : "Purchase",
-				'Debit': instance.sub_total,
-				'Credit': instance.sub_total,
-				'tax_expense':True,
-				'it_head': 'Profit_&_Gains_of_Business_and_Professions'}
-			)
-
-@receiver(pre_delete, sender=Purchase_accounts)
-def delete_related_pljournal_account(sender, instance, **kwargs):
-	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
-
-
-@receiver(pre_save, sender=Purchase_accounts)
+@disable_for_loaddata
 def user_created_purchase_cgst_account(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.cgst_alltotal != None and instance.cgst_alltotal != 0:
@@ -497,6 +509,7 @@ def user_created_purchase_cgst_account(sender,instance,*args,**kwargs):
 
 
 @receiver(pre_save, sender=Purchase_accounts)
+@disable_for_loaddata
 def user_created_purchase_stategst_account(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.gst_alltotal != None and instance.State == instance.Company.State:
@@ -630,6 +643,7 @@ def user_created_purchase_stategst_account(sender,instance,*args,**kwargs):
 
 
 @receiver(pre_save, sender=Sales_accounts)
+@disable_for_loaddata
 def user_created_sales_account(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.sub_total != None:
@@ -651,29 +665,31 @@ def user_created_sales_account(sender,instance,*args,**kwargs):
 def delete_related_journal_sales_account(sender, instance, **kwargs):
 	journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
 
-@receiver(pre_save, sender=Sales_accounts)
-def user_created_plsales_account(sender,instance,*args,**kwargs):
-	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.sub_total != None:
-		Pl_journal.objects.update_or_create(
-			User=instance.User,
-			Company=instance.Company,
-			By=instance.sales,
-			To=ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
-			voucher_id=instance.id,
-			defaults={
-				'counter' : c,
-				'Date': instance.date,
-				'voucher_type' : "Sales", 
-				'Debit': instance.sub_total,
-				'Credit': instance.sub_total}
-			)
+# @receiver(pre_save, sender=Sales_accounts)
+# @disable_for_loaddata
+# def user_created_plsales_account(sender,instance,*args,**kwargs):
+# 	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
+# 	if instance.sub_total != None:
+# 		Pl_journal.objects.update_or_create(
+# 			User=instance.User,
+# 			Company=instance.Company,
+# 			By=instance.sales,
+# 			To=ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
+# 			voucher_id=instance.id,
+# 			defaults={
+# 				'counter' : c,
+# 				'Date': instance.date,
+# 				'voucher_type' : "Sales", 
+# 				'Debit': instance.sub_total,
+# 				'Credit': instance.sub_total}
+# 			)
 
-@receiver(pre_delete, sender=Sales_accounts)
-def delete_related_pljournal_sales_account(sender, instance, **kwargs):
-	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
+# @receiver(pre_delete, sender=Sales_accounts)
+# def delete_related_pljournal_sales_account(sender, instance, **kwargs):
+# 	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
 
 @receiver(pre_save, sender=Sales_accounts)
+@disable_for_loaddata
 def user_created_sales_cgst_account(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.cgst_alltotal != None and instance.cgst_alltotal != 0:
@@ -693,6 +709,7 @@ def user_created_sales_cgst_account(sender,instance,*args,**kwargs):
 			)
 
 @receiver(pre_save, sender=Sales_accounts)
+@disable_for_loaddata
 def user_created_sales_stategst_account(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.gst_alltotal != None and instance.State == instance.Company.State:
@@ -835,5 +852,6 @@ def user_created_sales_stategst_account(sender,instance,*args,**kwargs):
 ####################################### signals for the app stockkeeping(provided here due to django multiple import issue) ##############################
 
 @receiver(post_save, sender=Stockdata)
+@disable_for_loaddata
 def user_created_stock_ledger(sender, instance, created, **kwargs):
 	user_created_stock_ledger_task(instance.pk)

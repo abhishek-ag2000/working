@@ -28,6 +28,7 @@
            <br>
               <a href="{% url 'accounting_double_entry:ledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Select Ledger </a>
                 <a href="{% url 'accounting_double_entry:ledgercreate' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-warning" role="button">Create Ledger</a>
+                <a href="{% url 'accounting_double_entry:export_ledger' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-primary" role="button">Export to excel</a>
 
               {% if not selectdatefield_details %}
 
@@ -61,7 +62,7 @@
                 </div>
             </div>
 
-    {% if ledger1_list %}
+    {% if ledger1s %}
 
 
 

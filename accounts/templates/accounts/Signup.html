@@ -65,11 +65,47 @@
                 <div class="ibox-content">
                 <form method="POST" id="new_user_form">
                     {% csrf_token %}
-                        {% bootstrap_form form %}
+
+                    <style type="text/css">
+                        .errorlist {
+                            color: red;
+                        }
+                    </style>
+                        <div class="form-group">
+                            <label class="control-label">Username</label>
+                            
+                            {{ form.username }}
+                            {{ form.username.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Email address</label>
+                            
+                            {{ form.email }}
+                            {{ form.email.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Password</label>
+                            
+                            {{ form.password1 }}
+                            {{ form.password1.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Password confirmation</label>
+                            
+                            {{ form.password2 }}
+                            {{ form.password2.errors }}
+                        </div>
+                        <div class="form-group">
+                            
+                            
+                            {{ form.tandc }}
+                            {{ form.tandc.errors }}
+                            <label class="control-label"> Agree the <a href="" data-toggle="modal" data-target="#myModal5"> terms and policy </a></label>
+                        </div>
                         <div class="form-group">
                             <div class="checkbox i-checks">
                                 <label> 
-                                <input type="checkbox"><i></i> Agree the <a href="" data-toggle="modal" data-target="#myModal5"> terms and policy </a>
+                                
                     <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true">
                                 <div class="modal-dialog modal-lg">
                                     <div class="modal-content">

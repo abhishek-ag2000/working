@@ -69,8 +69,8 @@ def order_details(request, **kwargs):
         'send_count'        : send_count,
         'Todos'             : Todo.objects.filter(User=request.user, complete=False),
         'Todos_total'       : Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'],
-        'Role_products'     : Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
-   
+        'Role_products'     : Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True),
+        'Products_legal'    : Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
     }
     return render(request, 'cart/cart.html', context)
 
@@ -85,15 +85,16 @@ def checkout(request, **kwargs):
 
     context = {
         'Products_aggrement': Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True),
-        'order'         : existing_order,
-        'order_list'    : order_list,
-        'inbox'         : inbox,
-        'inbox_count'   : inbox_count,
-        'send_count'    : send_count,
-        'Products'      : Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True),
-        'Todos'         : Todo.objects.filter(User=request.user, complete=False),
-        'Todos_total'   : Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'],
-        'Role_products' : Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+        'order'             : existing_order,
+        'order_list'        : order_list,
+        'inbox'             : inbox,
+        'inbox_count'       : inbox_count,
+        'send_count'        : send_count,
+        'Products'          : Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True),
+        'Todos'             : Todo.objects.filter(User=request.user, complete=False),
+        'Todos_total'       : Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'],
+        'Role_products'     : Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True),
+        'Products_legal'    : Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
     }
     return render(request, 'cart/checkout.html', context)
 

@@ -45,6 +45,8 @@ from tablib import Dataset
 from .resources import CompanyResource
 from django.core.management import call_command
 from datetime import datetime,timedelta
+import xlwt
+
 
 User = get_user_model()
 # Create your views here.
@@ -71,17 +73,256 @@ class NormalProductExistsRequiredMixin:
 @product_1_activation
 def getcompanyObject(request, pk):
 	company_details = get_object_or_404(company, pk=pk)
-	all_objects = list(company.objects.filter(pk=pk)) + list(group1.objects.filter(Company=company_details.pk)) + list(ledger1.objects.filter(Company=company_details.pk)) + list(journal.objects.filter(Company=company_details.pk)) + list(Pl_journal.objects.filter(Company=company_details.pk)) + list(Payment.objects.filter(Company=company_details.pk)) + list(Receipt.objects.filter(Company=company_details.pk)) + list(Contra.objects.filter(Company=company_details.pk)) + list(Stockgroup.objects.filter(Company=company_details.pk)) + list(Simpleunits.objects.filter(Company=company_details.pk)) + list(Compoundunits.objects.filter(Company=company_details.pk)) + list(Stockdata.objects.filter(Company=company_details.pk)) + list(Purchase.objects.filter(Company=company_details.pk)) + list(Sales.objects.filter(Company=company_details.pk))
+	all_objects = list(company.objects.filter(pk=pk)) + list(group1.objects.filter(Company=company_details.pk)) + list(ledger1.objects.filter(Company=company_details.pk)) + list(journal.objects.filter(Company=company_details.pk)) + list(Payment.objects.filter(Company=company_details.pk)) + list(Particularspayment.objects.filter(payment__Company=company_details.pk)) + list(Receipt.objects.filter(Company=company_details.pk)) + list(Particularsreceipt.objects.filter(receipt__Company=company_details.pk)) + list(Contra.objects.filter(Company=company_details.pk)) + list(Particularscontra.objects.filter(contra__Company=company_details.pk)) + list(Stockgroup.objects.filter(Company=company_details.pk)) + list(Simpleunits.objects.filter(Company=company_details.pk)) + list(Compoundunits.objects.filter(Company=company_details.pk)) + list(Stockdata.objects.filter(Company=company_details.pk)) + list(Purchase.objects.filter(Company=company_details.pk)) + list(Stock_Total.objects.filter(purchases__Company=company_details.pk)) + list(Sales.objects.filter(Company=company_details.pk)) + list(Stock_Total_sales.objects.filter(sales__Company=company_details.pk))
 	data = serializers.serialize('json', all_objects)
 	data = json.dumps(json.loads(data), indent=4)
 	response = HttpResponse(data , content_type='application/json')
 	response['Content-Disposition'] = 'attachment; filename={}-{}.json'.format(company_details.Name,datetime.now()) 
 	return response
 
+
+@login_required
+@product_1_activation
+def getcompanyObject_in_excel(request, pk):
+	company_details = get_object_or_404(company, pk=pk)
+
+	response = HttpResponse(content_type='application/ms-excel')
+	response['Content-Disposition'] = 'attachment; filename={}.xls'.format(company_details.Name) 
+
+	wb = xlwt.Workbook(encoding='utf-8')
+	ws = wb.add_sheet('Company')
+	wg = wb.add_sheet('Ledger_Groups')
+	wl = wb.add_sheet('Ledgers')
+	wj = wb.add_sheet('Journals')
+	wp = wb.add_sheet('Payments')
+	wr = wb.add_sheet('Receipts')
+	wc = wb.add_sheet('Contra')
+	wsg = wb.add_sheet('Stock_Groups')
+	wsm = wb.add_sheet('SimpleUnits')
+	wcu = wb.add_sheet('CompoundUnits')
+	wst = wb.add_sheet('StockItems')
+	wpu = wb.add_sheet('Purchases')
+	wps = wb.add_sheet('Purchase_Stock')
+	wsa = wb.add_sheet('Sales')
+	wss = wb.add_sheet('Sales Stock')
+	wsc = wb.add_sheet('Stock Closing')
+
+	# Sheet header, first row
+	row_num = 0
+	row_num1 = 0
+	row_num2 = 0
+	row_num3 = 0
+	row_num4 = 0
+	row_num5 = 0
+	row_num6 = 0
+	row_num7 = 0
+	row_num8 = 0
+	row_num9 = 0
+	row_num10 = 0
+	row_num11 = 0
+	row_num12 = 0
+	row_num13 = 0
+	row_num14 = 0
+	row_num15 = 0
+
+	font_style = xlwt.XFStyle()
+	font_style.font.bold = True
+
+	columns = ['User', 'created_date', 'modified_date', 'Name', 'bussiness_nature', 'maintain', 'Type_of_company', 'Address', 'Country', 'State','Financial_Year_From','Books_Begining_From','GST_enabled','composite_enable',]
+	columns_g = ['Group_Name', 'Voucher_Id','Parent','Nature','Balance_Nature']
+	columns_l = ['Group_Name','Voucher_Id','Ledger_Name','Opening','Balance_Nature','Contact_Name','Address','State','PIN','PAN','GST_No']
+	columns_j = ['Date','Voucher_Id','Voucher_Type','By','To','Debit','Credit']
+	columns_p = ['Date','Voucher_Id','Payment_Account','Payment_Particular','Payment_Amount']
+	columns_r = ['Date','Voucher_Id','Receipt_Account','Receipt_Particular','Receipt_Amount']
+	columns_c = ['Date','Voucher_Id','Contra_Account','Contra_Particular','Contra_Amount']
+	columns_sg = ['Group_Name','Voucher_Id','Parent',]
+	columns_sm = ['Symbol','Voucher_Id','Formal_Name',]
+	columns_cu = ['First_Unit','Voucher_Id','Conversion','Seconds_Unit']
+	columns_st = ['Stock_Name','Voucher_Id','Simple_Unit','Quantity','Rate','Opening','Group_Name','Unit']
+	columns_pu = ['Date','Voucher_Id','Invoice_No','Party_Account','Purchase_Account','Party_Name','Address','State','PAN','GST_No','Sub_Total','CGST_Total','SGST_IGST_Total','Composite_Tax','Total']
+	columns_ps = ['Voucher_Id','Stock_Name','Simple_Unit','Quantity','Rate','Discount','GST_Rate','Master_GST_Rate','Sub_Total','CGST_Total','SGST_IGST_Total','Composite_Tax','Total']
+	columns_sa = ['Date','Voucher_Id','Invoice_No','Party_Account','Sales_Account','Party_Name','Address','State','PAN','GST_No','Sub_Total','CGST_Total','SGST_IGST_Total','Composite_Tax','Total']
+	columns_ss = ['Voucher_Id','Stock_Name','Simple_Unit','Quantity','Rate','Discount','GST_Rate','Master_GST_Rate','Sub_Total','CGST_Total','SGST_IGST_Total','Composite_Tax','Total']
+	columns_sc = ['Stock_Name','Voucher_Id','Opening_Stock','Closing_Quantity','Closing_Stock',]
+
+
+	for col_num in range(len(columns)):
+		ws.write(row_num, col_num, columns[col_num], font_style)
+
+	for col_num_g in range(len(columns_g)):
+		wg.write(row_num, col_num_g, columns_g[col_num_g], font_style)
+
+	for col_num_l in range(len(columns_l)):
+		wl.write(row_num, col_num_l, columns_l[col_num_l], font_style)
+
+	for col_num_j in range(len(columns_j)):
+		wj.write(row_num, col_num_j, columns_j[col_num_j], font_style)
+
+	for col_num_p in range(len(columns_p)):
+		wp.write(row_num, col_num_p, columns_p[col_num_p], font_style)
+
+	for col_num_r in range(len(columns_r)):
+		wr.write(row_num, col_num_r, columns_r[col_num_r], font_style)
+
+	for col_num_c in range(len(columns_c)):
+		wc.write(row_num, col_num_c, columns_c[col_num_c], font_style)
+
+	for col_num_sg in range(len(columns_sg)):
+		wsg.write(row_num, col_num_sg, columns_sg[col_num_sg], font_style)
+
+	for col_num_sm in range(len(columns_sm)):
+		wsm.write(row_num, col_num_sm, columns_sm[col_num_sm], font_style)
+
+	for col_num_cu in range(len(columns_cu)):
+		wcu.write(row_num, col_num_cu, columns_cu[col_num_cu], font_style)
+
+	for col_num_st in range(len(columns_st)):
+		wst.write(row_num, col_num_st, columns_st[col_num_st], font_style)
+
+	for col_num_pu in range(len(columns_pu)):
+		wpu.write(row_num, col_num_pu, columns_pu[col_num_pu], font_style)
+
+	for col_num_ps in range(len(columns_ps)):
+		wps.write(row_num, col_num_ps, columns_ps[col_num_ps], font_style)
+
+	for col_num_sa in range(len(columns_sa)):
+		wsa.write(row_num, col_num_sa, columns_sa[col_num_sa], font_style)
+
+	for col_num_ss in range(len(columns_ss)):
+		wss.write(row_num, col_num_ss, columns_ss[col_num_ss], font_style)
+
+	for col_num_sc in range(len(columns_sc)):
+		wsc.write(row_num, col_num_sc, columns_sc[col_num_sc], font_style)
+
+
+
+	# Sheet body, remaining rows
+	font_style = xlwt.XFStyle()
+
+	rows = company.objects.filter(pk=pk).values_list('User__username','id', 'created_date', 'modified_date', 'Name', 'bussiness_nature', 'maintain', 'Type_of_company', 'Address', 'Country', 'State','Financial_Year_From','Books_Begining_From','gst_enabled','composite_enable')
+
+	for row in rows:
+		row_num += 1
+		for col_num in range(len(row)):
+			ws.write(row_num, col_num, row[col_num], font_style)
+
+	rows_g = group1.objects.filter(Company=company_details.pk).exclude(group_Name__icontains='Primary').values_list('group_Name','id','Master__group_Name','Nature_of_group1','balance_nature')
+
+	for row in rows_g:
+		row_num1 += 1
+		for col_num in range(len(row)):
+			wg.write(row_num1, col_num, row[col_num], font_style)
+
+	rows_l = ledger1.objects.filter(Company=company_details.pk).values_list('group1_Name__group_Name','id','name','Balance_opening', 'group1_Name__balance_nature','User_Name','Address','State','Pin_Code','PanIt_No','GST_No')
+
+	for row in rows_l:
+		row_num2 += 1
+		for col_num in range(len(row)):
+			wl.write(row_num2, col_num, row[col_num], font_style)
+
+	rows_j = journal.objects.filter(Company=company_details.pk).values_list('Date','voucher_id','voucher_type','By__name','To__name','Debit','Credit')
+
+	for row in rows_j:
+		row_num3 += 1
+		for col_num in range(len(row)):
+			wj.write(row_num3, col_num, row[col_num], font_style)
+
+	rows_p = Particularspayment.objects.filter(payment__Company=company_details.pk).values_list('payment__date','payment__id','payment__account__name','particular__name','amount')
+
+	for row in rows_p:
+		row_num4 += 1
+		for col_num in range(len(row)):
+			wp.write(row_num4, col_num, row[col_num], font_style)
+
+	rows_r = Particularsreceipt.objects.filter(receipt__Company=company_details.pk).values_list('receipt__date','receipt__id','receipt__account__name','particular__name','amount')
+
+	for row in rows_r:
+		row_num5 += 1
+		for col_num in range(len(row)):
+			wr.write(row_num5, col_num, row[col_num], font_style)
+
+	rows_c = Particularscontra.objects.filter(contra__Company=company_details.pk).values_list('contra__date','contra__id','contra__account__name','particular__name','amount')
+
+	for row in rows_c:
+		row_num6 += 1
+		for col_num in range(len(row)):
+			wc.write(row_num6, col_num, row[col_num], font_style)
+
+	rows_sg = Stockgroup.objects.filter(Company=company_details.pk).values_list('name','id','under__name')
+
+	for row in rows_sg:
+		row_num7 += 1
+		for col_num in range(len(row)):
+			wsg.write(row_num7, col_num, row[col_num], font_style)
+
+	rows_sm = Simpleunits.objects.filter(Company=company_details.pk).values_list('symbol','id','formal')
+
+	for row in rows_sm:
+		row_num8 += 1
+		for col_num in range(len(row)):
+			wsm.write(row_num8, col_num, row[col_num], font_style)
+
+	rows_cu = Compoundunits.objects.filter(Company=company_details.pk).values_list('firstunit','id','conversion','seconds_unit')
+
+	for row in rows_cu:
+		row_num9 += 1
+		for col_num in range(len(row)):
+			wcu.write(row_num9, col_num, row[col_num], font_style)
+
+	rows_st = Stockdata.objects.filter(Company=company_details.pk).values_list('stock_name','id','unitsimple__symbol','Quantity','rate','opening','under__name','unitsimple__symbol')
+
+	for row in rows_st:
+		row_num10 += 1
+		for col_num in range(len(row)):
+			wst.write(row_num10, col_num, row[col_num], font_style)
+
+	rows_pu = Purchase.objects.filter(Company=company_details.pk).values_list('date','id','ref_no','Party_ac__name','purchase__name','billname','Address','State','PAN','GSTIN','sub_total','cgst_alltotal','gst_alltotal','tax_alltotal','Total')
+
+	for row in rows_pu:
+		row_num11 += 1
+		for col_num in range(len(row)):
+			wpu.write(row_num11, col_num, row[col_num], font_style)
+
+
+	rows_ps = Stock_Total.objects.filter(purchases__Company=company_details.pk).values_list('purchases__id','stockitem__stock_name','stockitem__unitsimple__symbol','Quantity_p','rate_p','Disc_p','gst_rate','stockitem__gst_rate','Total_p','cgst_total','gst_total','tax_total','grand_total')
+
+	for row in rows_ps:
+		row_num12 += 1
+		for col_num in range(len(row)):
+			wps.write(row_num12, col_num, row[col_num], font_style)
+
+	rows_sa = Sales.objects.filter(Company=company_details.pk).values_list('date','id','ref_no','Party_ac__name','sales__name','billname','Address','State','PAN','GSTIN','sub_total','cgst_alltotal','gst_alltotal','tax_alltotal','Total')
+
+	for row in rows_sa:
+		row_num13 += 1
+		for col_num in range(len(row)):
+			wsa.write(row_num13, col_num, row[col_num], font_style)
+
+
+	rows_ss = Stock_Total_sales.objects.filter(sales__Company=company_details.pk).values_list('sales__id','stockitem__stock_name','stockitem__unitsimple__symbol','Quantity','rate','Disc','gst_rate','stockitem__gst_rate','Total','cgst_total','gst_total','tax_total','grand_total')
+
+	for row in rows_ss:
+		row_num14 += 1
+		for col_num in range(len(row)):
+			wss.write(row_num14, col_num, row[col_num], font_style)
+
+	rows_ss = stock_journal.objects.filter(Company=company_details.pk).values_list('stockitem__stock_name','stockitem__id','opening_stock','closing_quantity','closing_stock')
+
+	for row in rows_ss:
+		row_num15 += 1
+		for col_num in range(len(row)):
+			wsc.write(row_num15, col_num, row[col_num], font_style)
+
+	wb.save(response)
+
+	return response
+
 @login_required
 def company_upload(request):
 	if request.method == 'POST':
 		new_company = request.FILES['myfile']
+
+		# call_command('loaddata', new_company)
 
 		obj_generator = serializers.json.Deserializer(new_company)
 		
@@ -122,7 +363,7 @@ class companyListView(ProductExistsRequiredMixin,LoginRequiredMixin,ListView):
 			context['sales_company'] = company.objects.filter(sales_personal=self.request.user).order_by('id')
 			context['cb_company'] = company.objects.filter(cb_personal=self.request.user).order_by('id')
 			context['shared_companys'] 	= zip_longest(context['auditor_company'],context['accountant_company'],context['purchase_company'],context['sales_company'],context['cb_company'])
-
+			context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		return context
 
 class companyDetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView):
@@ -133,6 +374,7 @@ class companyDetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView
 	def get_context_data(self, **kwargs):
 		context = super(companyDetailView, self).get_context_data(**kwargs)
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		context['company_details'] = company_details
 		context['todo_list'] = Todo.objects.filter(User=self.request.user)
 		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
@@ -150,9 +392,10 @@ class companyDetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView
 		month_diff_q = selectdatefield_details.End_Date - selectdatefield_details.Start_Date
 		month_diff = (int(month_diff_q.days/30))
 
-		capital_clo = company_details.Company_group.filter(group_Name__icontains='Capital A/c').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
-		capital_clo_m = company_details.Company_group.filter(Master__group_Name__icontains='Capital A/c').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		capital_clo = company_details.Company_group.filter(group_Name__icontains='Capital Account').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		capital_clo_m = company_details.Company_group.filter(Master__group_Name__icontains='Capital Account').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 		context['capital_ac_total'] = capital_clo + capital_clo_m
+
 
 		sundeb_clo = company_details.Company_group.filter(group_Name__icontains='Sundry Debtors').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 		sundeb_clo_m = company_details.Company_group.filter(Master__group_Name__icontains='Sundry Debtors').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
@@ -179,10 +422,14 @@ class companyDetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView
 		closing_stock = company_details.Company_stock_journal.aggregate(the_sum=Coalesce(Sum('closing_stock'), Value(0)))['the_sum']
 		opening_stock = company_details.Company_stock_journal.aggregate(the_sum=Coalesce(Sum('opening_stock'), Value(0)))['the_sum']
 
-		total_purchase 	= company_details.Company_group.filter(group_Name__icontains='Purchase Accounts').aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
-		total_sales 	= company_details.Company_group.filter(group_Name__icontains='Sales Account').aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
-		total_directexp = company_details.Company_group.filter(group_Name__icontains='Direct Expenses').aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
-		total_directinc = company_details.Company_group.filter(group_Name__icontains='Direct Incomes').aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+		total_purchase 		= company_details.Company_group.filter(group_Name__icontains='Purchase Accounts').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		total_sales 		= company_details.Company_group.filter(group_Name__icontains='Sales Account').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		total_directexp 	= company_details.Company_group.filter(group_Name__icontains='Direct Expenses').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		total_directinc 	= company_details.Company_group.filter(group_Name__icontains='Direct Incomes').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		total_indirectexp 	= company_details.Company_group.filter(group_Name__icontains='Indirect Expense').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		total_indirectinc 	= company_details.Company_group.filter(group_Name__icontains='Indirect Income').aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+		
+		
 
 		if month_diff != 0:
 			context['sales_per_month'] = total_sales / month_diff
@@ -210,13 +457,39 @@ class companyDetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView
 		else:	
 			gp = abs(total_sales) + abs(closing_stock) + abs(total_directinc) - abs(opening_stock) - abs(total_purchase) - abs(total_directexp)
 
+		# nett profit/loss calculation
+		if gp >=0:
+			if total_indirectinc < 0 and total_indirectexp < 0:
+				np = (gp) + abs(total_indirectexp) - abs(total_indirectinc)
+			elif total_indirectexp < 0:
+				np = (gp) + abs(total_indirectinc) + abs(total_indirectexp)
+			elif total_indirectinc < 0:
+				np = (gp) - abs(total_indirectinc) - abs(total_indirectexp)
+			else:
+				np = (gp) + abs(total_indirectinc) - abs(total_indirectexp)
+		else:
+			if total_indirectinc < 0 and total_indirectexp < 0:
+				np = abs(total_indirectexp) - abs(total_indirectinc) - abs(gp) 
+			elif total_indirectinc < 0:
+				np = abs(total_indirectinc) + abs(total_indirectexp) + abs(gp)
+			elif total_indirectexp < 0:
+				np = abs(total_indirectinc) + abs(total_indirectexp) - abs(gp)
+			else:
+				np = abs(total_indirectinc) - abs(total_indirectexp) - abs(gp) 
+
 
 		if total_sales or total_sales != 0:
 			context['gross_profit'] = (gp / total_sales) * 100
-			context['nett_profit']	= (company_details.pl / int(total_sales)) * 100
+			context['nett_profit']	= (np / int(total_sales)) * 100
 		else:
 			context['gross_profit'] = 0	
 			context['nett_profit']	= 0	
+
+		context['nett_profit_total'] = np
+
+		company_details.pl = np
+		company_details.capital = capital_clo + capital_clo_m
+		company_details.save()
 
 		context['cost_goods_sold'] = opening_stock + total_purchase + total_directexp - closing_stock - total_directinc  	
 
@@ -267,26 +540,44 @@ class companyDetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView
 		context['top_stock_total'] = context['top_stock'].aggregate(partial_total=Sum('total'))['partial_total']
 
 		context['stock_margin'] = context['top_stock'].annotate(
-							Avg_purchase = ExpressionWrapper(F('total_puchase') / F('quantity_purchase'), output_field=FloatField()),
-							Avg_sales = ExpressionWrapper(F('total') / F('quantity'), output_field=FloatField())) 
+						    Avg_purchase = Case(
+						        When(quantity_purchase__gt=0, then=F('total_puchase') / F('quantity_purchase')),
+						        default=None,
+						        output_field=FloatField()
+						    ),
+						    Avg_sales = Case(
+						        When(quantity__gt=0, then=F('total') / F('quantity')),
+						        default=None,
+						        output_field=FloatField()
+						    )
+						)
 
 
 		results = collections.OrderedDict()
 		result = Sales.objects.filter(Company=company_details.pk,date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date).annotate(real_total = Case(When(sub_total__isnull=True, then=0),default=F('sub_total')))
 		result_purchase = Purchase.objects.filter(Company=company_details.pk,date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date).annotate(real_total_purchase = Case(When(sub_total__isnull=True, then=0),default=F('sub_total')))
-		qscb  = Pl_journal.objects.filter(Company=company_details.pk, By=pl_ledger.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
-		qscb2 = Pl_journal.objects.filter(Company=company_details.pk, To=pl_ledger.pk, Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))
+		
+		js_by_inexp  	= journal.objects.filter(Company=company_details.pk, By__group1_Name__group_Name__icontains='Indirect Expense', Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
+		js_to_pur  	 	= journal.objects.filter(Company=company_details.pk, To__group1_Name__group_Name__icontains='Purchase Accounts', Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))
+		js_by_diexp  	= journal.objects.filter(Company=company_details.pk, By__group1_Name__group_Name__icontains='Direct Expenses', Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
+		js_by_sal  	 	= journal.objects.filter(Company=company_details.pk, By__group1_Name__group_Name__icontains='Sales Account', Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_debit = Case(When(Debit__isnull=True, then=0),default=F('Debit')))
+		js_by_diinc  	= journal.objects.filter(Company=company_details.pk, To__group1_Name__group_Name__icontains='Direct Incomes', Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))
+		js_by_ininc  	= journal.objects.filter(Company=company_details.pk, To__group1_Name__group_Name__icontains='Indirect Income', Date__gte=selectdatefield_details.Start_Date, Date__lte=selectdatefield_details.End_Date).annotate(real_total_credit = Case(When(Credit__isnull=True, then=0),default=F('Credit')))
 
 		date_cursor = selectdatefield_details.Start_Date
 
 		j = 0
-		k = 0
+		m = 0
 
 		while date_cursor <= selectdatefield_details.End_Date:
 			month_partial_total = result.filter(date__month=date_cursor.month).aggregate(partial_total=Sum('real_total'))['partial_total']
 			month_partial_total_purchase = result_purchase.filter(date__month=date_cursor.month).aggregate(partial_total_purchase=Sum('real_total_purchase'))['partial_total_purchase']
-			month_partial_total_debit = qscb.filter(Date__month=date_cursor.month).aggregate(partial_total_debit=Sum('real_total_debit'))['partial_total_debit']
-			month_partial_total_credit = qscb2.filter(Date__month=date_cursor.month).aggregate(partial_total_credit=Sum('real_total_credit'))['partial_total_credit']
+			month_partial_total_inexp = js_by_inexp.filter(Date__month=date_cursor.month).aggregate(partial_total_debit=Sum('real_total_debit'))['partial_total_debit']
+			month_partial_total_pur = js_to_pur.filter(Date__month=date_cursor.month).aggregate(partial_total_credit=Sum('real_total_credit'))['partial_total_credit']
+			month_partial_total_diexp = js_by_diexp.filter(Date__month=date_cursor.month).aggregate(partial_total_debit=Sum('real_total_debit'))['partial_total_debit']
+			month_partial_total_sal = js_by_sal.filter(Date__month=date_cursor.month).aggregate(partial_total_debit=Sum('real_total_debit'))['partial_total_debit']
+			month_partial_total_diinc = js_by_diinc.filter(Date__month=date_cursor.month).aggregate(partial_total_credit=Sum('real_total_credit'))['partial_total_credit']
+			month_partial_total_ininc = js_by_ininc.filter(Date__month=date_cursor.month).aggregate(partial_total_credit=Sum('real_total_credit'))['partial_total_credit']
 
 			if month_partial_total == None:
 
@@ -307,32 +598,94 @@ class companyDetailView(ProductExistsRequiredMixin,LoginRequiredMixin,DetailView
 
 				z = month_partial_total_purchase
 
-			if month_partial_total_debit == None:
+			if month_partial_total_inexp == None:
 
-				month_partial_total_debit = int(0)
+				month_partial_total_inexp = int(0)
 
-				g = month_partial_total_debit 
-
-			else:
-
-				g = month_partial_total_debit
-
-
-			if month_partial_total_credit == None:
-
-				month_partial_total_credit = int(0)
-
-				f = month_partial_total_credit
+				g = month_partial_total_inexp 
 
 			else:
 
-				f = month_partial_total_credit
-			
-			j = j + g - f
+				g = month_partial_total_inexp
 
-			k = j + opening_balance
 
-			results[calendar.month_name[date_cursor.month]] =  [e,z,k]			
+			if month_partial_total_pur == None:
+
+				month_partial_total_pur = int(0)
+
+				f = month_partial_total_pur
+
+			else:
+
+				f = month_partial_total_pur
+
+			if month_partial_total_diexp == None:
+
+				month_partial_total_diexp = int(0)
+
+				i = month_partial_total_diexp
+
+			else:
+
+				i = month_partial_total_diexp
+
+			if month_partial_total_sal == None:
+
+				month_partial_total_sal = int(0)
+
+				h = month_partial_total_sal
+
+			else:
+
+				h = month_partial_total_sal
+
+			if month_partial_total_sal == None:
+
+				month_partial_total_diinc = int(0)
+
+				k = month_partial_total_diinc
+
+			else:
+
+				k = month_partial_total_diinc
+
+			if month_partial_total_ininc == None:
+
+				month_partial_total_ininc = int(0)
+
+				y = month_partial_total_ininc
+
+			else:
+
+				y = month_partial_total_ininc
+
+			if h == 0 or f == 0 or i == 0 or k == 0:
+				j = 0
+			elif h == 0 and f == 0:
+				j = j + k
+			elif h == 0 and i == 0:
+				j = j + k - f
+			elif h == 0 and k == 0:
+				j = j - f - i 
+			elif k == 0 and f == 0:
+				j = j + h - i 
+			elif k == 0 and i == 0:
+				j = j + h - f
+			elif f == 0 and i == 0:
+				j = j + h + k
+			else:
+				j = j + h + k - f - i  
+
+			if y == 0 and g == 0:
+				m = j
+			elif y == 0:
+				m = m + j - g
+			elif g == 0:
+				m = m + j + y
+			else:
+				m = m + j + y - g
+
+			results[calendar.month_name[date_cursor.month]] =  [e,z,m]			
 
 			date_cursor += relativedelta.relativedelta(months=1)
 
@@ -371,6 +724,7 @@ class companyCreateView(NormalProductExistsRequiredMixin,LoginRequiredMixin,Crea
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		return context
 
 
@@ -392,6 +746,7 @@ class companyUpdateView(NormalProductExistsRequiredMixin,LoginRequiredMixin,Upda
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']  
+		context['Products_legal'] = Product_activation.objects.filter(User=self.request.user,product__id = 10, is_active=True)
 		return context
 
 
@@ -440,7 +795,8 @@ def specific_company_details(request, pk):
 		Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']	
+		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
 		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -450,6 +806,7 @@ def specific_company_details(request, pk):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	context = {
 		'company_details' 			: company_details,
@@ -460,7 +817,8 @@ def specific_company_details(request, pk):
 		'Todos'			 			: Todos,
 		'Todos_total' 	  			: Todos_total, 
 		'Role_products' 			: Role_products,
-		'Products_aggrement'		: Products_aggrement 
+		'Products_aggrement'		: Products_aggrement,
+		'Products_legal' 			: Products_legal 
 
 	}
 	return render(request, 'company/company_details.html', context)
@@ -482,7 +840,7 @@ def auditor_list(request, pk):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
 		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -492,6 +850,7 @@ def auditor_list(request, pk):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	context = {
 		'company_details' 			: company_details,
@@ -502,7 +861,8 @@ def auditor_list(request, pk):
 		'Todos'			 			: Todos,
 		'Todos_total' 	  			: Todos_total,
 		'Role_products' 			: Role_products,
-		'Products_aggrement' 		: Products_aggrement  
+		'Products_aggrement' 		: Products_aggrement,
+		'Products_legal' 			: Products_legal  
 
 	}
 	return render(request, 'auditor/auditor_list.html', context)
@@ -533,15 +893,26 @@ def search_auditors(request,pk):
 	except EmptyPage:
 		users = paginator.page(paginator.num_pages)
 
-	Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
-	Products = Product_activation.objects.filter(product__id = 1, is_active=True)
-	Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
-	Todos = Todo.objects.filter(complete=False)
-	Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	inbox = Message.objects.all()
-	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	company_details = get_object_or_404(company, pk=pk)
+	if not request.user.is_authenticated:
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
+		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(complete=False)
+		Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		inbox = Message.objects.all()
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
+	else:
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(User=request.user,complete=False)
+		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos_total = Todo.objects.filter(User=request.user,complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		inbox = Message.objects.filter(reciever=request.user)
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	
 
@@ -558,6 +929,7 @@ def search_auditors(request,pk):
 		'company_details' 		: company_details,
 		'Role_products' 		: Role_products,
 		'Products_aggrement' 	: Products_aggrement,
+		'Products_legal' 		: Products_legal
 
 	}
 
@@ -596,7 +968,7 @@ def accountant_list(request, pk):
 	company_details = get_object_or_404(company, pk=pk)
 
 	if not request.user.is_authenticated:
-		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
 		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(complete=False)
@@ -604,9 +976,9 @@ def accountant_list(request, pk):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
-		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(User=request.user,complete=False)
 		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -614,6 +986,7 @@ def accountant_list(request, pk):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	context = {
 		'company_details' 			: company_details,
@@ -624,7 +997,8 @@ def accountant_list(request, pk):
 		'Todos'			 			: Todos,
 		'Todos_total' 	  			: Todos_total,
 		'Role_products' 			: Role_products,
-		'Products_aggrement' 		: Products_aggrement 
+		'Products_aggrement' 		: Products_aggrement,
+		'Products_legal' 			: Products_legal 
 
 	}
 	return render(request, 'accountant/accountant_list.html', context)
@@ -653,15 +1027,26 @@ def search_accountant(request,pk):
 	except EmptyPage:
 		users = paginator.page(paginator.num_pages)
 
-	Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
-	Products = Product_activation.objects.filter(product__id = 1, is_active=True)
-	Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
-	Todos = Todo.objects.filter(complete=False)
-	Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	inbox = Message.objects.all()
-	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	company_details = get_object_or_404(company, pk=pk)
+	if not request.user.is_authenticated:
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
+		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(complete=False)
+		Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		inbox = Message.objects.all()
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
+	else:
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(User=request.user,complete=False)
+		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos_total = Todo.objects.filter(User=request.user,complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		inbox = Message.objects.filter(reciever=request.user)
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	
 
@@ -677,7 +1062,8 @@ def search_accountant(request,pk):
 		'Todos_total' 			: Todos_total ,
 		'company_details' 		: company_details,
 		'Role_products' 		: Role_products,
-		'Products_aggrement' 	: Products_aggrement
+		'Products_aggrement' 	: Products_aggrement,
+		'Products_legal' 		: Products_legal
 
 	}
 
@@ -716,7 +1102,7 @@ def purchase_personal_list(request, pk):
 	company_details = get_object_or_404(company, pk=pk)
 
 	if not request.user.is_authenticated:
-		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
 		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(complete=False)
@@ -724,9 +1110,9 @@ def purchase_personal_list(request, pk):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
-		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(User=request.user,complete=False)
 		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -734,6 +1120,7 @@ def purchase_personal_list(request, pk):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	context = {
 		'company_details' 			: company_details,
@@ -744,7 +1131,8 @@ def purchase_personal_list(request, pk):
 		'Todos'			 			: Todos,
 		'Todos_total' 	  			: Todos_total, 
 		'Role_products' 			: Role_products,
-		'Products_aggrement' 		: Products_aggrement 
+		'Products_aggrement' 		: Products_aggrement,
+		'Products_legal' 			: Products_legal
 
 	}
 	return render(request, 'purchase_personal/purchase_personnel_list.html', context)
@@ -773,15 +1161,26 @@ def search_purchase_personal(request,pk):
 	except EmptyPage:
 		users = paginator.page(paginator.num_pages)
 
-	Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
-	Products = Product_activation.objects.filter(product__id = 1, is_active=True)
-	Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
-	Todos = Todo.objects.filter(complete=False)
-	Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	inbox = Message.objects.all()
-	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	company_details = get_object_or_404(company, pk=pk)
+	if not request.user.is_authenticated:
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
+		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(complete=False)
+		Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		inbox = Message.objects.all()
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
+	else:
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(User=request.user,complete=False)
+		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos_total = Todo.objects.filter(User=request.user,complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		inbox = Message.objects.filter(reciever=request.user)
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	
 
@@ -797,7 +1196,8 @@ def search_purchase_personal(request,pk):
 		'Todos_total' 			: Todos_total ,
 		'company_details' 		: company_details,
 		'Role_products' 		: Role_products,
-		'Products_aggrement' 	: Products_aggrement
+		'Products_aggrement' 	: Products_aggrement,
+		'Products_legal' 		: Products_legal,
 
 	}
 
@@ -837,7 +1237,7 @@ def sales_personal_list(request, pk):
 	company_details = get_object_or_404(company, pk=pk)
 
 	if not request.user.is_authenticated:
-		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
 		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(complete=False)
@@ -845,9 +1245,9 @@ def sales_personal_list(request, pk):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
-		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(User=request.user,complete=False)
 		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -855,6 +1255,7 @@ def sales_personal_list(request, pk):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	context = {
 		'company_details' 			: company_details,
@@ -865,7 +1266,8 @@ def sales_personal_list(request, pk):
 		'Todos'			 			: Todos,
 		'Todos_total' 	  			: Todos_total,
 		'Role_products' 			: Role_products,
-		'Products_aggrement' 		: Products_aggrement 
+		'Products_aggrement' 		: Products_aggrement,
+		'Products_legal'            : Products_legal,
 
 	}
 	return render(request, 'sales_personnel/sales_personnel_list.html', context)
@@ -894,15 +1296,26 @@ def search_sales_personal(request,pk):
 	except EmptyPage:
 		users = paginator.page(paginator.num_pages)
 
-	Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
-	Products = Product_activation.objects.filter(product__id = 1, is_active=True)
-	Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
-	Todos = Todo.objects.filter(complete=False)
-	Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	inbox = Message.objects.all()
-	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	company_details = get_object_or_404(company, pk=pk)
+	if not request.user.is_authenticated:
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
+		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(complete=False)
+		Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		inbox = Message.objects.all()
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
+	else:
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(User=request.user,complete=False)
+		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos_total = Todo.objects.filter(User=request.user,complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		inbox = Message.objects.filter(reciever=request.user)
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 
 	context = {
@@ -917,7 +1330,8 @@ def search_sales_personal(request,pk):
 		'Todos_total' 			: Todos_total ,
 		'company_details' 		: company_details,
 		'Role_products' 		: Role_products,
-		'Products_aggrement' 	: Products_aggrement
+		'Products_aggrement' 	: Products_aggrement,
+		'Products_legal' 		: Products_legal,
 
 	}
 
@@ -957,7 +1371,7 @@ def cb_personal_list(request, pk):
 	company_details = get_object_or_404(company, pk=pk)
 
 	if not request.user.is_authenticated:
-		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
 		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(complete=False)
@@ -965,9 +1379,9 @@ def cb_personal_list(request, pk):
 		inbox = Message.objects.all()
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
 	else:
-		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
 		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
 		Todos = Todo.objects.filter(User=request.user,complete=False)
 		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
@@ -975,6 +1389,7 @@ def cb_personal_list(request, pk):
 		inbox = Message.objects.filter(reciever=request.user)
 		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
 	context = {
 		'company_details' 			: company_details,
@@ -985,7 +1400,8 @@ def cb_personal_list(request, pk):
 		'Todos'			 			: Todos,
 		'Todos_total' 	  			: Todos_total, 
 		'Role_products' 			: Role_products,
-		'Products_aggrement' 		: Products_aggrement
+		'Products_aggrement' 		: Products_aggrement,
+		'Products_legal' 			: Products_legal
 
 	}
 	return render(request, 'cb_personnal/cb_personnal_list.html', context)
@@ -1014,15 +1430,26 @@ def search_cb_personal(request,pk):
 	except EmptyPage:
 		users = paginator.page(paginator.num_pages)
 
-	Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
-	Products = Product_activation.objects.filter(product__id = 1, is_active=True)
-	Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
-	Todos = Todo.objects.filter(complete=False)
-	Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	inbox = Message.objects.all()
-	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-	company_details = get_object_or_404(company, pk=pk)
+	if not request.user.is_authenticated:
+		Products_aggrement = Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(product__id = 1, is_active=True)
+		Role_products = Role_product_activation.objects.filter(product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(complete=False)
+		Todos_total = Todo.objects.filter(complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		inbox = Message.objects.all()
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(product__id = 10, is_active=True)	
+	else:
+		Products_aggrement = Product_activation.objects.filter(product__id = 9, is_active=True)
+		Products = Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos = Todo.objects.filter(User=request.user,complete=False)
+		Role_products = Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True)
+		Todos_total = Todo.objects.filter(User=request.user,complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
+		inbox = Message.objects.filter(reciever=request.user)
+		inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+		Products_legal = Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 	
 
 	context = {
@@ -1037,7 +1464,8 @@ def search_cb_personal(request,pk):
 		'Todos_total' 			: Todos_total ,
 		'company_details' 		: company_details,
 		'Role_products' 		: Role_products,
-		'Products_aggrement' 	: Products_aggrement
+		'Products_aggrement' 	: Products_aggrement,
+		'Products_legal' 		: Products_legal
 
 	}
 

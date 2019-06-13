@@ -45,6 +45,8 @@ class HomePage(ListView):
 		context['Professional_users'] = Profile.objects.filter(user_type__icontains='Professional').aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['Data_users'] = Profile.objects.filter(user_type__icontains='Data Operators').aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['Products'] = Product.objects.all()
+		context['Services_list'] = Services.objects.all()
+		context['Api_list'] = API.objects.all()
 		context['Products_count'] = Product.objects.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['users'] = Profile.objects.all().aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		return context

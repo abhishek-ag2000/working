@@ -75,11 +75,11 @@
                                 <thead>
                                 <tr>
                                 <th>Sl no</th>
+                                <th>Date</th>
                                  <th>Party A/c</th>
                                 <th>Billing Name</th>
                                 <th>Sale Type</th>
                                 <th>Total Amount</th>
-                                <th>Billed</th>
                               </tr>
                                 </thead>
 
@@ -90,6 +90,7 @@
                                     <td><a href="{% url 'stockkeeping:salesdetail' pk2=sales.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">
                                       {{ forloop.counter0|add:page_obj.start_index }}
                                     </a></td>
+                                    <td> <a href="{% url 'stockkeeping:salesdetail' pk2=sales.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ sales.date }}</a></td>
                                     <td><a href="{% url 'stockkeeping:salesdetail' pk2=sales.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ sales.Party_ac }}</a></td>
                                     <td> <a href="{% url 'stockkeeping:salesdetail' pk2=sales.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ sales.billname }}</a></td>
                                     <td> <a href="{% url 'stockkeeping:salesdetail' pk2=sales.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ sales.sales }}</a></td>
@@ -98,7 +99,7 @@
                                     {% else %}
                                         <td> <a href="{% url 'stockkeeping:salesdetail' pk2=sales.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ sales.sub_total|intcomma  }}</a></td>
                                     {% endif %}
-                                    <td> <a href="{% url 'stockkeeping:salesdetail' pk2=sales.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ sales.date|timesince }}</a></td>
+                                    
                                    
                                   </tr>
                                 {% endfor %}

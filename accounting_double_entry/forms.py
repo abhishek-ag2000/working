@@ -24,6 +24,13 @@ class group1Form(forms.ModelForm):
 		self.fields['Master'].queryset = group1.objects.filter(User= self.User,Company = self.Company).exclude(group_Name__icontains='Primary')
 		self.fields['Nature_of_group1'].widget.attrs = {'class': 'select2_demo_2 form-control',}
 		self.fields['balance_nature'].widget.attrs = {'class': 'select2_demo_2 form-control',}
+
+	def clean_group_name(self):
+		group_Name = self.cleaned_data['group_Name']
+
+		if group1.objects.filter(Company=self.Company,group_Name__iexact=group_Name).exists():
+			raise forms.ValidationError("This Group name already exists")
+		return group_Name
 		
 
 class DateInput(forms.DateInput):
@@ -34,7 +41,7 @@ class Ledgerform(forms.ModelForm):
 
 	class Meta:
 		model = ledger1
-		fields = ('name', 'group1_Name', 'Opening_Balance', 'User_Name', 'Address', 'State', 'Pin_Code', 'PanIt_No', 'GST_No')
+		fields = ('name', 'group1_Name', 'Opening_Balance', 'User_Name', 'Address', 'city', 'State', 'Pin_Code', 'PanIt_No', 'GST_No')
 
 	def __init__(self,  *args, **kwargs):
 		self.User = kwargs.pop('User', None)		
@@ -50,6 +57,13 @@ class Ledgerform(forms.ModelForm):
 		self.fields['Pin_Code'].widget.attrs = {'class': 'form-control',}
 		self.fields['PanIt_No'].widget.attrs = {'class': 'form-control',}
 		self.fields['GST_No'].widget.attrs = {'class': 'form-control',}
+
+	def clean_ledger_name(self):
+		ledger_Name = self.cleaned_data['name']
+
+		if ledger1.objects.filter(Company=self.Company,name__iexact=ledger_Name).exists():
+			raise forms.ValidationError("This Ledger name already exists")
+		return ledger_Name
 
 class Ledgerformadmin(forms.ModelForm):
 
@@ -69,6 +83,13 @@ class Ledgerformadmin(forms.ModelForm):
 		self.fields['Pin_Code'].widget.attrs = {'class': 'form-control',}
 		self.fields['PanIt_No'].widget.attrs = {'class': 'form-control',}
 		self.fields['GST_No'].widget.attrs = {'class': 'form-control',}
+
+	def clean_ledger_name(self):
+		ledger_Name = self.cleaned_data['name']
+
+		if ledger1.objects.filter(Company=self.Company,name__iexact=ledger_Name).exists():
+			raise forms.ValidationError("This Ledger name already exists")
+		return ledger_Name
 
 
 
@@ -93,6 +114,7 @@ class journalForm(forms.ModelForm):
 		self.fields['By'].queryset = ledger1.objects.filter(Company = self.Company)
 		self.fields['By'].widget.attrs = {'class': 'select2_demo_2 form-control',}
 		self.fields['narration'].widget.attrs = {'class': 'form-control',}
+
 
 class pl_journalForm(forms.ModelForm):
 	

@@ -5,6 +5,7 @@ from django.utils import timezone
 
 class User(auth.models.User, auth.models.PermissionsMixin):
     tandc = models.BooleanField(default=True)
+    
     def __str__(self):
         return "@{}".format(self.username)
 

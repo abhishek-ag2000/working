@@ -62,6 +62,7 @@ class Stockdata_form(forms.ModelForm):
             'exp_date' : DateInput()
         }
 
+
 	def __init__(self, *args, **kwargs):
 		self.User = kwargs.pop('User', None)		
 		self.Company = kwargs.pop('Company', None)
@@ -81,6 +82,14 @@ class Stockdata_form(forms.ModelForm):
 		self.fields['unitcomplex'].widget.attrs = {'class': 'select2_demo_2 form-control',}
 		self.fields['gst_rate'].widget.attrs        = {'class': 'form-control',}
 		self.fields['hsn'].widget.attrs         = {'class': 'form-control',}
+
+	def clean_stock_name(self):
+		stock_name = self.cleaned_data['stock_name']
+
+		if Stockdata.objects.filter(Company=self.Company,stock_name__iexact=stock_name).exists():
+			raise forms.ValidationError("This stock name already exists")
+		return stock_name
+
 
 class Purchase_form(forms.ModelForm):
 	class Meta:
@@ -230,7 +239,7 @@ class Stock_Totalform(forms.ModelForm):
 		self.fields['rate_p'].widget.attrs     = {'class': 'form-control','step':'any'}
 		self.fields['Disc_p'].widget.attrs = {'class': 'form-control',}
 		self.fields['gst_rate'].widget.attrs = {'class': 'form-control',}
-		self.fields['Total_p'].widget.attrs = {'class': 'form-control',}
+		self.fields['Total_p'].widget.attrs = {'class': 'form-control','step':'any'}
 
 Purchase_formSet = inlineformset_factory(Purchase, Stock_Total,
                                             form=Stock_Totalform, extra=3)
@@ -254,7 +263,7 @@ class Stock_Totalformsales(forms.ModelForm):
 		self.fields['rate'].widget.attrs     = {'class': 'form-control','step':'any'}
 		self.fields['Disc'].widget.attrs = {'class': 'form-control',}
 		self.fields['gst_rate'].widget.attrs = {'class': 'form-control',}
-		self.fields['Total'].widget.attrs = {'class': 'form-control',}
+		self.fields['Total'].widget.attrs = {'class': 'form-control','step':'any'}
 
 
 Sales_formSet =  inlineformset_factory(Sales, Stock_Total_sales,

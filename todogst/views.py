@@ -21,16 +21,17 @@ def index(request):
     send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
     
     context = {
-        'Products_aggrement': Product_activation.objects.filter(User=request.user,product__id = 9, activate=True),
-        'todo_list'     : todo_list, 
-        'form'          : form,
-        'inbox'         : inbox,
-        'inbox_count'   : inbox_count,
-        'send_count'    : send_count,
-        'Todos'         : Todo.objects.filter(User=request.user, complete=False),
-        'Products'      : Product_activation.objects.filter(User=request.user,product__id = 1, activate=True),
-        'Todos_total'   : Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'], 
-        'Role_products'     : Role_product_activation.objects.filter(User=request.user,product__id = 1, activate=True)
+        'Products_aggrement': Product_activation.objects.filter(User=request.user,product__id = 9, is_active=True),
+        'todo_list'         : todo_list, 
+        'form'              : form,
+        'inbox'             : inbox,
+        'inbox_count'       : inbox_count,
+        'send_count'        : send_count,
+        'Todos'             : Todo.objects.filter(User=request.user, complete=False),
+        'Products'          : Product_activation.objects.filter(User=request.user,product__id = 1, is_active=True),
+        'Todos_total'       : Todo.objects.filter(User=request.user, complete=False).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'], 
+        'Role_products'     : Role_product_activation.objects.filter(User=request.user,product__id = 1, is_active=True),
+        'Products_legal'    : Product_activation.objects.filter(User=request.user,product__id = 10, is_active=True)
 
     }
 

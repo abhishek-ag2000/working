@@ -28,7 +28,7 @@
                     </li>
                 </ol>
            <br>
-                <a href="{% url 'accounting_double_entry:P&Lcond' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Profit & Loss OverView</a>
+                <a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">Profit & Loss OverView</a>
           
                 <a href="{% url 'accounting_double_entry:blsht' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-warning" role="button">Balance Sheet Condensed View</a>
 
@@ -165,8 +165,8 @@
                                   {% endfor %}
 
                                   {% for j in ast_particular %}
-                                    {% if j.difference != 0 %}
                                       {% if j.group_Name == 'Current Assets' %}
+                                        {% if j.difference != 0 or closing_stock != 0 %}
                                         <tr>
                                             {% if j.difference >= 0 %}
                                                 <th></th>
@@ -243,7 +243,9 @@
                                               {% endif %} 
                                           </tr>
                                         {% endfor %}
+                                        {% endif %}
                                       {% else %}
+                                        {% if j.difference != 0 %}
                                         <tr>
                                             {% if j.difference >= 0 %}
                                                 <th></th>
@@ -303,13 +305,13 @@
                                               {% endif %} 
                                           </tr>
                                         {% endfor %}
-                                      {% endif %}
+                                        {% endif %}
                                     {% endif %}
                                   {% endfor %}
 
                                         <tr>
                                             {% if total_pl >= 0 %}
-                                                  <th><a href="{% url 'accounting_double_entry:ledgerdetailmonthly' pk=company_details.pk pk2=ledger_pl.pk pk3=selectdatefield_details.pk %}">{{ ledger_pl.name }}</a></th>
+                                                  <th><a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">{{ ledger_pl.name }}</a></th>
                                                   <td></td>
                                                   <th>{{ total_pl|abs|floatformat:2|intcomma }}</th>
                                                   <td></td>
@@ -318,7 +320,7 @@
                                               {% else %}
                                                   <td></td>
                                                   <td></td>
-                                                  <th><a href="{% url 'accounting_double_entry:ledgerdetailmonthly' pk=company_details.pk pk2=ledger_pl.pk pk3=selectdatefield_details.pk %}">{{ ledger_pl.name }}</a></th>
+                                                  <th><a href="{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}">{{ ledger_pl.name }}</a></th>
                                                   <th></th>
                                                   <td></td>
                                                   <th>{{ total_pl|abs|floatformat:2|intcomma }}</th>

@@ -66,8 +66,16 @@
             </div>
         </div>
         <div class="ibox-content">
-            <form method="POST">
+            <form method="POST" id="stock-form" data-validate-username-url="{% url 'stockkeeping:validate_stock_name' pk=company_details.pk pk3=selectdatefield_details.pk %}">
             {% csrf_token %}
+
+            <style type="text/css">
+                .errorlist {
+                    color: red;
+                }
+            </style>
+
+              {{ form.non_field_errors }}
 
                 <div class="form-group row">
 
@@ -212,6 +220,8 @@
                         {% endif %}
                     </div>
                 </div>
+
+
             </form>
         </div>
     </div>

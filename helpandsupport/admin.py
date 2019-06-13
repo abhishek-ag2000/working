@@ -17,7 +17,7 @@ admin.site.register(Articles, articles)
 
 class article_questions(admin.ModelAdmin):
 	model = Article_Questions
-	list_display = ['User','Article','Question_title','text']
+	list_display = ['User','Article','text']
 
 admin.site.register(Article_Questions, article_questions)
 

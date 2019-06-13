@@ -25,6 +25,7 @@ urlpatterns = [
 ################################### Stockgroup Url #######################################
 
 	url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/stockgrouplist$',views.Stockgroup_listview.as_view(),name='stockgrouplist'),
+	url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/ajax/validate_stock_name$',views.validate_stock_name,name='validate_stock_name'),
 	url(r'^company/(?P<pk1>\d+)/stockgroupdetail/(?P<pk2>\d+)/date/(?P<pk3>\d+)/$',views.Stockgroup_detailsview.as_view(),name='stockgroupdetail'),
 	url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/stockgroupcreate/$',views.Stockgroup_createview.as_view(),name='stockgroupcreate'),
 	url(r'^company/(?P<pk1>\d+)/stockgroupupdate/(?P<pk2>\d+)/date/(?P<pk3>\d+)/$',views.Stockgroup_updateview.as_view(),name='stockgroupupdate'),
@@ -73,7 +74,6 @@ urlpatterns = [
 	url(r'^company/(?P<pk>\d+)/salesdelete/(?P<pk2>\d+)/date/(?P<pk3>\d+)/$',views.Sales_deleteview.as_view(),name='salesdelete'),
 
 
-	url(r'^company/(?P<pk>\d+)/date/(?P<pk3>\d+)/stcreate/$',views.Stock_Total_createview.as_view(),name='stocktotalcreate'),
 	url(r'^company/(?P<pk>\d+)/salesdatewise/(?P<month>\d+)/date/(?P<pk3>\d+)/$',views.sales_register_datewise,name='sales_datewise'),
 
 

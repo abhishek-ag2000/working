@@ -2,6 +2,7 @@
 {% load staticfiles %}
 <html lang="en">
 <head>
+    <meta name="google-site-verification" content="SHll-ohXGYvgfvM6P5riU9BzHaVmRSyiQiWP0RNf5xg" />
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,6 +20,8 @@
 
     <!-- Custom styles for this template -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+
 </head>
 <body id="page-top" class="landing-page no-skin-config">
 <div class="navbar-wrapper">
@@ -37,6 +40,8 @@
                         <!-- <li><a class="nav-link page-scroll" href="#team">Team</a></li> -->
                         <li><a class="nav-link page-scroll" href="#testimonials">Statistics</a></li>
                         <li><a class="nav-link page-scroll" href="#pricing">Products</a></li>
+                        <li><a class="nav-link page-scroll" href="#services">Services</a></li>
+                        <li><a class="nav-link page-scroll" href="#api">Apis</a></li>
                         <li><a class="nav-link page-scroll" href="#contact">Contact</a></li>
                     </ul>
                 </div>
@@ -643,7 +648,7 @@
 
 </section>
 
-<section section id="pricing" class="comments dark-section" style="margin-top: 0">
+<section section id="services" class="comments dark-section" style="margin-top: 0">
 
 
  <div class="container">
@@ -666,34 +671,32 @@
 
         <div class="wrapper wrapper-content animated fadeInRight">
             <div class="row">
-{% for products in Products %}
+{% for service in Services_list %}
                 <div class="col-md-3">
                     <div class="ibox">
                         <div class="ibox-content product-box">
 
                             <div>
 
-                            {% if products.image %}
-                               <img class="product_img" src="{{ products.image.url }}/" alt="product picture" height="200" width="100">
+                            {% if service.image %}
+                               <img class="product_img" src="{{ service.image.url }}/" alt="product picture" height="200" width="100">
                             {% else %}
                                 <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}" height="200" width="100">
                             {% endif %}
 
                             </div>
                             <div class="product-desc">
-                                <span class="product-price">
-                                    <strong> &#8377; {{ products.price }}/-</strong>   annually.
-                                </span>
                                 
-                                <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="product-name">{{ products.title}}</a>
+                                
+                                <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="product-name">{{ service.title}}</a>
 
 
 
                                 <div class="small m-t-xs">
-                                    {{ products.summary|safe|truncatewords:"9" }}
+                                    {{ service.summary|safe|truncatewords:"9" }}
                                 </div>
                                 <div class="ratings">
-                                <p class="pull-right">{{ products.product_review.count }} review{{ products.product_review.count|pluralize }}</p>
+                                
 
                                 <style type="text/css">
                                   .checked {
@@ -710,7 +713,7 @@
                             </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>
@@ -901,7 +904,7 @@
 
 </section>
 
-<section section id="pricing" class="comments gray-section" style="margin-top: 0">
+<section section id="api" class="comments gray-section" style="margin-top: 0">
 
 
  <div class="container">
@@ -924,15 +927,15 @@
 
         <div class="wrapper wrapper-content animated fadeInRight">
             <div class="row">
-{% for products in Products %}
+{% for api in Api_list %}
                 <div class="col-md-3">
                     <div class="ibox">
                         <div class="ibox-content product-box">
 
                             <div>
 
-                            {% if products.image %}
-                               <img class="product_img" src="{{ products.image.url }}/" alt="product picture" height="200" width="100">
+                            {% if api.image %}
+                               <img class="product_img" src="{{ api.image.url }}/" alt="product picture" height="200" width="100">
                             {% else %}
                                 <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}" height="200" width="100">
                             {% endif %}
@@ -940,18 +943,18 @@
                             </div>
                             <div class="product-desc">
                                 <span class="product-price">
-                                    <strong> &#8377; {{ products.price }}/-</strong>   annually.
+                                    <strong> &#8377; {{ api.price }}/-</strong>   annually.
                                 </span>
                                 
-                                <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="product-name">{{ products.title}}</a>
+                                <a href="{% url 'ecommerce_integration:apidetail' pk=api.pk %}" class="product-name">{{ api.title}}</a>
 
 
 
                                 <div class="small m-t-xs">
-                                    {{ products.summary|safe|truncatewords:"9" }}
+                                    {{ api.summary|safe|truncatewords:"9" }}
                                 </div>
                                 <div class="ratings">
-                                <p class="pull-right">{{ products.product_review.count }} review{{ products.product_review.count|pluralize }}</p>
+                                
 
                                 <style type="text/css">
                                   .checked {
@@ -968,7 +971,7 @@
                             </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'ecommerce_integration:apidetail' pk=api.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>
@@ -1332,16 +1335,16 @@
                 <h2>Play Store </h2>
                 <p>Download the app for perfect experience on your android smart phone and get the latest updates and everything done on your mobile seamlessly. We have integrated our app to work with all gestures keeping in mind the Android Users. Deeply integrated with latest android kernels and versions.</p>
                 <!-- <a href="" class="btn btn-primary">Download now !</a> -->
-                <input type="image" src="{% static 'img/landing/googleplay.png' %}" onclick="alert('This will redirect you to the Play Store !')" width="112" height="41" />
+                <input type="image" src="{% static 'img/landing/googleplay1.png' %}" onclick="alert('This will redirect you to the Play Store !')" width="112" height="41" />
             </div>
             <div class="col-lg-6 m-t-n-lg wow zoomIn">
-                <img src="{% static 'img/landing/branding.png' %}" class="img-fluid" alt="dashboard">
+                <img src="{% static 'img/landing/laptop_bracket book (1).png' %}" class="img-fluid" alt="dashboard">
             </div>
             <div class="col-lg-3 features-text text-right wow fadeInRight">
                 <small>For IOS devices</small>
                 <h2>App Store </h2>
                 <p> Download the app for perfect experience on your Apple Devices including Ipads and iwatches notifications and get the latest updates and everything done on your mobile seamlessly. We have integrated our app to work with all gestures keeping in mind the IOS Users ecosystem needs.</p>
-                <input type="image" src="{% static 'img/landing/appstore.png' %}" onclick="alert('This will redirect you to the App Store !')" width="112" height="41" />
+                <input type="image" src="{% static 'img/landing/appstore1.png' %}" onclick="alert('This will redirect you to the App Store !')" width="112" height="41" />
             </div>
         </div>
     </div>

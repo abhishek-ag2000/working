@@ -253,6 +253,29 @@
 
     {% include 'clouderp/snippet_js/shortcut_js.html' %}
 
+         <script>
+         
+            $("#id_stock_name").change(function () {
+              var form = $(this).closest("form");
+              $.ajax({
+                url: form.attr("data-validate-username-url"),
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                  if (data.is_taken) {
+                    console.log("Error")
+                    swal({
+                        title: "Error!",
+                        text: data.error_message,
+                        type: "warning"
+                    });
+                  }
+                }
+              });
+            });
+          </script>
+
+
     <script type="text/javascript">
     $(document).ready(function(result){
         if($("#id_purchasetotal-0-Disc_p").val() != ''){

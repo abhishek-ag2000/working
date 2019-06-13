@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import (View,ListView,DetailView,
 								  CreateView,UpdateView,DeleteView)
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy, reverse
 from accounting_double_entry.models import group1,ledger1,journal,selectdatefield,Pl_journal
@@ -25,6 +25,7 @@ from stockkeeping.decorators import Company_only_accounts
 from django.core.exceptions import PermissionDenied
 from itertools import zip_longest
 from dateutil.rrule import rrule, MONTHLY
+from django.http import JsonResponse
 # Create your views here.
 
 
@@ -58,7 +59,7 @@ class Company_accounts_inventory_mixins:
 
 ##################################### Simple Unit Views #####################################
 
-class Simpleunits_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,ListView):
+class Simpleunits_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Simpleunits
 	template_name = 'stockkeeping/simpleunits/simpleunits_list.html'
 	paginate_by = 15
@@ -66,6 +67,14 @@ class Simpleunits_listview(ProductExistsRequiredMixin,Company_only_accounts_mixi
 
 	def get_queryset(self):
 		return self.model.objects.filter(Company=self.kwargs['pk'])
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		simpleunits = Simpleunits.objects.filter(Company= company_details.pk)
+		for g in simpleunits:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Simpleunits_listview, self).get_context_data(**kwargs) 
@@ -81,7 +90,7 @@ class Simpleunits_listview(ProductExistsRequiredMixin,Company_only_accounts_mixi
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Simpleunits_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,DetailView):
+class Simpleunits_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,DetailView):
 	context_object_name = 'simpleunits_details'
 	model = Simpleunits
 	template_name = 'stockkeeping/simpleunits/simpleunits_details.html'
@@ -94,6 +103,14 @@ class Simpleunits_detailsview(ProductExistsRequiredMixin,Company_accounts_invent
 		get_object_or_404(company, pk=pk1)
 		simpleunit = get_object_or_404(Simpleunits, pk=pk2)
 		return simpleunit
+
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		simpleunits = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == simpleunits.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -110,7 +127,7 @@ class Simpleunits_detailsview(ProductExistsRequiredMixin,Company_accounts_invent
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Simpleunits_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,CreateView):
+class Simpleunits_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = Simpleunits_form
 	template_name = "stockkeeping/simpleunits/simpleunits_form.html"
 
@@ -127,6 +144,17 @@ class Simpleunits_createview(ProductExistsRequiredMixin,Company_only_accounts_mi
 		form.instance.counter = counter
 		return super(Simpleunits_createview, self).form_valid(form)
 
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		simpleunts = Simpleunits.objects.filter(Company=company_details.pk)
+		for g in simpleunts:
+			if self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
+
+
 	def get_context_data(self, **kwargs):
 		context = super(Simpleunits_createview, self).get_context_data(**kwargs) 
 		context['profile_details'] = Profile.objects.all()
@@ -141,7 +169,7 @@ class Simpleunits_createview(ProductExistsRequiredMixin,Company_only_accounts_mi
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Simpleunits_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,UpdateView):
+class Simpleunits_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = Simpleunits
 	form_class  = Simpleunits_form
 	template_name = "stockkeeping/simpleunits/simpleunits_form.html"
@@ -160,6 +188,13 @@ class Simpleunits_updateview(ProductExistsRequiredMixin,Company_accounts_invento
 		simpleunit = get_object_or_404(Simpleunits, pk=pk2)
 		return simpleunit
 
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		simpleunits = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == simpleunits.User:
+			return True
+		return False
+
 	def get_context_data(self, **kwargs):
 		context = super(Simpleunits_updateview, self).get_context_data(**kwargs) 
 		context['profile_details'] = Profile.objects.all()
@@ -175,7 +210,7 @@ class Simpleunits_updateview(ProductExistsRequiredMixin,Company_accounts_invento
 		return context
 
 
-class Simpleunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,DeleteView):
+class Simpleunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
 	model = Simpleunits
 	template_name = "stockkeeping/simpleunits/simpleunits_confirm_delete.html"
 
@@ -190,6 +225,13 @@ class Simpleunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mi
 		get_object_or_404(company, pk=pk)
 		simpleunit = get_object_or_404(Simpleunits, pk=pk2)
 		return simpleunit
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		receipts = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == receipts.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Simpleunits_deleteview, self).get_context_data(**kwargs) 
@@ -210,7 +252,7 @@ class Simpleunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mi
 
 
 
-class Compoundunit_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,ListView):
+class Compoundunit_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Compoundunits
 	template_name = 'stockkeeping/compoundunits/compoundunits_list.html'
 	paginate_by = 15
@@ -218,6 +260,14 @@ class Compoundunit_listview(ProductExistsRequiredMixin,Company_only_accounts_mix
 
 	def get_queryset(self):
 		return self.model.objects.filter(Company=self.kwargs['pk'])
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		compounds = Compoundunits.objects.filter(Company=self.kwargs['pk'])
+		for g in compounds:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Compoundunit_listview, self).get_context_data(**kwargs) 
@@ -235,7 +285,7 @@ class Compoundunit_listview(ProductExistsRequiredMixin,Company_only_accounts_mix
 		return context
 
 
-class Compoundunits_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,DetailView):
+class Compoundunits_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,DetailView):
 	context_object_name = 'compoundunits_details'
 	model = Compoundunits
 	template_name = 'stockkeeping/compoundunits/compoundunits_details.html'
@@ -248,6 +298,13 @@ class Compoundunits_detailsview(ProductExistsRequiredMixin,Company_accounts_inve
 		get_object_or_404(company, pk=pk1)
 		compoundunit = get_object_or_404(Compoundunits, pk=pk2)
 		return compoundunit
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		compounds = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == compounds.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -264,7 +321,7 @@ class Compoundunits_detailsview(ProductExistsRequiredMixin,Company_accounts_inve
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Compoundunits_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,CreateView):
+class Compoundunits_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = Compoundunits_form
 	template_name = "stockkeeping/compoundunits/compoundunits_form.html"
 
@@ -280,6 +337,15 @@ class Compoundunits_createview(ProductExistsRequiredMixin,Company_only_accounts_
 		counter = Compoundunits.objects.filter(User=self.request.user, Company=c).count() + 1
 		form.instance.counter = counter
 		return super(Compoundunits_createview, self).form_valid(form)
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		compounds = Compoundunits.objects.filter(Company=self.kwargs['pk'])
+		for g in compounds:
+			if self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
+
 
 	def get_form_kwargs(self):
 		data = super(Compoundunits_createview, self).get_form_kwargs()
@@ -303,7 +369,7 @@ class Compoundunits_createview(ProductExistsRequiredMixin,Company_only_accounts_
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Compoundunits_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,UpdateView):
+class Compoundunits_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = Compoundunits
 	form_class  = Compoundunits_form
 	template_name = "stockkeeping/compoundunits/compoundunits_form.html"
@@ -321,6 +387,13 @@ class Compoundunits_updateview(ProductExistsRequiredMixin,Company_accounts_inven
 		get_object_or_404(company, pk=pk1)
 		compoundunit = get_object_or_404(Compoundunits, pk=pk2)
 		return compoundunit
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		compounds = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == compounds.User:
+			return True
+		return False
 
 	def get_form_kwargs(self):
 		data = super(Compoundunits_updateview, self).get_form_kwargs()
@@ -344,7 +417,7 @@ class Compoundunits_updateview(ProductExistsRequiredMixin,Company_accounts_inven
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Compoundunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,DeleteView):
+class Compoundunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
 	model = Compoundunits
 	template_name = "stockkeeping/compoundunits/compoundunits_confirm_delete.html"
 
@@ -359,6 +432,13 @@ class Compoundunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_
 		get_object_or_404(company, pk=pk1)
 		compoundunit = get_object_or_404(Compoundunits, pk=pk2)
 		return compoundunit
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		compounds = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == compounds.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Compoundunits_deleteview, self).get_context_data(**kwargs) 
@@ -377,7 +457,21 @@ class Compoundunits_deleteview(ProductExistsRequiredMixin,Company_only_accounts_
 		
 ##################################### Stockgroup Views #####################################
 
-class Stockgroup_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,ListView):
+
+
+def validate_stock_name(request,pk,pk3):
+	company_details = get_object_or_404(company, pk=pk)
+	selectdatefield_details = get_object_or_404(selectdatefield, pk=pk3)
+	stock_name = request.GET.get('stock_name', None)
+	data = {
+		'is_taken': Stockdata.objects.filter(Company=company_details.pk,stock_name__iexact=stock_name).exists()
+	}
+	if data['is_taken']:
+		data['error_message'] = 'This stock name already exists.'
+
+	return JsonResponse(data)	
+
+class Stockgroup_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Stockgroup
 	template_name = 'stockkeeping/stockgroup/stockgroup_list.html'
 	paginate_by = 15
@@ -385,6 +479,14 @@ class Stockgroup_listview(ProductExistsRequiredMixin,Company_only_accounts_mixin
 
 	def get_queryset(self):
 		return self.model.objects.filter(Company=self.kwargs['pk'])
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		stkgrp = Stockgroup.objects.filter(Company= company_details.pk)
+		for g in stkgrp:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Stockgroup_listview, self).get_context_data(**kwargs) 
@@ -400,7 +502,7 @@ class Stockgroup_listview(ProductExistsRequiredMixin,Company_only_accounts_mixin
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockgroup_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,DetailView):
+class Stockgroup_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,DetailView):
 	context_object_name = 'stockgrp_details'
 	model = Stockgroup
 	template_name = 'stockkeeping/stockgroup/stockgroup_details.html'
@@ -413,6 +515,13 @@ class Stockgroup_detailsview(ProductExistsRequiredMixin,Company_accounts_invento
 		get_object_or_404(company, pk=pk1)
 		stockgroup = get_object_or_404(Stockgroup, pk=pk2)
 		return Stockgroup
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		stock_grp = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == stock_grp.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -431,7 +540,7 @@ class Stockgroup_detailsview(ProductExistsRequiredMixin,Company_accounts_invento
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockgroup_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,CreateView):
+class Stockgroup_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = Stockgroup_form
 	template_name = "stockkeeping/stockgroup/stockgroup_form.html"
 
@@ -447,6 +556,14 @@ class Stockgroup_createview(ProductExistsRequiredMixin,Company_only_accounts_mix
 		counter = Stockgroup.objects.filter(User=self.request.user, Company=c).count() + 1
 		form.instance.counter = counter
 		return super(Stockgroup_createview, self).form_valid(form)
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		stkgrp = Stockgroup.objects.filter(Company= company_details.pk)
+		for g in stkgrp:
+			if self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_form_kwargs(self):
 		data = super(Stockgroup_createview, self).get_form_kwargs()
@@ -470,7 +587,7 @@ class Stockgroup_createview(ProductExistsRequiredMixin,Company_only_accounts_mix
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockgroup_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,UpdateView):
+class Stockgroup_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = Stockgroup
 	form_class  = Stockgroup_form
 	template_name = "stockkeeping/stockgroup/stockgroup_form.html"
@@ -488,6 +605,13 @@ class Stockgroup_updateview(ProductExistsRequiredMixin,Company_accounts_inventor
 		get_object_or_404(company, pk=pk1)
 		stockgroup = get_object_or_404(Stockgroup, pk=pk2)
 		return stockgroup
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		stock_grp = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == stock_grp.User:
+			return True
+		return False
 
 	def get_form_kwargs(self):
 		data = super(Stockgroup_updateview, self).get_form_kwargs()
@@ -511,7 +635,7 @@ class Stockgroup_updateview(ProductExistsRequiredMixin,Company_accounts_inventor
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockgroup_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,DeleteView):
+class Stockgroup_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
 	model = Stockgroup
 	template_name = "stockkeeping/stockgroup/stockgroup_confirm_delete.html"
 
@@ -526,6 +650,13 @@ class Stockgroup_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mix
 		get_object_or_404(company, pk=pk1)
 		stockgroup = get_object_or_404(Stockgroup, pk=pk2)
 		return stockgroup
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		stock_grp = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user == stock_grp.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Stockgroup_deleteview, self).get_context_data(**kwargs) 
@@ -698,7 +829,7 @@ def stock_summary_datewise(request,month,pk,pk2,pk3):
 	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 	send_count = Message.objects.filter(sender=request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 
-
+	
 	context = {
 
 		'company_details'             : company_details,
@@ -727,7 +858,7 @@ def stock_summary_datewise(request,month,pk,pk2,pk3):
 
 ##################################### Stockitems Views #####################################
 
-class closing_list_view(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,ListView):
+class closing_list_view(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Stockdata
 	paginate_by = 15
 
@@ -740,6 +871,14 @@ class closing_list_view(ProductExistsRequiredMixin,Company_only_accounts_mixins,
 
 	def get_queryset(self):
 		return self.model.objects.filter(Company=self.kwargs['pk']).order_by('-id')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		st_jrnl = stock_journal.objects.filter(Company=company_details.pk)
+		for g in st_jrnl:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(closing_list_view, self).get_context_data(**kwargs) 
@@ -796,7 +935,7 @@ class closing_list_view(ProductExistsRequiredMixin,Company_only_accounts_mixins,
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockdata_listview(LoginRequiredMixin,Company_only_accounts_mixins,ListView):
+class Stockdata_listview(LoginRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,ListView):
 	model = Stockdata
 	template_name = 'stockkeeping/stockitem/stockdata_list.html'
 	paginate_by = 15
@@ -804,6 +943,14 @@ class Stockdata_listview(LoginRequiredMixin,Company_only_accounts_mixins,ListVie
 
 	def get_queryset(self):
 		return self.model.objects.filter(Company=self.kwargs['pk'])
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		stck = Stockdata.objects.filter(Company=company_details.pk)
+		for g in stck:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Stockdata_listview, self).get_context_data(**kwargs)
@@ -821,7 +968,7 @@ class Stockdata_listview(LoginRequiredMixin,Company_only_accounts_mixins,ListVie
 		return context
 
 
-class Stockdata_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,DetailView):
+class Stockdata_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,DetailView):
 	context_object_name = 'stockdata_details'
 	model = Stockdata
 	template_name = 'stockkeeping/stockitem/stockdata_details.html'
@@ -834,6 +981,13 @@ class Stockdata_detailsview(ProductExistsRequiredMixin,Company_accounts_inventor
 		get_object_or_404(company, pk=pk1)
 		stockdata = get_object_or_404(Stockdata, pk=pk2)
 		return stockdata
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		stocks = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == stocks.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -850,7 +1004,7 @@ class Stockdata_detailsview(ProductExistsRequiredMixin,Company_accounts_inventor
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockdata_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,CreateView):
+class Stockdata_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = Stockdata_form
 	template_name = "stockkeeping/stockitem/stockdata_form.html"
 
@@ -875,6 +1029,14 @@ class Stockdata_createview(ProductExistsRequiredMixin,Company_only_accounts_mixi
 			)
 		return data
 
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		stck = Stockdata.objects.filter(Company=company_details.pk)
+		for g in stck:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == g.User:
+				return True
+			return False
+
 	def get_context_data(self, **kwargs):
 		context = super(Stockdata_createview, self).get_context_data(**kwargs) 
 		context['profile_details'] = Profile.objects.all()
@@ -889,7 +1051,7 @@ class Stockdata_createview(ProductExistsRequiredMixin,Company_only_accounts_mixi
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockdata_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,UpdateView):
+class Stockdata_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = Stockdata
 	form_class  = Stockdata_form
 	template_name = "stockkeeping/stockitem/stockdata_form.html"
@@ -916,6 +1078,13 @@ class Stockdata_updateview(ProductExistsRequiredMixin,Company_accounts_inventory
 			)
 		return data
 
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		stocks = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == stocks.User:
+			return True
+		return False
+
 	def get_context_data(self, **kwargs):
 		context = super(Stockdata_updateview, self).get_context_data(**kwargs) 
 		context['profile_details'] = Profile.objects.all()
@@ -930,7 +1099,7 @@ class Stockdata_updateview(ProductExistsRequiredMixin,Company_accounts_inventory
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Stockdata_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,DeleteView):
+class Stockdata_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
 	model = Stockdata
 	template_name = "stockkeeping/stockitem/stockdataunits_confirm_delete.html"
 
@@ -945,6 +1114,13 @@ class Stockdata_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixi
 		get_object_or_404(company, pk=pk1)
 		compoundunit = get_object_or_404(Stockdata, pk=pk2)
 		return compoundunit
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		stocks = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user == stocks.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Stockdata_deleteview, self).get_context_data(**kwargs) 
@@ -962,7 +1138,7 @@ class Stockdata_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixi
 
 ##################################### Purchase Views with inventory #####################################
 
-class Purchase_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,ListView):
+class Purchase_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Purchase
 	template_name = 'stockkeeping/purchase/purchase_list.html'
 	paginate_by = 15
@@ -970,7 +1146,16 @@ class Purchase_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,
 
 	def get_queryset(self):
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return self.model.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		return self.model.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-date')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		purchases = Purchase.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date)
+		for g in purchases:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.purchase_personal.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Purchase_listview, self).get_context_data(**kwargs) 
@@ -979,6 +1164,7 @@ class Purchase_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,
 		context['company_details'] = company_details
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		context['selectdatefield_details'] = selectdatefield_details
+		context['purchase_list'] = Purchase.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -987,7 +1173,7 @@ class Purchase_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,
 		return context
 
 
-class Purchase_detailsview(LoginRequiredMixin,Company_accounts_inventory_mixins,DetailView):
+class Purchase_detailsview(LoginRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,DetailView):
 	context_object_name = 'purchase_details'
 	model = Purchase
 	template_name = 'stockkeeping/purchase/purchase_details.html'
@@ -1001,6 +1187,13 @@ class Purchase_detailsview(LoginRequiredMixin,Company_accounts_inventory_mixins,
 		purchase = get_object_or_404(Purchase, pk=pk2)
 		return purchase
 
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		purchases = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.purchase_personal.all() or self.request.user == purchases.User:
+			return True
+		return False
+
 
 	def get_context_data(self, **kwargs):
 		context = super(Purchase_detailsview, self).get_context_data(**kwargs) 
@@ -1010,6 +1203,26 @@ class Purchase_detailsview(LoginRequiredMixin,Company_accounts_inventory_mixins,
 		context['selectdatefield_details'] = selectdatefield_details
 		purchase_details = get_object_or_404(Purchase, pk=self.kwargs['pk2'])
 		qsob  = Stock_Total.objects.filter(purchases=purchase_details.pk)
+		#saving the party ledger
+		purchase_details.Party_ac.save()
+		#saving the purchase ledger
+		purchase_details.purchase.save()
+		#saving the party ledger group
+		purchase_details.Party_ac.group1_Name.save()
+		#saving the purchase ledger group
+		purchase_details.purchase.group1_Name.save()
+		#saving the gst ledger
+		grp_gst = ledger1.objects.filter(Company=company_details.pk, group1_Name__group_Name__icontains='GST')
+		for g in grp_gst:
+			g.save()
+			g.group1_Name.save()
+		# saving the stock and  closing stock of particular puirchase
+		purchase_stock = Stock_Total.objects.filter(purchases=purchase_details)
+		for obj in purchase_stock:
+			if obj.stockitem:
+				obj.stockitem.save()
+				obj.stockitem.closingstock.save()
+
 		context['stocklist'] = qsob
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -1018,7 +1231,7 @@ class Purchase_detailsview(LoginRequiredMixin,Company_accounts_inventory_mixins,
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Purchase_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,CreateView):
+class Purchase_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = Purchase_form
 	template_name = 'stockkeeping/purchase/purchase_form.html'
 
@@ -1029,6 +1242,15 @@ class Purchase_createview(ProductExistsRequiredMixin,Company_only_accounts_mixin
 		for p in purchases:
 			if p:
 				return reverse('stockkeeping:purchasedetail', kwargs={'pk1':company_details.pk, 'pk2':p.pk,'pk3':selectdatefield_details.pk})
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		purchases = Purchase.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date)
+		for g in purchases:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.purchase_personal.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Purchase_createview, self).get_context_data(**kwargs) 
@@ -1074,7 +1296,7 @@ class Purchase_createview(ProductExistsRequiredMixin,Company_only_accounts_mixin
 
 
 
-class Purchase_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,UpdateView):
+class Purchase_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = Purchase
 	form_class  = Purchase_form
 	template_name = 'stockkeeping/purchase/purchase_form.html'
@@ -1092,6 +1314,13 @@ class Purchase_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_
 		get_object_or_404(company, pk=pk1)
 		purchase = get_object_or_404(Purchase, pk=pk2)
 		return purchase
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		purchases = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.purchase_personal.all() or self.request.user == purchases.User:
+			return True
+		return False
 
 
 	def get_context_data(self, **kwargs):
@@ -1132,7 +1361,7 @@ class Purchase_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_
 			)
 		return data
 
-class Purchase_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,DeleteView):
+class Purchase_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
 	model = Purchase
 	template_name = "stockkeeping/purchase/purchase_confirm_delete.html"
 
@@ -1147,6 +1376,13 @@ class Purchase_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixin
 		get_object_or_404(company, pk=pk1)
 		purchase = get_object_or_404(Purchase, pk=pk2)
 		return purchase
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		purchases = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.purchase_personal.all() or self.request.user == purchases.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Purchase_deleteview, self).get_context_data(**kwargs) 
@@ -1165,9 +1401,18 @@ class Purchase_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixin
 
 ##################################### Purchase Register Views #####################################
 
-class Purchase_Register_view(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,ListView):
+class Purchase_Register_view(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Purchase
 	template_name = 'stockkeeping/purchase/Purchase_Register.html'
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
+		purchases = Purchase.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date)
+		for g in purchases:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.purchase_personal.all() or self.request.user == g.User:
+				return True
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Purchase_Register_view, self).get_context_data(**kwargs)
@@ -1177,7 +1422,7 @@ class Purchase_Register_view(ProductExistsRequiredMixin,Company_only_accounts_mi
 		context['selectdatefield_details'] = selectdatefield_details
 
 		results = collections.OrderedDict()
-		result = Purchase.objects.filter(Company=company_details.pk,date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date).annotate(real_total = Case(When(sub_total__isnull=True, then=0),default=F('sub_total')))
+		result = Purchase.objects.filter(Company=company_details.pk,date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date).annotate(real_total = Case(When(sub_total__isnull=True, then=0),default=F('Total')))
 		date_cursor = selectdatefield_details.Start_Date
 
 		z = 0
@@ -1224,7 +1469,7 @@ def purchase_register_datewise(request,month,pk,pk3):
 
 	result = Purchase.objects.filter(Company=company_details.pk, date__month=month, date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date)
 
-	total_purchase = result.aggregate(partial_total=Sum('sub_total'))['partial_total']
+	total_purchase = result.aggregate(partial_total=Sum('Total'))['partial_total']
 
 	inbox = Message.objects.filter(reciever=request.user)
 	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -1258,6 +1503,15 @@ class Sales_Register_view(ProductExistsRequiredMixin,Company_only_accounts_mixin
 	model = Sales
 	template_name = 'stockkeeping/sales/Sales_Register.html'
 
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		sales = Sales.objects.filter(Company= company_details.pk)
+		for g in sales:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.sales_personal.all() or self.request.user == g.User:
+				return True
+			return False
+
 	def get_context_data(self, **kwargs):
 		context = super(Sales_Register_view, self).get_context_data(**kwargs)
 		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
@@ -1266,7 +1520,7 @@ class Sales_Register_view(ProductExistsRequiredMixin,Company_only_accounts_mixin
 		context['selectdatefield_details'] = selectdatefield_details
 
 		results = collections.OrderedDict()
-		result = Sales.objects.filter(Company=company_details.pk,date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date).annotate(real_total = Case(When(sub_total__isnull=True, then=0),default=F('sub_total')))
+		result = Sales.objects.filter(Company=company_details.pk,date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date).annotate(real_total = Case(When(sub_total__isnull=True, then=0),default=F('Total')))
 		date_cursor = selectdatefield_details.Start_Date
 
 		z = 0
@@ -1315,7 +1569,7 @@ def sales_register_datewise(request,month,pk,pk3):
 
 	result = Sales.objects.filter(Company=company_details.pk, date__month=month, date__gte=selectdatefield_details.Start_Date, date__lt=selectdatefield_details.End_Date)
 
-	total_purchase = result.aggregate(partial_total=Sum('sub_total'))['partial_total']
+	total_purchase = result.aggregate(partial_total=Sum('Total'))['partial_total']
 
 	inbox = Message.objects.filter(reciever=request.user)
 	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -1343,7 +1597,7 @@ def sales_register_datewise(request,month,pk,pk3):
 
 ##################################### Sales Views #####################################
 
-class Sales_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,ListView):
+class Sales_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,ListView):
 	model = Sales
 	template_name = 'stockkeeping/sales/sales_list.html'
 	paginate_by = 15
@@ -1351,7 +1605,16 @@ class Sales_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,Log
 
 	def get_queryset(self):
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return self.model.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
+		return self.model.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-date')
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		sales = Sales.objects.filter(Company= company_details.pk)
+		for g in sales:
+			if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.sales_personal.all() or self.request.user == g.User:
+				return True
+			return False
+
 
 	def get_context_data(self, **kwargs):
 		context = super(Sales_listview, self).get_context_data(**kwargs) 
@@ -1360,6 +1623,7 @@ class Sales_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,Log
 		context['company_details'] = company_details
 		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
 		context['selectdatefield_details'] = selectdatefield_details
+		context['sales_list'] = Sales.objects.filter(Company=self.kwargs['pk'], date__gte=selectdatefield_details.Start_Date, date__lte=selectdatefield_details.End_Date).order_by('-id')
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -1369,7 +1633,7 @@ class Sales_listview(ProductExistsRequiredMixin,Company_only_accounts_mixins,Log
 
 
 
-class Sales_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,DetailView):
+class Sales_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,DetailView):
 	context_object_name = 'sales_details'
 	model = Sales
 	template_name = 'stockkeeping/sales/sales_details.html'
@@ -1384,6 +1648,13 @@ class Sales_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mi
 		return sales
 
 
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		sales = self.get_object()
+		if self.request.user in company_details.auditor.all() or self.request.user in company_details.accountant.all() or self.request.user in company_details.sales_personal.all() or self.request.user == sales.User:
+			return True
+		return False
+
 	def get_context_data(self, **kwargs):
 		context = super(Sales_detailsview, self).get_context_data(**kwargs) 
 		context['profile_details'] = Profile.objects.all()
@@ -1393,7 +1664,26 @@ class Sales_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mi
 		context['selectdatefield_details'] = selectdatefield_details
 		sales_details = get_object_or_404(Sales, pk=self.kwargs['pk2'])
 		qsjb  = Stock_Total_sales.objects.filter(sales=sales_details.pk)
+		# saving the closing stock and stocks of particular sales
+		for obj in qsjb:
+			if obj.stockitem:
+				obj.stockitem.save()
+				obj.stockitem.closingstock.save()
 		context['stocklist'] = qsjb
+		# saving the gst ledgers
+		grp_gst_1 = ledger1.objects.filter(Company=company_details.pk, group1_Name__group_Name__icontains='GST')
+		for g in grp_gst_1:
+			g.save()
+			g.group1_Name.save()
+		# saving the sales ledger
+		sales_details.sales.save()
+		# saving the sales ledger group
+		sales_details.sales.group1_Name.save()
+		# saving the party ledger
+		sales_details.Party_ac.save()
+		# saving the party ledger group
+		sales_details.Party_ac.group1_Name.save()
+
 		context['inbox'] = Message.objects.filter(reciever=self.request.user)
 		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -1401,7 +1691,7 @@ class Sales_detailsview(ProductExistsRequiredMixin,Company_accounts_inventory_mi
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context
 
-class Sales_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,CreateView):
+class Sales_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	form_class  = Sales_form
 	template_name = 'stockkeeping/sales/sales_form.html'
 
@@ -1412,6 +1702,14 @@ class Sales_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,L
 		for s in sales_list:
 			if s:
 				return reverse('stockkeeping:salesdetail', kwargs={'pk1':company_details.pk, 'pk2':s.pk,'pk3':selectdatefield_details.pk})
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		sales = Sales.objects.filter(Company= company_details.pk)
+		for g in sales:
+			if self.request.user in company_details.accountant.all() or self.request.user in company_details.sales_personal.all() or self.request.user == g.User:
+				return True
+			return False
 
 
 	def form_valid(self, form):
@@ -1456,10 +1754,7 @@ class Sales_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,L
 		return context
 
 
-
-
-
-class Sales_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,LoginRequiredMixin,UpdateView):
+class Sales_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mixins,UserPassesTestMixin,LoginRequiredMixin,UpdateView):
 	model = Sales
 	form_class  = Sales_form
 	template_name = 'stockkeeping/sales/sales_form.html'
@@ -1477,6 +1772,13 @@ class Sales_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mix
 		get_object_or_404(company, pk=pk1)
 		sales = get_object_or_404(Sales, pk=pk2)
 		return sales
+
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk1'])
+		sales = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.sales_personal.all() or self.request.user == sales.User:
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super(Sales_updateview, self).get_context_data(**kwargs)
@@ -1518,7 +1820,7 @@ class Sales_updateview(ProductExistsRequiredMixin,Company_accounts_inventory_mix
 
 
 
-class Sales_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,DeleteView):
+class Sales_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,UserPassesTestMixin,LoginRequiredMixin,DeleteView):
 	model = Sales
 	template_name = "stockkeeping/sales/sales_confirm_delete.html"
 
@@ -1534,6 +1836,13 @@ class Sales_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,L
 		sales = get_object_or_404(Sales, pk=pk2)
 		return sales
 
+	def test_func(self):
+		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
+		sales = self.get_object()
+		if self.request.user in company_details.accountant.all() or self.request.user in company_details.sales_personal.all() or self.request.user == sales.User:
+			return True
+		return False
+
 	def get_context_data(self, **kwargs):
 		context = super(Sales_deleteview, self).get_context_data(**kwargs) 
 		context['profile_details'] = Profile.objects.all()
@@ -1548,47 +1857,6 @@ class Sales_deleteview(ProductExistsRequiredMixin,Company_only_accounts_mixins,L
 		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
 		return context	
 
-
-
-##################################### Stock_Total #####################################
-
-class Stock_Total_createview(ProductExistsRequiredMixin,Company_only_accounts_mixins,LoginRequiredMixin,CreateView):
-	form_class  = Stock_Totalform
-	template_name = 'stockkeeping/purchase/purchase_form.html'
-
-	def get_success_url(self,**kwargs):
-		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
-		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		return reverse('stockkeeping:purchaselist', kwargs={'pk':company_details.pk, 'pk3':selectdatefield_details.pk})
-
-	def get_context_data(self, **kwargs):
-		context = super(Stock_Total_createview, self).get_context_data(**kwargs) 
-		context['profile_details'] = Profile.objects.all()
-		company_details = get_object_or_404(company, pk=self.kwargs['pk'])
-		context['company_details'] = company_details
-		selectdatefield_details = get_object_or_404(selectdatefield, pk=self.kwargs['pk3'])
-		context['selectdatefield_details'] = selectdatefield_details
-		context['inbox'] = Message.objects.filter(reciever=self.request.user)
-		context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
-		context['Todos'] = Todo.objects.filter(User=self.request.user, complete=False)
-		context['Todos_total'] = context['Todos'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum'] 
-		return context
-
-	def form_valid(self, form):
-		form.instance.User = self.request.user
-
-		c = company.objects.get(pk=self.kwargs['pk'])
-		form.instance.Company = c
-
-	def get_form_kwargs(self):
-		data = super(Stock_Total_createview, self).get_form_kwargs()
-		data.update(
-			User=self.request.user,
-			Company=company.objects.get(pk=self.kwargs['pk'])
-
-			)
-		return data
 
 
 
@@ -1611,40 +1879,45 @@ def profit_and_loss_view(request,pk,pk3):
 
 	# purchases #debit
 	ld = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Purchase Accounts')
-	ldc = ld.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	ldc = ld.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Expense #debit
 	ldd = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Expenses')
-	lddt = ldd.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	lddt = ldd.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Income #credit
 	ldii = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Incomes')
-	lddi = ldii.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	lddi = ldii.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 	
 	# sales #credit
 	lds = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Sales Account')
-	ldsc = lds.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldsc = lds.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
 
 	#Indirect Expense  #debit
 	lde = group1.objects.filter(Company=company_details.pk,group_Name__icontains='Indirect Expense')
-	ldse = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
-	ldsecr = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
-	if ldse == 0 or ldse == None:
-		total = - ldsecr 
-	elif ldsecr == 0 or ldsecr == None:
-		total = ldse
-	else:
-		total = ldse - ldsecr
+	total = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
+	# ldsecr = lde.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
+	# if ldse == 0 or ldse == None:
+	# 	total = - ldsecr 
+	# elif ldsecr == 0 or ldsecr == None:
+	# 	total = ldse
+	# else:
+	# 	total = ldse - ldsecr
 
 	#Indirect Income #credit
 	ldi = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Indirect Income')
-	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 	# qo1 means opening stock exists
 
 	# lddt = Direct Expenses
 	# lddi = Direct Incomes
+	# ldc = Purchase Accounts
+	# ldsc = Sales Account
+	# qs2 = closing stock
+	# qo2 = opening stock
 
 
+	# gross profit/loss calculation
 	if  lddi < 0 and lddt < 0:
 		gp = abs(ldsc) + abs(qs2) + abs(lddt) - abs(qo2) - abs(ldc) - abs(lddi)
 	elif lddt < 0:
@@ -1655,6 +1928,7 @@ def profit_and_loss_view(request,pk,pk3):
 		gp = abs(ldsc) + abs(qs2) + abs(lddi) - abs(qo2) - abs(ldc) - abs(lddt)
 
 
+	# Trading profil/loss calculation
 	if gp >=0:
 		if  lddi < 0 and lddt < 0:
 			tradingp  =  abs(qo2) + abs(ldc) + (gp) + abs(lddi)
@@ -1689,7 +1963,7 @@ def profit_and_loss_view(request,pk,pk3):
 	# total = Indirect Expense
 	# ldsi = Indirect Income
 
-
+	# nett profit/loss calculation
 	if gp >=0:
 		if ldsi < 0 and total < 0:
 			np = (gp) + abs(total) - abs(ldsi)
@@ -1713,7 +1987,6 @@ def profit_and_loss_view(request,pk,pk3):
 	# total = Indirect Expense
 	# ldsi = Indirect Income
  
-
 
 	# Total value calculation
 	if gp >= 0:
@@ -1770,6 +2043,10 @@ def profit_and_loss_view(request,pk,pk3):
 			else:
 				tp = abs(total) + abs(gp)  
 				tc = abs(np) + abs(ldsi) 
+
+	# company_detail = company.objects.get(pk=company_details.pk)
+	# company_detail.pl = abs(np)
+	# company_detail.save(update_fields=['pl'])
 
 	inbox = Message.objects.filter(reciever=request.user)
 	inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -1898,27 +2175,27 @@ def trial_balance_view(request,pk,pk3):
 
 	# purchases
 	gs_purchase = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Purchase Accounts")
-	gs_purchase_total = gs_purchase.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_purchase_total = gs_purchase.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# sales
 	gs_sales = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Sales Account")
-	gs_sales_total = gs_sales.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_sales_total = gs_sales.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Expense
 	gs_directexp = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Direct Expenses")
-	gs_directexp_total = gs_directexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_directexp_total = gs_directexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Direct Income
 	gs_directinc = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Direct Incomes")
-	gs_directinc_total = gs_directinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_directinc_total = gs_directinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Indirect Expense
 	gs_indirectexp = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Indirect Expense")
-	gs_indirectexp_total = gs_indirectexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	gs_indirectexp_total = gs_indirectexp.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	# Indirect Income
 	gs_indirectinc = group1.objects.filter(Company=company_details.pk,group_Name__icontains="Indirect Income")
-	gs_indirectinc_total = gs_indirectinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	gs_indirectinc_total = gs_indirectinc.aggregate(the_sum=Coalesce(Sum('ledgergroups__Closing_balance'), Value(0)))['the_sum']
 
 	#Net profit/loss
 	ledger_pl = ledger1.objects.get(Company=company_details.pk,name__icontains="Profit & Loss A/c")
@@ -2011,18 +2288,14 @@ def balance_sheet_view(request,pk,pk3):
 		)
 
 	# Total of positive liabilities
-	total_lia_positive = lia_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_lia_positive = lia_particular.filter(difference__gte = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 
 	# Total of negative liabilities
-	total_lia_negative = lia_particular.filter(difference__gte = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_lia_negative = lia_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 	
 	# closing stock
 	ldstckcb = stock_journal.objects.filter(Company=company_details.pk)
 	qs2 = ldstckcb.aggregate(the_sum=Coalesce(Sum('closing_stock'), Value(0)))['the_sum']
-
-
-
-
 
 	
 	# All primary groups with nature of group is 'Assets'
@@ -2040,10 +2313,10 @@ def balance_sheet_view(request,pk,pk3):
 		)
 
 	# Total of positive Assets
-	total_ast_positive = ast_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_ast_positive = ast_particular.filter(difference__gte = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 	
 	# Total of negative Assets
-	total_ast_negative = ast_particular.filter(difference__gt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
+	total_ast_negative = ast_particular.filter(difference__lt = 0).aggregate(the_sum=Coalesce(Sum('difference'), Value(0)))['the_sum']
 
 	
 	# Current asset calculation
@@ -2062,24 +2335,24 @@ def balance_sheet_view(request,pk,pk3):
 
 	# purchases #debit
 	ld = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Purchase Accounts')
-	ldc = ld.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	ldc = ld.aggregate(the_sum=Coalesce(Sum('positive_closing'), Value(0)))['the_sum']
 
 	# Direct Expense #debit
 	ldd = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Expenses')
-	lddt = ldd.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
+	lddt = ldd.aggregate(the_sum=Coalesce(Sum('positive_closing'), Value(0)))['the_sum']
 
 	# Direct Income #credit
 	ldii = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Direct Incomes')
-	lddi = ldii.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	lddi = ldii.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
 	
 	# sales #credit
 	lds = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Sales Account')
-	ldsc = lds.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldsc = lds.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
 
 	#Indirect Expense  #debit
 	lde = group1.objects.filter(Company=company_details.pk,group_Name__icontains='Indirect Expense')
-	ldse = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_debit'), Value(0)))['the_sum']
-	ldsecr = lde.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldse = lde.aggregate(the_sum=Coalesce(Sum('positive_closing'), Value(0)))['the_sum']
+	ldsecr = lde.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
 	if ldse == 0 or ldse == None:
 		total = - ldsecr 
 	elif ldsecr == 0 or ldsecr == None:
@@ -2089,7 +2362,7 @@ def balance_sheet_view(request,pk,pk3):
 
 	#Indirect Income #credit
 	ldi = group1.objects.filter(Company=company_details.pk, group_Name__icontains='Indirect Income')
-	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('ledgergroups__To_pl_credit'), Value(0)))['the_sum']
+	ldsi = ldi.aggregate(the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
 	# qo1 means opening stock exists
 
 	# lddt = Direct Expenses
@@ -2135,6 +2408,8 @@ def balance_sheet_view(request,pk,pk3):
 
 
 	total_pl = np + ledger_pl_closing
+
+	################################################
 
 
 
@@ -2187,28 +2462,35 @@ def balance_sheet_view(request,pk,pk3):
 	# Balance sheet total of liabilities side
 	if total_lia_positive or total_ast_negative:
 		if total_ca < 0:
-			if total_pl > 0:
-				total_liabilities_1 = total_lia_positive + total_ast_negative + qs2 + total_pl
-			else:
-				total_liabilities_1 = total_lia_positive + total_ast_negative + qs2
-		else:
-			if total_pl > 0:
-				total_liabilities_1 = total_lia_positive + total_ast_negative + total_pl
+			if total_pl >= 0:
+				total_liabilities_1 = total_lia_positive + total_ast_negative  + total_pl + qs2
 			else:
 				total_liabilities_1 = total_lia_positive + total_ast_negative 
+		else:
+			if total_pl >= 0:
+				total_liabilities_1 = total_lia_positive + total_pl + total_ast_negative
+			else:
+				total_liabilities_1 = total_lia_positive + total_ast_negative + qs2
+	else:
+		total_liabilities_1 = 0
+
 
 	# Balance sheet total of assets side
 	if total_lia_negative or total_ast_positive:
 		if total_ca > 0:
 			if total_pl < 0:
-				total_asset_1 = total_lia_negative + total_ast_positive + qs2 + total_pl
+				total_asset_1 = total_lia_negative + total_ast_positive + total_pl
 			else:
 				total_asset_1 = total_lia_negative + total_ast_positive + qs2
 		else:
 			if total_pl < 0:
-				total_asset_1 = total_lia_negative + total_ast_positive + total_pl
+				total_asset_1 = total_lia_negative + total_ast_positive + total_pl + qs2
 			else:
 				total_asset_1 = total_lia_negative + total_ast_positive 
+	else:
+		total_asset_1 = 0
+
+
 
 	if gs_debit_opening > gs_credit_opening:
 		dif_ob = gs_debit_opening - gs_credit_opening
@@ -2256,6 +2538,7 @@ def balance_sheet_view(request,pk,pk3):
 
 
 	}
+
 
 	return render(request, 'stockkeeping/balance_sheet.html', context)
 

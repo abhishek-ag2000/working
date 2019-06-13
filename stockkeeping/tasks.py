@@ -57,12 +57,17 @@ def user_created_stock_ledger_task(stock_id):
 	if total_sales_quantity == None:
 		total_sales_quantity = 0
 
+	if stock_details.Quantity == None:
+		stock_details.Quantity = 0
+
 	closing_quantity =  total_purchase_quantity - total_sales_quantity
 	
-	if stock_details.Quantity == None:
+	if stock_details.Quantity == 0:
 		closing_quantity_real = (total_purchase_quantity - total_sales_quantity)
+	elif stock_details.Quantity == 0 and total_purchase_quantity == 0:
+		closing_quantity_real = total_sales_quantity
 	else:
-		closing_quantity_real = stock_details.Quantity + (total_purchase_quantity - total_sales_quantity)
+		closing_quantity_real = abs(stock_details.Quantity + (total_purchase_quantity - total_sales_quantity))
 
 # weighted average calculations
 	total_purchase_quantity_in_range_wavg = stock_details.purchasestock.filter(purchases__date__lte=selectdatefield_details.End_Date)

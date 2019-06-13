@@ -250,27 +250,35 @@
                             </ul>
                         </div>
                     </div> -->
-
+                    {% if profile_details.Name != user %}
                     <div class="ibox">
                         <div class="ibox-content">
                             <h3>Private message</h3>
 
                             <p class="small">
-                                Send private message to Alex Smith
+                                Send private message to {{ profile_details.Name }}
                             </p>
 
-                            <div class="form-group">
-                                <label>Subject</label>
-                                <input type="email" class="form-control" placeholder="Message subject">
-                            </div>
-                            <div class="form-group">
-                                <label>Message</label>
-                                <textarea class="form-control" placeholder="Your message" rows="3"></textarea>
-                            </div>
-                            <button class="btn btn-primary btn-block">Send</button>
+                            <form method="post" action="{% url 'messaging:messagecreate' %}">
+                                {% csrf_token %}
+
+
+                                <div class="form-group">
+                                    <label>Subject</label>
+                                    {{ message_form_profile.subject }}
+                                </div>
+                                <div class="form-group ">
+                                    <label>Message</label>
+                                    {{ message_form_profile.msg_content }}
+                                </div>
+                                <input type="submit" class="btn btn-primary btn-block" value="Submit">
+
+                            </form>
+                            
 
                         </div>
                     </div>
+                    {% endif %}
 
                 </div>
 

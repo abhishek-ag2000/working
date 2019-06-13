@@ -1,5 +1,7 @@
 {% load staticfiles %}
 
+
+
 {% for comment in blogcomments %}
                 <!-- User image -->
       <div class="social-feed-box">
@@ -28,3 +30,15 @@
 
                 <!-- /.comment-text -->
 {% endfor %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="input-group input-group-sm">
+            {{ Blog_comments_user_form.text}}
+            <div class="input-group-append">
+                <input type="submit" class="btn btn-info pull-right" value="Submit">
+            </div>
+          </div>     
+      
+      </form>

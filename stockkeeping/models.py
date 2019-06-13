@@ -17,6 +17,7 @@ from django.db.models import Case, When, CharField, Value, Sum, Count, F, Expres
 from accounting_double_entry.tasks import create_ledger_openingclosing_task
 from django.db.models.fields import DecimalField
 from django.db import transaction
+from accounting_double_entry.decorators import disable_for_loaddata
 # Create your models here.
 
 class Stockgroup(models.Model):
@@ -42,6 +43,7 @@ class Stockgroup(models.Model):
 				Stockgroup.objects.filter(pk=self.pk).update(urlhash=self.urlhash)
 
 @receiver(post_save, sender=company)
+@disable_for_loaddata
 def user_created_stockgroup(sender, instance, created, **kwargs):
 	if instance.maintain == 'Accounts with Inventory':
 		c = Stockgroup.objects.filter(User=instance.User, Company=instance).count() + 1
@@ -105,8 +107,8 @@ class Stockdata(models.Model):
 	counter 	= models.IntegerField(blank=True,null=True)
 	urlhash 	= models.CharField(max_length=100, null=True, blank=True)
 	Quantity    = models.PositiveIntegerField(null=True,blank=True,default=0)
-	rate		= models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
-	opening 	= models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
+	rate		= models.DecimalField(max_digits=20,decimal_places=2,default=0.00)
+	opening 	= models.DecimalField(max_digits=20,decimal_places=2,default=0.00)
 	stock_name  = models.CharField(max_length=32)
 	batch_no	= models.PositiveIntegerField(blank=True, null=True)
 	bar_code 	= ImageField(upload_to='stockmanagement', null=True, blank=True)
@@ -125,14 +127,14 @@ class Stockdata(models.Model):
 		if self.unitsimple != None and self.unitcomplex != None:
 			raise ValidationError({'unitcomplex':["You are not supposed to select both units!"],'unitsimple':["You are not supposed to select both units!"]})
 
+
+
 	def save(self, *args, **kwargs):
 		if self.bar_code:
 			self.bar_code = get_thumbnail(self.bar_code, '128x128', quality=150, format='JPEG').url
 		self.opening = self.Quantity * self.rate
+		self.full_clean()
 		super(Stockdata, self).save(*args, **kwargs)
-
-	def save(self, **kwargs):
-		super(Stockdata, self).save()
 		if not self.urlhash:
 			if self.User.profile.user_type == 'Bussiness User':
 				self.urlhash = 'BU'+ '-' + str(self.User.id) + '-'+ 'P' + '-' + '1' + '-'+ 'C' + str(self.Company.counter) + '-' + ('SSD') + str(self.counter)
@@ -140,6 +142,8 @@ class Stockdata(models.Model):
 			else:
 				self.urlhash = 'PU'+ '-' + str(self.User.id) + '-'+ 'P' + '-' + '1' + '-'+ 'C' + str(self.Company.counter) + '-' + ('SSD') + str(self.counter)
 				Stockdata.objects.filter(pk=self.pk).update(urlhash=self.urlhash)
+
+
 
 
 
@@ -201,11 +205,11 @@ class Purchase(models.Model):
 	DeliveryNote 	= models.CharField(max_length=32,blank=True)
 	Supplierref  	= models.CharField(max_length=32,blank=True)
 	Mode         	= models.TextField(blank=True)
-	sub_total 		= models.DecimalField(max_digits=10,decimal_places=2,blank=True, null=True)
-	cgst_alltotal	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	gst_alltotal	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	tax_alltotal	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	Total 		 	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+	sub_total 		= models.DecimalField(max_digits=20,decimal_places=2,blank=True, null=True)
+	cgst_alltotal	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	gst_alltotal	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	tax_alltotal	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	Total 		 	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
 
 	def __str__(self):
 		return str(self.Party_ac)
@@ -284,11 +288,11 @@ class Sales(models.Model):
 	DeliveryNote 	= models.CharField(max_length=32,blank=True)
 	Supplierref  	= models.CharField(max_length=32,blank=True)
 	Mode         	= models.TextField(blank=True)
-	sub_total 	 	= models.DecimalField(max_digits=10,decimal_places=2,blank=True, null=True)
-	cgst_alltotal	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	gst_alltotal	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	tax_alltotal	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	Total 		 	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+	sub_total 	 	= models.DecimalField(max_digits=20,decimal_places=2,blank=True, null=True)
+	cgst_alltotal	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	gst_alltotal	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	tax_alltotal	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	Total 		 	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
 
 	def __str__(self):
 		return str(self.Party_ac)
@@ -309,19 +313,19 @@ class Stock_Total(models.Model):
 	purchases   = models.ForeignKey(Purchase,on_delete=models.CASCADE,null=True,blank=False,related_name='purchasetotal') 
 	stockitem   = models.ForeignKey(Stockdata,on_delete=models.CASCADE,null=True,blank=True,related_name='purchasestock') 
 	Quantity_p  = models.PositiveIntegerField(default=0)
-	rate_p		= models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
-	Disc_p    	= models.DecimalField(max_digits=10,decimal_places=2,default=0)
+	rate_p		= models.DecimalField(max_digits=20,decimal_places=2,default=0.00)
+	Disc_p    	= models.DecimalField(max_digits=20,decimal_places=2,default=0)
 	gst_rate 	= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	tax 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	cgst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	sgst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	igst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	ugst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
-	cgst_total	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	gst_total	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	tax_total 	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	Total_p     = models.DecimalField(max_digits=10,decimal_places=2,default=0.00,null=True,blank=True)
-	grand_total = models.DecimalField(max_digits=10,decimal_places=2,default=0.00,null=True,blank=True)
+	cgst_total	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	gst_total	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	tax_total 	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	Total_p     = models.DecimalField(max_digits=20,decimal_places=2,default=0.00,null=True,blank=True)
+	grand_total = models.DecimalField(max_digits=20,decimal_places=2,default=0.00,null=True,blank=True)
 
 	def __str__(self):
 		return str(self.purchases)
@@ -344,19 +348,19 @@ class Stock_Total_sales(models.Model):
 	sales       = models.ForeignKey(Sales,on_delete=models.CASCADE,null=True,blank=False,related_name='saletotal')
 	stockitem   = models.ForeignKey(Stockdata,on_delete=models.CASCADE,null=True,blank=True,related_name='salestock') 
 	Quantity    = models.PositiveIntegerField(null=True,blank=True)
-	rate		= models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
-	Disc    	= models.DecimalField(max_digits=10,decimal_places=2,default=0)
+	rate		= models.DecimalField(max_digits=20,decimal_places=2,default=0.00)
+	Disc    	= models.DecimalField(max_digits=20,decimal_places=2,default=0)
 	gst_rate 	= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	cgst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	tax 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	sgst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	igst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
 	ugst 		= models.DecimalField(default=0.00,max_digits=5,decimal_places=2,blank=True)
-	cgst_total	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	gst_total	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	tax_total 	= models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-	Total 		= models.DecimalField(max_digits=10,decimal_places=2,default=0.00,null=True,blank=True)
-	grand_total = models.DecimalField(max_digits=10,decimal_places=2,default=0.00,null=True,blank=True)
+	cgst_total	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	gst_total	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	tax_total 	= models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+	Total 		= models.DecimalField(max_digits=20,decimal_places=2,default=0.00,null=True,blank=True)
+	grand_total = models.DecimalField(max_digits=20,decimal_places=2,default=0.00,null=True,blank=True)
 
 	def __str__(self):
 		return str(self.sales)
@@ -372,9 +376,9 @@ class stock_journal(models.Model):
 	Company      		= models.ForeignKey(company,on_delete=models.CASCADE,null=True,blank=True,related_name='Company_stock_journal')
 	date       			= models.DateField(default=datetime.date.today)
 	stockitem 			= models.OneToOneField(Stockdata,on_delete=models.CASCADE,null=True,blank=True,related_name='closingstock')
-	opening_stock   	= models.DecimalField(max_digits=10,decimal_places=2,null=True)
+	opening_stock   	= models.DecimalField(max_digits=20,decimal_places=2,null=True)
 	closing_quantity 	= models.PositiveIntegerField(null=True,blank=True)
-	closing_stock   	= models.DecimalField(max_digits=10,decimal_places=2,null=True)
+	closing_stock   	= models.DecimalField(max_digits=20,decimal_places=2,null=True)
 
 
 	def __str__(self):
@@ -384,6 +388,7 @@ class stock_journal(models.Model):
 
 # signal implementation for accounting_double_entry.task module for celery implementation
 @receiver(post_save, sender=ledger1)
+@disable_for_loaddata
 def create_ledger_openingclosing(sender, instance, created, **kwargs):
 	selectdatefield_details = get_object_or_404(selectdatefield, User=instance.User)
 	create_ledger_openingclosing_task(instance.Company.pk,instance.pk,selectdatefield_details.pk)
@@ -393,98 +398,9 @@ def create_ledger_openingclosing(sender, instance, created, **kwargs):
 
 ##########################################################################################################
 
-# @receiver(post_save, sender=Stockdata)
-# def closing_stock_update(sender, instance, created, **kwargs):
-# 	for obj in instance.User.user_closing.all():
-# 		obj.save()
-
-# @receiver(post_save, sender=Purchase)
-# def update_ledger_closing_purchase(sender, instance, created, **kwargs):
-# 	for obj in instance.User.user_ledger.all():
-# 		obj.save()
-
-# @receiver(post_save, sender=Sales)
-# def update_ledger_closing_sales(sender, instance, created, **kwargs):
-# 	for obj in instance.User.user_ledger.all():
-# 		obj.save()
-
-# @receiver(pre_save, sender=Purchase)
-# def update_purchase_stocktotal(sender, instance, *args, **kwargs):
-# 	for obj in instance.purchasetotal.all():
-# 		obj.save()
-
-# @receiver(pre_save, sender=Sales)
-# def update_sales_stocktotal(sender, instance, *args, **kwargs):
-# 	for obj in instance.saletotal.all():
-# 		obj.save()
-
-
-# @receiver(pre_save, sender=Stock_Total)
-# def update_stockitem_purchase(sender, instance, *args, **kwargs):
-# 	instance.stockitem.save()
-
-# @receiver(pre_save, sender=Stock_Total_sales)
-# def update_stockitem_sales(sender, instance, *args, **kwargs):
-# 	instance.stockitem.save()
-
-@receiver(post_save, sender=Purchase)
-def update_ledgerpurchase(sender, instance, created, **kwargs):
-	instance.Party_ac.save()
-	grp_gst = ledger1.objects.filter(group1_Name__group_Name__icontains='GST')
-	for g in grp_gst:
-		g.save()
-
-
-@receiver(post_save, sender=Sales)
-def update_ledgersales(sender, instance, created, **kwargs):
-	instance.Party_ac.save()
-	grp_gst_1 = ledger1.objects.filter(group1_Name__group_Name__icontains='GST')
-	for g in grp_gst_1:
-		g.save()
-
-
-@receiver(post_save, sender=Purchase)
-def update_ledgerpurchase_group(sender, instance, created, **kwargs):
-	instance.Party_ac.group1_Name.save()
-
-
-@receiver(post_save, sender=Sales)
-def update_ledgersales_group(sender, instance, created, **kwargs):
-	instance.Party_ac.group1_Name.save()
-
-
-@receiver(post_save, sender=Purchase)
-def update_purchase_stockitems(sender, instance, created, **kwargs):
-	purchase_stock = Stock_Total.objects.filter(purchases=instance)
-	for obj in purchase_stock:
-		if obj.stockitem:
-			obj.stockitem.save()
-
-@receiver(post_save, sender=Sales)
-def update_sales_stockitems(sender, instance, created, **kwargs):
-	sales_stock = Stock_Total_sales.objects.filter(sales=instance)
-	for obj in sales_stock:
-		if obj.stockitem:
-			obj.stockitem.save()
-
-@receiver(post_save, sender=Purchase)
-def update_purchase_stockclosing(sender, instance, created, **kwargs):
-	purchase_stock = Stock_Total.objects.filter(purchases=instance)
-	for obj in purchase_stock:
-		if obj.stockitem:
-			obj.stockitem.closingstock.save()
-
-
-@receiver(post_save, sender=Sales)
-def update_sales_stockclosing(sender, instance, created, **kwargs):
-	sales_stock = Stock_Total_sales.objects.filter(sales=instance)
-	for obj in sales_stock:
-		if obj.stockitem:
-			obj.stockitem.closingstock.save()
-
-
 
 @receiver(pre_save, sender=Stock_Total)
+@disable_for_loaddata
 def update_gst_rate_purchase(sender, instance, *args, **kwargs):
 	if instance.purchases.Company.gst_enabled == True:
 		if instance.gst_rate == None or instance.gst_rate == 0:
@@ -568,6 +484,7 @@ def update_gst_rate_purchase(sender, instance, *args, **kwargs):
 
 
 @receiver(pre_save, sender=Stock_Total)
+@disable_for_loaddata
 def update_gst_rate_purchasetotal(sender, instance, *args, **kwargs):
 	if instance.purchases.Company.gst_enabled == True:
 		if instance.purchases.Company.composite_enable == False:
@@ -607,6 +524,7 @@ def update_gst_rate_purchasetotal(sender, instance, *args, **kwargs):
 
 
 @receiver(pre_save, sender=Stock_Total_sales)
+@disable_for_loaddata
 def update_gst_rate(sender, instance, *args, **kwargs):
 	if instance.sales.Company.gst_enabled == True:
 		if instance.gst_rate == None or instance.gst_rate == 0:
@@ -690,6 +608,7 @@ def update_gst_rate(sender, instance, *args, **kwargs):
 
 
 @receiver(pre_save, sender=Stock_Total_sales)
+@disable_for_loaddata
 def update_gst_rate_saletotal(sender, instance, *args, **kwargs):
 	if instance.sales.Company.gst_enabled == True:
 		if instance.sales.Company.composite_enable == False:
@@ -730,11 +649,13 @@ def update_gst_rate_saletotal(sender, instance, *args, **kwargs):
 			
 	
 @receiver(pre_save, sender=Purchase)
+@disable_for_loaddata
 def update_subtotal(sender,instance,*args,**kwargs):
 	total = instance.purchasetotal.aggregate(the_sum=Coalesce(Sum('Total_p'), Value(0)))['the_sum']
 	instance.sub_total = total
 
 @receiver(pre_save, sender=Purchase)
+@disable_for_loaddata
 def update_totalgst(sender,instance,*args,**kwargs):
 	total_cgst = instance.purchasetotal.aggregate(the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
 	total_gst = instance.purchasetotal.aggregate(the_sum=Coalesce(Sum('gst_total'), Value(0)))['the_sum']
@@ -746,11 +667,13 @@ def update_totalgst(sender,instance,*args,**kwargs):
 
 
 @receiver(pre_save, sender=Purchase)
+@disable_for_loaddata
 def update_total_tax(sender,instance,*args,**kwargs):
 	total_tax = instance.purchasetotal.aggregate(the_sum=Coalesce(Sum('tax_total'), Value(0)))['the_sum']
 	instance.tax_alltotal = total_tax
 
 @receiver(pre_save, sender=Sales)
+@disable_for_loaddata
 def update_total_tax_sales(sender,instance,*args,**kwargs):
 	total_tax = instance.saletotal.aggregate(the_sum=Coalesce(Sum('tax_total'), Value(0)))['the_sum']
 	instance.tax_alltotal = total_tax
@@ -758,11 +681,13 @@ def update_total_tax_sales(sender,instance,*args,**kwargs):
 
 
 @receiver(pre_save, sender=Sales)
+@disable_for_loaddata
 def update_total_sales(sender,instance,*args,**kwargs):
 	total1 = instance.saletotal.aggregate(the_sum=Coalesce(Sum('Total'), Value(0)))['the_sum']
 	instance.sub_total = total1
 
 @receiver(pre_save, sender=Sales)
+@disable_for_loaddata
 def update_totalgst_sales(sender,instance,*args,**kwargs):
 	total_cgst = instance.saletotal.aggregate(the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
 	total_gst = instance.saletotal.aggregate(the_sum=Coalesce(Sum('gst_total'), Value(0)))['the_sum']
@@ -772,422 +697,460 @@ def update_totalgst_sales(sender,instance,*args,**kwargs):
 	instance.Total = total
 
 
-@receiver(pre_save, sender=Purchase)
-def user_created(sender,instance,*args,**kwargs):
+@receiver(post_save, sender=Purchase)
+@disable_for_loaddata
+def user_created(sender, instance, created, **kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.sub_total != None:
-		journal.objects.update_or_create(
-			By = instance.purchase,
-			voucher_id=instance.id,
-			defaults={
-				'counter' : c,
-				'User' : instance.User,
-				'Company' : instance.Company,
-				'Date': instance.date,
-				'To' : instance.Party_ac,
-				'voucher_type' : "Purchase",
-				'Debit': instance.sub_total,
-				'Credit': instance.sub_total}
-			)
+	journal.objects.update_or_create(
+		voucher_id=instance.id,
+		voucher_type = "Purchase",
+		urlhash = instance.urlhash,
+		defaults={
+			'counter' : c,
+			'User' : instance.User,
+			'Company' : instance.Company,
+			'Date': instance.date,
+			'To' : instance.Party_ac,
+			'By' : instance.purchase,
+			'Debit': instance.sub_total,
+			'Credit': instance.sub_total}
+		)
 
 @receiver(pre_delete, sender=Purchase)
 def delete_related_journal(sender, instance, **kwargs):
 	journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
 
-@receiver(pre_save, sender=Purchase)
-def user_created_plpurchase(sender,instance,*args,**kwargs):
-	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.sub_total != None:
-		Pl_journal.objects.update_or_create(
-			By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
-			voucher_id=instance.id,
-			defaults={
-				'counter' : c,
-				'User' : instance.User,
-				'Company' : instance.Company,
-				'Date': instance.date,
-				'To' : instance.purchase,
-				'voucher_type' : "Purchase",
-				'Debit': instance.sub_total,
-				'Credit': instance.sub_total,
-				'tax_expense':True,
-				'it_head': 'Profit_&_Gains_of_Business_and_Professions'}
-			)
+@receiver(pre_delete, sender=Purchase)
+def delete_related_stock_for_purchase(sender, instance, **kwargs):
+	purchase_stock = Stock_Total.objects.filter(purchases=instance)
+	for obj in purchase_stock:
+		if obj.stockitem:
+			obj.stockitem.save()
+			obj.stockitem.closingstock.save()
+
 
 @receiver(pre_delete, sender=Purchase)
-def delete_related_pljournal(sender, instance, **kwargs):
-	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
+def delete_related_masterpurchase_ledger(sender, instance, **kwargs):
+	instance.Party_ac.save()
+	instance.purchase.save()
+
+
+
+# @receiver(pre_save, sender=Purchase)
+# @disable_for_loaddata
+# def user_created_plpurchase(sender,instance,*args,**kwargs):
+# 	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
+# 	if instance.sub_total != None:
+# 		Pl_journal.objects.update_or_create(
+# 			By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
+# 			voucher_id=instance.id,
+# 			voucher_type="Purchase",
+# 			defaults={
+# 				'counter' : c,
+# 				'User' : instance.User,
+# 				'Company' : instance.Company,
+# 				'Date': instance.date,
+# 				'To' : instance.purchase,
+# 				'Debit': instance.sub_total,
+# 				'Credit': instance.sub_total,
+# 				'tax_expense':True,
+# 				'it_head': 'Profit_&_Gains_of_Business_and_Professions'}
+# 			)
+
+# @receiver(pre_delete, sender=Purchase)
+# def delete_related_pljournal(sender, instance, **kwargs):
+# 	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
 
 
 @receiver(pre_save, sender=Purchase)
+@disable_for_loaddata
 def user_created_purchase_cgst(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.cgst_alltotal != None and instance.cgst_alltotal != 0:
 		journal.objects.update_or_create(
 				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='CGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Purchase",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'Date': instance.date,
 					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
-					'Debit': instance.gst_alltotal,
-					'Credit': instance.gst_alltotal}
+					'Debit': instance.cgst_alltotal,
+					'Credit': instance.cgst_alltotal}
 				)
 
 
-@receiver(pre_save, sender=Purchase)
-def user_created_purchase_stategst(sender,instance,*args,**kwargs):
+@receiver(post_save, sender=Purchase)
+@disable_for_loaddata
+def user_created_purchase_stategst(sender, instance, created, **kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.Company.composite_enable == False:
-		if instance.gst_alltotal != None and instance.State == instance.Company.State:
+		if instance.State == instance.Company.State:
 			journal.objects.update_or_create(
 				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='SGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Purchase",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'Date': instance.date,
 					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Andaman & Nicobar Islands' and instance.State == 'Andaman & Nicobar Islands':
+		elif instance.Company.State == 'Andaman & Nicobar Islands' and instance.State == 'Andaman & Nicobar Islands':
 			journal.objects.update_or_create(
 				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Purchase",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'Date': instance.date,
 					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Chandigarh' and instance.State == 'Chandigarh':
+		elif instance.Company.State == 'Chandigarh' and instance.State == 'Chandigarh':
 			journal.objects.update_or_create(
 				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Purchase",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'Date': instance.date,
 					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Dadra and Nagar Haveli' and instance.State == 'Dadra and Nagar Haveli':
+		elif instance.Company.State == 'Dadra and Nagar Haveli' and instance.State == 'Dadra and Nagar Haveli':
 			journal.objects.update_or_create(
 				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Purchase",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'Date': instance.date,
 					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Daman and Diu' and instance.State == 'Daman and Diu':
+		elif instance.Company.State == 'Daman and Diu' and instance.State == 'Daman and Diu':
 			journal.objects.update_or_create(
 				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Purchase",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'Date': instance.date,
 					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Lakshadweep' and instance.State == 'Lakshadweep':
+		elif instance.Company.State == 'Lakshadweep' and instance.State == 'Lakshadweep':
 			journal.objects.update_or_create(
 				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Purchase",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'Date': instance.date,
 					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
 		else:
-			if instance.gst_alltotal != None:
-				journal.objects.update_or_create(
-				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='IGST').first(),
-				voucher_id=instance.id,
-				defaults={
-					'counter' : c,
-					'User' : instance.User,
-					'Company' : instance.Company,
-					'Date': instance.date,
-					'To' : instance.Party_ac,
-					'voucher_type' : "Journal",
-					'Debit': instance.gst_alltotal,
-					'Credit': instance.gst_alltotal}
-				)
-	else:
-		if instance.gst_alltotal != None:
 			journal.objects.update_or_create(
-					By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Tax').first(),
-					voucher_id=instance.id,
-					defaults={
-						'counter' : c,
-						'User' : instance.User,
-						'To' : instance.Party_ac,
-						'Date': instance.date,
-						'voucher_type' : "Journal",
-						'Debit': instance.gst_alltotal,
-						'Credit': instance.gst_alltotal}
-					)
-
-
-
-@receiver(pre_save, sender=Sales)
-def user_created_sales(sender,instance,*args,**kwargs):
-	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.sub_total != None:
-		journal.objects.update_or_create(
-			To = instance.sales,
+			By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='IGST').first(),
 			voucher_id=instance.id,
+			voucher_type="Purchase",
 			defaults={
 				'counter' : c,
 				'User' : instance.User,
 				'Company' : instance.Company,
 				'Date': instance.date,
-				'By' : instance.Party_ac,
-				'voucher_type' : "Sales",
-				'Debit': instance.sub_total,
-				'Credit': instance.sub_total}
+				'To' : instance.Party_ac,
+				'Debit': instance.gst_alltotal,
+				'Credit': instance.gst_alltotal}
 			)
+	else:
+		journal.objects.update_or_create(
+				By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Tax').first(),
+				voucher_id=instance.id,
+				voucher_type = "Purchase",
+				defaults={
+					'counter' : c,
+					'User' : instance.User,
+					'To' : instance.Party_ac,
+					'Date': instance.date,
+					'Debit': instance.gst_alltotal,
+					'Credit': instance.gst_alltotal}
+				)
+
+
+
+@receiver(post_save, sender=Sales)
+@disable_for_loaddata
+def user_created_sales(sender, instance, created, **kwargs):
+	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
+	journal.objects.update_or_create(
+		voucher_id=instance.id,
+		voucher_type = "Sales",
+		urlhash = instance.urlhash,
+		defaults={
+			'counter' : c,
+			'User' : instance.User,
+			'Company' : instance.Company,
+			'Date': instance.date,
+			'By' : instance.Party_ac,
+			'To' : instance.sales,
+			'Debit': instance.sub_total,
+			'Credit': instance.sub_total}
+		)
 
 @receiver(pre_delete, sender=Sales)
 def delete_related_journal_sales(sender, instance, **kwargs):
 	journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
 
-@receiver(pre_save, sender=Sales)
-def user_created_plsales(sender,instance,*args,**kwargs):
-	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.sub_total != None:
-		Pl_journal.objects.update_or_create(
-			To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
-			voucher_id=instance.id,
-			defaults={
-				'counter' : c,
-				'User' : instance.User,
-				'Company' : instance.Company,
-				'Date': instance.date,
-				'By' : instance.sales,
-				'voucher_type' : "Sales", 
-				'Debit': instance.sub_total,
-				'Credit': instance.sub_total}
-			)
 
 @receiver(pre_delete, sender=Sales)
-def delete_related_pljournal_sales(sender, instance, **kwargs):
-	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
+def delete_related_stock_for_sales(sender, instance, **kwargs):
+	sales_stock = Stock_Total_sales.objects.filter(sales=instance)
+	for obj in sales_stock:
+		if obj.stockitem:
+			obj.stockitem.save()
+			obj.stockitem.closingstock.save()
+
+@receiver(pre_delete, sender=Sales)
+def delete_related_mastersales_ledger(sender, instance, **kwargs):
+	instance.Party_ac.save()
+	instance.sales.save()
+
+
+# @receiver(pre_save, sender=Sales)
+# @disable_for_loaddata
+# def user_created_plsales(sender,instance,*args,**kwargs):
+# 	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
+# 	if instance.sub_total != None:
+# 		Pl_journal.objects.update_or_create(
+# 			To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
+# 			voucher_id=instance.id,
+# 			voucher_type='Sales',
+# 			defaults={
+# 				'counter' : c,
+# 				'User' : instance.User,
+# 				'Company' : instance.Company,
+# 				'Date': instance.date,
+# 				'By' : instance.sales,
+# 				'Debit': instance.sub_total,
+# 				'Credit': instance.sub_total}
+# 			)
+
+# @receiver(pre_delete, sender=Sales)
+# def delete_related_pljournal_sales(sender, instance, **kwargs):
+# 	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
 
 @receiver(pre_save, sender=Sales)
+@disable_for_loaddata
 def user_created_sales_cgst(sender,instance,*args,**kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.cgst_alltotal != None and instance.cgst_alltotal != 0:
 		journal.objects.update_or_create(
 				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='CGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Sales",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'By' : instance.Party_ac,
 					'Date': instance.date,
-					'voucher_type' : "Journal", 
-					'Debit': instance.gst_alltotal,
-					'Credit': instance.gst_alltotal}
+					'Debit': instance.cgst_alltotal,
+					'Credit': instance.cgst_alltotal}
 				)
 
-@receiver(pre_save, sender=Sales)
-def user_created_sales_stategst(sender,instance,*args,**kwargs):
+@receiver(post_save, sender=Sales)
+@disable_for_loaddata
+def user_created_sales_stategst(sender, instance, created, **kwargs):
 	c = journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
 	if instance.Company.composite_enable == False:
-		if instance.gst_alltotal != None and instance.State == instance.Company.State:
+		if instance.State == instance.Company.State:
 			journal.objects.update_or_create(
 				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='SGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Sales",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'By' : instance.Party_ac,
 					'Date': instance.date,
-					'voucher_type' : "Journal", 
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)	
-		elif instance.gst_alltotal != None and instance.Company.State == 'Andaman & Nicobar Islands' and instance.State == 'Andaman & Nicobar Islands':
+		elif instance.Company.State == 'Andaman & Nicobar Islands' and instance.State == 'Andaman & Nicobar Islands':
 			journal.objects.update_or_create(
 				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Sales",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'By' : instance.Party_ac,
 					'Date': instance.date,
-					'voucher_type' : "Journal", 
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Chandigarh' and instance.State == 'Chandigarh':
+		elif instance.Company.State == 'Chandigarh' and instance.State == 'Chandigarh':
 			journal.objects.update_or_create(
 				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Sales",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'By' : instance.Party_ac,
 					'Date': instance.date,
-					'voucher_type' : "Journal", 
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Dadra and Nagar Haveli' and instance.State == 'Dadra and Nagar Haveli':
+		elif instance.Company.State == 'Dadra and Nagar Haveli' and instance.State == 'Dadra and Nagar Haveli':
 			journal.objects.update_or_create(
 				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Sales",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'By' : instance.Party_ac,
 					'Date': instance.date,
-					'voucher_type' : "Journal", 
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Daman and Diu' and instance.State == 'Daman and Diu':
+		elif instance.Company.State == 'Daman and Diu' and instance.State == 'Daman and Diu':
 			journal.objects.update_or_create(
 				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Sales",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'By' : instance.Party_ac,
 					'Date': instance.date,
-					'voucher_type' : "Journal", 
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
-		elif instance.gst_alltotal != None and instance.Company.State == 'Lakshadweep' and instance.State == 'Lakshadweep':
+		elif instance.Company.State == 'Lakshadweep' and instance.State == 'Lakshadweep':
 			journal.objects.update_or_create(
 				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='UTGST').first(),
 				voucher_id=instance.id,
+				voucher_type="Sales",
 				defaults={
 					'counter' : c,
 					'User' : instance.User,
 					'Company' : instance.Company,
 					'By' : instance.Party_ac,
 					'Date': instance.date,
-					'voucher_type' : "Journal", 
 					'Debit': instance.gst_alltotal,
 					'Credit': instance.gst_alltotal}
 				)
 		else:
-			if instance.gst_alltotal != None:
-				journal.objects.update_or_create(
-				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='IGST').first(),
-				voucher_id=instance.id,
-				defaults={
-					'counter' : c,
-					'User' : instance.User,
-					'Company' : instance.Company,
-					'By' : instance.Party_ac,
-					'Date': instance.date,
-					'voucher_type' : "Journal", 
-					'Debit': instance.gst_alltotal,
-					'Credit': instance.gst_alltotal}
-				)
+			journal.objects.update_or_create(
+			To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='IGST').first(),
+			voucher_id=instance.id,
+			voucher_type="Sales",
+			defaults={
+				'counter' : c,
+				'User' : instance.User,
+				'Company' : instance.Company,
+				'By' : instance.Party_ac,
+				'Date': instance.date,
+				'Debit': instance.gst_alltotal,
+				'Credit': instance.gst_alltotal}
+			)
 	else:
-		if instance.gst_alltotal != None:
-				journal.objects.update_or_create(
-				To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Tax').first(),
-				voucher_id=instance.id,
-				defaults={
-					'counter' : c,
-					'User' : instance.User,
-					'Company' : instance.Company,
-					'By' : instance.Party_ac,
-					'Date': instance.date,
-					'voucher_type' : "Journal", 
-					'Debit': instance.gst_alltotal,
-					'Credit': instance.gst_alltotal}
-				)
+		journal.objects.update_or_create(
+		To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Tax').first(),
+		voucher_id=instance.id,
+		voucher_type="Sales",
+		defaults={
+			'counter' : c,
+			'User' : instance.User,
+			'Company' : instance.Company,
+			'By' : instance.Party_ac,
+			'Date': instance.date,
+			'Debit': instance.gst_alltotal,
+			'Credit': instance.gst_alltotal}
+		)
 
 
 @receiver(post_save, sender=Stockdata)
+@disable_for_loaddata
 def create_default_stock_ledger(sender, instance, created, **kwargs):
 	if created:
 		stock_journal.objects.create(User=instance.User,Company=instance.Company,stockitem=instance)
 
 	
 
-@receiver(post_save, sender=stock_journal) # shall be triggered when the above signal is passed since stock journal model is created and is the sender here.
-def create_stock_ledger(sender, instance, created, **kwargs):
-	selectdatefield_details = get_object_or_404(selectdatefield,User=instance.User)
-	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.closing_stock != None:
-		Pl_journal.objects.update_or_create(
-			By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Stock A/c').first(),
-			To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
-			stock = instance.stockitem.stock_name,
-			voucher_id = instance.id,
-			defaults={
-				'counter' : c,
-				'User' : instance.User,
-				'Company' : instance.Company,
-				'Date': selectdatefield_details.End_Date,
-				'voucher_type' : "Journal", 
-				'Debit': instance.closing_stock,
-				'Credit': instance.closing_stock}
-			)
+# @receiver(post_save, sender=stock_journal) # shall be triggered when the above signal is passed since stock journal model is created and is the sender here.
+# @disable_for_loaddata
+# def create_stock_ledger(sender, instance, created, **kwargs):
+# 	selectdatefield_details = get_object_or_404(selectdatefield,User=instance.User)
+# 	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
+# 	if instance.closing_stock != None:
+# 		Pl_journal.objects.update_or_create(
+# 			By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Stock A/c').first(),
+# 			To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
+# 			stock = instance.stockitem.stock_name,
+# 			voucher_id = instance.id,
+# 			defaults={
+# 				'counter' : c,
+# 				'User' : instance.User,
+# 				'Company' : instance.Company,
+# 				'Date': selectdatefield_details.End_Date,
+# 				'voucher_type' : "Journal", 
+# 				'Debit': instance.closing_stock,
+# 				'Credit': instance.closing_stock}
+# 			)
 
-@receiver(post_save, sender=stock_journal) # shall be triggered when the above signal is passed since stock journal model is created and is the sender here.
-def create_stock_ledger_opening(sender, instance, created, **kwargs):
-	selectdatefield_details = get_object_or_404(selectdatefield,User=instance.User)
-	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
-	if instance.opening_stock != None:
-		Pl_journal.objects.update_or_create(
-			By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
-			To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Stock A/c').first(),
-			stock = instance.stockitem.stock_name,
-			voucher_id = instance.id,
-			defaults={
-				'counter' : c,
-				'User' 	: instance.User,
-				'Company' : instance.Company,
-				'Date': selectdatefield_details.Start_Date,
-				'voucher_type' : "Journal", 
-				'Debit': instance.opening_stock,
-				'Credit': instance.opening_stock}
-			)
+# @receiver(post_save, sender=stock_journal) # shall be triggered when the above signal is passed since stock journal model is created and is the sender here.
+# @disable_for_loaddata
+# def create_stock_ledger_opening(sender, instance, created, **kwargs):
+# 	selectdatefield_details = get_object_or_404(selectdatefield,User=instance.User)
+# 	c = Pl_journal.objects.filter(User=instance.User, Company=instance.Company).count() + 1
+# 	if instance.opening_stock != None:
+# 		Pl_journal.objects.update_or_create(
+# 			By = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Profit & Loss A/c').first(),
+# 			To = ledger1.objects.filter(User=instance.User,Company=instance.Company,name__icontains='Stock A/c').first(),
+# 			stock = instance.stockitem.stock_name,
+# 			voucher_id = instance.id,
+# 			defaults={
+# 				'counter' : c,
+# 				'User' 	: instance.User,
+# 				'Company' : instance.Company,
+# 				'Date': selectdatefield_details.Start_Date,
+# 				'voucher_type' : "Journal", 
+# 				'Debit': instance.opening_stock,
+# 				'Credit': instance.opening_stock}
+# 			)
 
 
-@receiver(pre_delete, sender=stock_journal)
-def delete_related_journal_stock(sender, instance, **kwargs):
-	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,voucher_id=instance.id).delete()
+# @receiver(pre_delete, sender=stock_journal)
+# def delete_related_journal_stock(sender, instance, **kwargs):
+# 	Pl_journal.objects.filter(User=instance.User,Company=instance.Company,stock = instance.stockitem.stock_name,voucher_id=instance.id).delete()

@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^delete/(?P<id>\d+)/$',views.company_delete,name='delete'),
     url(r'^(?P<pk>\d+)/$',views.specific_company_details,name='company_details'),
     url(r'^object/(?P<pk>\d+)/$',views.getcompanyObject,name='backup'),
+    url(r'^object/excel/(?P<pk>\d+)/$',views.getcompanyObject_in_excel,name='backup_excel'),
     url(r'^import_company/$',views.company_upload,name='import_company'),
 
 

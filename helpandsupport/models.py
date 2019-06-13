@@ -20,10 +20,10 @@ class HelpCategories(models.Model):
 		('About Products','About Products'),
 
 		)
-	Title = models.CharField(max_length=40, default='Getting Started')
+	Title = models.CharField(max_length=255, default='Getting Started')
 	image = ImageField(upload_to='help_image', null=True, blank=True)
 	desc  = models.TextField(blank=True, null=True)
-	slug  = models.SlugField(blank=True)
+	slug  = models.SlugField(max_length=255,blank=True,unique= True)
 
 	def __str__(self):
 		return self.Title
@@ -44,20 +44,24 @@ class HelpCategories(models.Model):
 		return reverse('CategoriesDetail',kwargs={"slug":self.slug})
 
 def pre_save_help(sender, instance, *args, **kwargs):
-	slug =slugify(instance.Title)
+	slug = slugify(instance.Title)
 	instance.slug = slug
+
 pre_save.connect(pre_save_help, sender=HelpCategories)
 
 
 
 class Articles(models.Model):
 	Article_title   	= models.CharField(max_length=255,unique=True)
-	slug 				= models.SlugField(blank=True)
+	slug 				= models.SlugField(max_length=255,blank=True,unique= True)
 	Description 		= RichTextUploadingField(blank=True, null=True,config_name='special')
 	Article_Category 	= models.ForeignKey(HelpCategories,on_delete=models.CASCADE,related_name='category')
 
 	def __str__(self):
 		return self.Article_title
+
+	def get_absolute_url(self):
+		return reverse("helpandsupport:ArticleDetail", kwargs={'slug':self.slug, 'slug1':self.Article_Category.slug})
 
 	class Meta:
 		ordering = ['-id']
@@ -65,6 +69,7 @@ class Articles(models.Model):
 def pre_save_article(sender, instance, *args, **kwargs):
 	slug =slugify(instance.Article_title)
 	instance.slug = slug
+
 pre_save.connect(pre_save_article, sender=Articles)
 
 
@@ -74,7 +79,6 @@ class Article_Questions(models.Model):
 	Article  	    	= models.ForeignKey(Articles,on_delete=models.CASCADE,related_name='Article')
 	text 				= models.TextField()
 	Date 				= models.DateTimeField(auto_now_add=True)
-	Question_title 		= models.CharField(max_length=255,unique=True)
 	def __str__(self):
 		return self.Question_title
 
@@ -83,10 +87,9 @@ class Article_Questions(models.Model):
 
 class Article_Answers(models.Model):
 	User 			     = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True,blank=True)
-	Question_of_article  			 = models.ForeignKey(Articles,on_delete=models.CASCADE,related_name='Article_Question')
+	Question_of_article  = models.ForeignKey(Articles,on_delete=models.CASCADE,related_name='Article_Question')
 	text  	 			 = models.TextField()
 	Date 	 			 = models.DateTimeField(auto_now_add=True)
-	#Article         	 = models.ForeignKey(Articles,on_delete=models.CASCADE,related_name='category')
-	Answers 	        = models.ForeignKey(Article_Questions,on_delete=models.CASCADE,related_name='answers')
+	Answers 	         = models.ForeignKey(Article_Questions,on_delete=models.CASCADE,related_name='answers')
 	def __str__(self):
 		return self.text

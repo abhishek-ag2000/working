@@ -2,7 +2,14 @@
 {% load staticfiles %}
 <html>
 
+
+
 <head>
+
+    {% block adsense %}
+
+    {% endblock %}
+
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,8 +32,13 @@
     <!-- Morris -->
     <link href="{% static 'css/plugins/morris/morris-0.4.3.min.css' %}" rel="stylesheet">
 
+    <!-- FooTable -->
+    <link href="{% static 'css/plugins/footable/footable.core.css' %}" rel="stylesheet">
+
     <link href="{% static 'css/animate.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+
 
 </head>
 
@@ -142,6 +154,21 @@
         </nav>
         </div>
         {% endblock %}
+
+
+        {% block messages %}
+
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+        {% endblock %}
+
+
         <div id="content">
           {% block content %}
 
@@ -164,6 +191,7 @@
 
 
     {% block javascript %}
+    
     {% endblock %}  
 
     <!-- Mainly scripts -->
@@ -224,11 +252,23 @@
     <!-- Sparkline demo data  -->
     <script src="{% static 'js/demo/sparkline-demo.js' %}"></script>
 
+    <!-- FooTable -->
+    <script src="{% static 'js/plugins/footable/footable.all.min.js' %}"></script>
+
     <!-- Sweet alert -->
     <script src="{% static 'js/plugins/sweetalert/sweetalert.min.js' %}"></script>
 
     <!-- Switchery -->
     <script src="{% static 'js/plugins/switchery/switchery.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            $('.footable').footable();
+
+        });
+
+    </script>
 
     <script>
         $("document").ready(function()  {
@@ -319,6 +359,33 @@
 
     <script type="text/javascript">
       $(document).ready(function(event){
+        $(document).on('submit', '.question_form', function(event){
+          event.preventDefault();
+          console.log($(this).serialize())
+          $.ajax({
+            type : 'POST',
+            url  : $(this).attr('action'),
+            data : $(this).serialize(),
+            datatype : 'json',
+            success : function(response){
+              $('.main-question').html(response['form'])
+              $('textarea').val('')
+              swal({
+                    title: "Good job!",
+                    text: "You question is posted successfully!",
+                    type: "success"
+                });
+            },
+            error : function(rs, e){
+              console.log(rs, responseText);
+            }
+
+          });
+        });
+      });
+    </script>
+    <script type="text/javascript">
+      $(document).ready(function(event){
         $(document).on('click', '#like', function(event){
           event.preventDefault();
           var pk = $(this).attr('value');
@@ -396,6 +463,17 @@
         var elem = document.querySelector('.js-switch_2');
         var init = new Switchery(elem);
     </script>
+
+    <script type="text/javascript">
+        var elem = document.querySelector('.js-switch_3');
+        var init = new Switchery(elem);
+    </script>
+
+    <script type="text/javascript">
+        var elem = document.querySelector('.js-switch_4');
+        var init = new Switchery(elem);
+    </script>
+
 </body>
 </body>
 </html>

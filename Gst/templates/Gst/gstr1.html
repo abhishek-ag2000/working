@@ -1,76 +1,82 @@
 {% extends "clouderp/base.html" %}
 {% load staticfiles %}
 {% load mathfilters %}
-{% block title %}GST Reports{% endblock %}
+{% block title %}GSTR - 1{% endblock %}
 
 {% block content %}
 
+{% include "snippet_shortcut/shortcut_snippet.html" %}
 
             <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-lg-12">
                     <h2>GST REPORTS</h2>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">GST</a>
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
                     </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    
                     <li class="breadcrumb-item active">
                         <strong>GSTR-Overview</strong>
-                    </li>
-                     <li class="breadcrumb-item active">
-                        <strong>GSTR-1</strong>
+                    
                     </li>
                 </ol>
-       
-              <a href="{% url 'company:create' %}" class="btn btn-warning" role="button">GSTR-Overview</a>
-              <a href="{% url 'company:import_company' %}" class="btn btn-primary" role="button">GSTR-2A</a>
-              <a href="{% url 'company:create' %}" class="btn btn-success" role="button">GSTR-3B</a>
+           <br>
+              <a href="{% url 'gst:gstr_1' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-warning" role="button">GSTR-1</a>
+              <a href="{% url 'gst:gstr_2A' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-primary" role="button">GSTR-2A</a>
+              <a href="{% url 'gst:gstr_3B' pk=company_details.pk pk3=selectdatefield_details.pk %}" class="btn btn-success" role="button">GSTR-3B</a>
               <a href="{% url 'company:create' %}" class="btn btn-info" role="button">GSTR-4</a>
-         
-                {% if not selectdates %}
 
-                     <button class="btn btn-primary show-form float-right" data-url="{% url 'accounting_double_entry:datecreate' %}">
+              {% if not selectdatefield_details %}
+
+                  
+                     <button class="btn btn-primary show-form pull-right" data-url="{% url 'accounting_double_entry:datecreate' %}">
                       <span class="glyphicon glyphicon-plus"></span>
                         Select Date Range
                       </button>
 
                 {% else %} 
-               <!-- this needs to work like in other places-->
-              <table id="book-table-date">
-                <tbody>
-                  {% include "company/company_list_2.html" %}
-                </tbody>
-                
-              </table> 
-              {% endif %}
+              
+  
+                            <button  class="btn btn-info show-form-update pull-right" data-url="{% url 'accounting_double_entry:dateupdate' pk=selectdatefield_details.pk %}">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                              Update Period 
+                            </button>
+
+                     <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+                      <strong>Selected Period: From</strong>
+                       {{ selectdatefield_details.Start_Date|date }}
+                        <strong>To</strong>
+                         {{ selectdatefield_details.End_Date|date }}  &nbsp;
+
+                      </a>  
+
+                 
+
+                {% endif %}
+           
                 </div>
             </div>
 
-<!-- for formatting the boxes evenly -->
- <div class="wrapper wrapper-content animated fadeInRight ecommerce">
-		<div class="row">
-			<div class="col-lg-4">
-                    <div class="ibox ">
-                        <div class="ibox-title">
-                            <h5>GSTR-1 Summary </h5>
-                            <div class="ibox-tools">
-                                <a class="collapse-link">
-                                    <i class="fa fa-chevron-up"></i>
-                                </a>
-                               <!--  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                    <i class="fa fa-wrench"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-user">
-                                    <li><a href="#" class="dropdown-item">Config option 1</a>
-                                    </li>
-                                    <li><a href="#" class="dropdown-item">Config option 2</a>
-                                    </li>
-                                </ul>
-                                <a class="close-link">
-                                    <i class="fa fa-times"></i>
-                                </a> -->
-                            </div>
-                        </div>
-                        <div class="ibox-content">
+<br>
+<div class="row">
+	<div class="col-lg-4">
+    <div class="ibox ">
+        <div class="ibox-title">
+        <h5>Overview </h5>
+
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                
+            </div>
+        </div>
+ <div class="ibox-content">
 
                             <table class="table table-bordered">
                                 <thead>
@@ -80,7 +86,7 @@
                                     <th>Details</th>
                                 
                                 </tr>
-                                </thead
+                                </thead>
                                 <tbody>
                                 <tr>
                                     
@@ -138,8 +144,11 @@
                             </table>
 
                         </div>
-                    </div>
-                </div>
+    </div>
+
+
+
+</div>
 
                 <div class="col-lg-8">
                     <div class="ibox ">
@@ -178,8 +187,8 @@
                                 </thead>
                                 <tbody>
                                 <tr> <!-- from date range -->
-                                	<!-- <td><span class="pie">0.52,1.041</span></td>
-                                	<td class="text-navy"> <i class="fa fa-level-up"></i> 40% </td> -->
+                                    <!-- <td><span class="pie">0.52,1.041</span></td>
+                                    <td class="text-navy"> <i class="fa fa-level-up"></i> 40% </td> -->
 
                                     <td>July 2018</td>
                                     <td>Filed</td>
@@ -243,17 +252,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-		</div>
 
+</div>
 
 
 <div class="row">
                 <div class="col-lg-12">
                     <div class="ibox ">
                         <div class="ibox-title">
-                            <h5>Returns Summary </h5>
+                            <h5>Custom responsive table </h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -515,13 +523,11 @@
                 </div>
 
             </div>
-        </div>
 
 
-<!-- for footer missing div -->
-<br>
-<div>
-
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+</div>
 
 {% endblock %}
-

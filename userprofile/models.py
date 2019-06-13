@@ -13,6 +13,8 @@ import sys
 from sorl.thumbnail import ImageField, get_thumbnail
 from django.utils import timezone
 from ecommerce_integration.models import coupon, Product, Product_review, Services, API, Role_based_product
+from accounting_double_entry.decorators import disable_for_loaddata
+
 # Create your models here.
 
 def file_size(value): # add this to some file where you can import it from
@@ -29,7 +31,7 @@ class Profile(models.Model):
 		('Data Operators','Data Operators'),
 		)
 	user_type = models.CharField(max_length=32,choices=user_types,default='Bussiness User',blank=False)
-	Name = models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+	Name = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile',on_delete=models.CASCADE)
 	E_mail = models.EmailField(max_length=70,blank=True)
 	Permanant_Address = models.TextField(blank=True)
 	District = models.CharField(max_length=32,blank=True)
@@ -72,7 +74,7 @@ class Profile(models.Model):
 	Country = models.CharField(max_length=32,blank=True)
 	Phone_no = models.BigIntegerField(null=True,blank=True)
 	basic_info = models.TextField(blank=True)
-	image = models.ImageField(upload_to='user_images', null=True, blank=True)
+	image = ImageField(upload_to='user_images', null=True, blank=True)
 	subscribed_products = models.ManyToManyField(Product,related_name='products_subscribed',blank=True)
 	subscribed_role_products = models.ManyToManyField(Role_based_product,related_name='role_products_subscribed',blank=True)
 
@@ -93,11 +95,13 @@ class Profile(models.Model):
 			outputIoStream.seek(0)
 			self.image = InMemoryUploadedFile(outputIoStream,'ImageField', "%s.jpg" %self.image.name.split('.')[0], 'image/jpeg', sys.getsizeof(outputIoStream), None)
 			super(Profile, self).save(*args, **kwargs)
+			
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+@disable_for_loaddata
 def user_created_profilespecific(sender, instance, created, **kwargs):
 	if created:
-		Profile.objects.create(Name=instance,image='userprofile/download (1).jpg')
+		Profile.objects.create(Name=instance)
 
 
 class Product_activation(models.Model):
@@ -110,6 +114,7 @@ class Product_activation(models.Model):
 		return str(self.id)
 
 @receiver(post_save, sender=Profile)
+@disable_for_loaddata
 def product_activation(sender, instance, created, **kwargs):
 	for product in instance.subscribed_products.all():
 		if Product_activation.objects.filter(User=instance.Name,product=product).exists():
@@ -127,6 +132,7 @@ class Role_product_activation(models.Model):
 		return str(self.id)
 
 @receiver(post_save, sender=Profile)
+@disable_for_loaddata
 def role_product_activation(sender, instance, created, **kwargs):
 	for product in instance.subscribed_role_products.all():
 		if Role_product_activation.objects.filter(User=instance.Name,product=product).exists():
@@ -152,6 +158,7 @@ class Organisation(models.Model):
 		return reverse("userprofile:profiledetail")
 
 @receiver(post_save, sender=Profile)
+@disable_for_loaddata
 def user_created_organisation(sender, instance, created, **kwargs):
 	if instance.user_type == 'Professional':
 		Organisation.objects.update_or_create(User=instance.Name,qualification='Verified')
@@ -170,6 +177,7 @@ class Organisation_member(models.Model):
 		return reverse("userprofile:organisation_member_list")
 
 @receiver(post_save, sender=Organisation)
+@disable_for_loaddata
 def organisation_admin(sender, instance, created, **kwargs):
 	for member in instance.members.all():
 		if Organisation_member.objects.filter(User=instance.User,organisation=Organisation.objects.filter(User=instance.User,name=instance.name).first(),member_name=member).exists():

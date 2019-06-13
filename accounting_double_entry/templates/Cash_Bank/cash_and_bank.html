@@ -183,18 +183,18 @@
                             {% if group.positive_closing != 0 or group.negative_closing != 0 %}
                               {% if group.positive_closing != None or group.negative_closing != None %}
                                 <tr>
-                                  <th><center><a href="{% url 'accounting_double_entry:groupdetailsummary' pk=company_details.pk pk2=group.pk pk3=selectdatefield_details.pk %}">{{group.group_Name}}</a></center></th>
+                                  <td><center><a href="{% url 'accounting_double_entry:groupdetailsummary' pk=company_details.pk pk2=group.pk pk3=selectdatefield_details.pk %}">{{group.group_Name}}</a></center></td>
                                     {% if group.positive_closing == 0 %}
                                       <th></th>
                                     {% else %}
-                                      <th>{{ group.positive_closing|floatformat:2|abs }}</th>
+                                      <td>{{ group.positive_closing|floatformat:2|abs }}</td>
                                     {% endif %}
                                     {% if group.negative_closing == 0 %}
                                       <th></th>
                                     {% else %}
-                                      <th>(-){{ group.negative_closing|floatformat:2|abs }}</th>
+                                      <td>(-){{ group.negative_closing|floatformat:2|abs }}</td>
                                     {% endif %} 
-                                        </tr>
+                                  </tr>
                                     {% endif %}
                             {% endif %}
                           {% endfor %}
@@ -202,7 +202,7 @@
                           {% for ledger1 in group1.ledgergroups.all %}
                               <tr>
 
-                                <th><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly' pk=company_details.pk pk2=ledger1.pk pk3=selectdatefield_details.pk %}">{{ledger1.name}}</a></center></th>
+                                <td><center><a href="{% url 'accounting_double_entry:ledgerdetailmonthly' pk=company_details.pk pk2=ledger1.pk pk3=selectdatefield_details.pk %}"><em>{{ledger1.name}}</em></a></center></td>
                                 {% if ledger1.Closing_balance > 0 %}
                                   <td>{{ ledger1.Closing_balance|floatformat:2|abs }}</td>
                                   <td></td>

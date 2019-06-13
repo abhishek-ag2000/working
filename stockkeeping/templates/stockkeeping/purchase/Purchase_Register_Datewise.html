@@ -96,7 +96,7 @@
                                         <td><a href="{% url 'stockkeeping:purchasedetail' pk2=p.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">Purchase</a></td>
                                         <td><a href="{% url 'stockkeeping:purchasedetail' pk2=p.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ p.id }}</a></td>
                                         <td><a href="{% url 'stockkeeping:purchasedetail' pk2=p.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}"></a></td>
-                                        <td><a href="{% url 'stockkeeping:purchasedetail' pk2=p.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ p.sub_total|intcomma }}</a></td>
+                                        <td><a href="{% url 'stockkeeping:purchasedetail' pk2=p.pk pk1=company_details.pk pk3=selectdatefield_details.pk %}">{{ p.Total|intcomma }}</a></td>
                                       </tr>
                                     {% endfor %}
 

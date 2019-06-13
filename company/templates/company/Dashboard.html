@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load mathfilters %}
 {% load humanize %}
+{% load poll_extras %}
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
@@ -129,16 +130,16 @@
                         <div class="row">
                             <div class="col-4">
                                 <small class="stats-label">Total Dues to collect</small>
-                                <h4>{{ total_dues_to_collect|abs|floatformat:2|intcomma }}</h4>
+                                <h4>{{ total_dues_to_collect|abs|floatformat:2|format_number }}</h4>
                             </div>
 
                             <div class="col-4">
                                 <small class="stats-label">Total Dues to pay</small>
-                                <h4>{{ total_dues_to_pay|abs|floatformat:2|intcomma }}</h4>
+                                <h4>{{ total_dues_to_pay|abs|floatformat:2|format_number }}</h4>
                             </div>
                             <div class="col-4">
                                 <small class="stats-label">Working Capital</small>
-                                <h4>{{ working_capital|abs|floatformat:2|intcomma }}</h4>
+                                <h4>{{ working_capital|abs|floatformat:2|format_number }}</h4>
                             </div>
                         </div>
                     </div>
@@ -155,7 +156,7 @@
                             </div>
                             <div class="col-4">
                                 <small class="stats-label">Cost of goods sold</small>
-                                <h4>{{ cost_goods_sold|abs|floatformat:2|intcomma }}</h4>
+                                <h4>{{ cost_goods_sold|abs|floatformat:2|format_number }}</h4>
                             </div>
                         </div>
                     </div>
@@ -163,7 +164,7 @@
                         <div class="row">
                         <div class="col-4">
                                 <small class="stats-label">Operating Cost</small>
-                                <h4>{{ operating_cost|abs|floatformat:2|intcomma }}</h4>
+                                <h4>{{ operating_cost|abs|floatformat:2|format_number }}</h4>
                             </div>
                             <div class="col-4">
                                 <small class="stats-label">ROI(%)</small>
@@ -366,7 +367,7 @@
                                         <td>{{ sales.date }}</td>
                                         
                                     {% endfor %}
-                                    <td>{{ ledger.total|abs|floatformat:2|intcomma }}</td>
+                                    <td>{{ ledger.total|abs|floatformat:2|format_number }}</td>
                                 </tr>
                             {% endfor %}
 
@@ -409,7 +410,7 @@
                                         <td>{{ purchase.date }}</td>
                                         
                                     {% endfor %}
-                                    <td>{{ ledger.total|abs|floatformat:2|intcomma }}</td>
+                                    <td>{{ ledger.total|abs|floatformat:2|format_number }}</td>
                                 </tr>
                             {% endfor %}
 
@@ -449,7 +450,7 @@
                                         <td><span class="pie">No sales</span></td>
                                          <td>No sales</td>
                                     {% endif %}    
-                                    <td>{{ stock.total|abs|floatformat:2|intcomma }}</td>
+                                    <td>{{ stock.total|abs|floatformat:2|format_number }}</td>
                                     <td></td>
                                 </tr>
                             {% endfor %}
@@ -486,7 +487,7 @@
                                         <td><span class="pie">No sales</span></td>
                                          <td>No sales</td>
                                     {% endif %}    
-                                    <td>{{ stock.total|abs|floatformat:2|intcomma }}</td>
+                                    <td>{{ stock.total|abs|floatformat:2|format_number }}</td>
                                     <td></td>
                                 </tr>
                             {% endfor %}

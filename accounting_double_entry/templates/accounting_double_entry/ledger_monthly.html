@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load mathfilters %}
 {% load poll_extras %}
+{% load humanize %}
 {% block title %}Ledger Monthly View{% endblock %}
 
 {% block content %}
@@ -123,7 +124,7 @@
 
                                       {% else %}
 
-                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Dr</center></th>
+                                        <th><center>{{ opening_balance|abs|floatformat:2|intcomma }} Dr</center></th>
 
                                       {% endif %}
                                       
@@ -136,7 +137,7 @@
 
                                       {% else %}
 
-                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Cr</center></th>
+                                        <th><center>{{ opening_balance|abs|floatformat:2|intcomma }} Cr</center></th>
                                       {% endif %}
 
                                     {% endif %}
@@ -152,7 +153,7 @@
 
                                       {% else %}
 
-                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Cr</center></th>
+                                        <th><center>{{ opening_balance|abs|floatformat:2|intcomma }} Cr</center></th>
 
                                       {% endif %}
 
@@ -164,7 +165,7 @@
 
                                       {% else %}
 
-                                        <th><center>{{ opening_balance|abs|floatformat:2 }} Dr</center></th>
+                                        <th><center>{{ opening_balance|abs|floatformat:2|intcomma }} Dr</center></th>
                                         
                                       {% endif %}
 
@@ -176,28 +177,20 @@
 
                                 {% for key, value in data %}
                                   <tr>
-                                    <td><center><a href="{% url 'accounting_double_entry:ledgerdatewise' pk=company_details.pk pk2=ledger1_details.pk month=key pk3=selectdatefield_details.pk %}">{{ key|month_name }}</a></center></td>
+                                    <td><center><a href="{% url 'accounting_double_entry:ledgerdatewise_2' pk=company_details.pk pk2=ledger1_details.pk month=key pk3=selectdatefield_details.pk %}">{{ key|month_name }}</a></center></td>
 
-                                    {% if value.3 != 0 and value.0 == 0 %}
-                                      <td><center>{{ value.3|abs|floatformat:2 }}<br>&nbsp;<small>(P/L)</small></center></td>
-                                    {% elif value.0 != 0 and value.3 == 0 %}
-                                      <td><center>{{ value.0|abs|floatformat:2 }}</center></td>
-                                    {% elif value.0 == 0 and value.3 == 0 %}
-                                      <td><center></center></td> 
+                                    {% if value.0 == 0 %}
+                                      <td><center></center></td>
                                     {% else %}
-                                      <td><center>{{ value.0|add:value.3|abs|floatformat:2 }}</center></td>
+                                      <td><center>{{ value.0|abs|floatformat:2|intcomma }}</center></td>
                                     {% endif %}
 
 
 
-                                    {% if value.4 != 0 and value.1 == 0 %}
-                                      <td><center>{{ value.4|abs|floatformat:2 }}<br>&nbsp;<small>(P/L)</small></center></td>
-                                    {% elif value.1 != 0 and value.4 == 0 %}
-                                      <td><center>{{ value.1|abs|floatformat:2 }}</center></td>
-                                    {% elif value.1 == 0 and value.4 == 0 %}
-                                      <td><center></center></td> 
+                                    {% if value.1 == 0 %}
+                                      <td><center></center></td>
                                     {% else %}
-                                      <td><center>{{ value.1|add:value.4|abs|floatformat:2 }}</center></td>
+                                      <td><center>{{ value.1|abs|floatformat:2|intcomma }}</center></td>
                                     {% endif %}
 
                                   {% if ledger1_details.group1_Name.balance_nature == 'Debit' %}
@@ -205,13 +198,13 @@
                                     {% if value.2 > 0 %}
 
 
-                                          <td><center>{{ value.2|abs|floatformat:2 }} Dr</center></td>
+                                          <td><center>{{ value.2|abs|floatformat:2|intcomma }} Dr</center></td>
                                         
 
                                     {% else %}
 
 
-                                          <td><center>{{ value.2|abs|floatformat:2 }} Cr</center></td>
+                                          <td><center>{{ value.2|abs|floatformat:2|intcomma }} Cr</center></td>
                                         
 
                                     {% endif %}
@@ -222,13 +215,13 @@
                                       {% if value.2 > 0 %}
 
 
-                                          <td><center>{{ value.2|abs|floatformat:2 }} Cr</center></td>
+                                          <td><center>{{ value.2|abs|floatformat:2|intcomma }} Cr</center></td>
                                         
 
                                       {% else %}
 
 
-                                          <td><center>{{ value.2|abs|floatformat:2 }} Dr</center></td>
+                                          <td><center>{{ value.2|abs|floatformat:2|intcomma }} Dr</center></td>
                                        
 
                                       {% endif %}
@@ -247,16 +240,16 @@
                                 <tr>
                                   <th><center>Grand Total</center></th>
 
-                                  {% if total_debit == 0 and total_debit_pl == 0 %}
+                                  {% if total_debit == 0 %}
                                     <th><center></center></th>
                                   {% else %}
-                                    <th><center>{{ total_debit|add:total_debit_pl|abs|floatformat:2 }}</center></th>
+                                    <th><center>{{ total_debit|abs|floatformat:2|intcomma }}</center></th>
                                   {% endif %}
 
-                                  {% if total_credit == 0 and total_credit_pl == 0 %}
+                                  {% if total_credit == 0 %}
                                     <th><center></center></th>
                                   {% else %}
-                                    <th><center>{{ total_credit|add:total_credit_pl|abs|floatformat:2 }}</center></th>
+                                    <th><center>{{ total_credit|abs|floatformat:2|intcomma }}</center></th>
                                   {% endif %}
                                   
                                
@@ -264,22 +257,22 @@
                                   {% if ledger1_details.group1_Name.balance_nature == 'Debit' %}
 
                                     {% if total > 0 %}
-                                      <th><center>{{ total|abs|floatformat:2 }} Dr</center></th>
+                                      <th><center>{{ total|abs|floatformat:2|intcomma }} Dr</center></th>
 
                                     {% else %}
 
-                                      <th><center>{{ total|abs|floatformat:2 }} Cr</center></th>
+                                      <th><center>{{ total|abs|floatformat:2|intcomma }} Cr</center></th>
 
                                     {% endif %}
 
                                   {% else %}
 
                                     {% if total > 0 %}
-                                      <th><center>{{ total|abs|floatformat:2 }} Cr</center></th>
+                                      <th><center>{{ total|abs|floatformat:2|intcomma }} Cr</center></th>
 
                                     {% else %}
 
-                                      <th><center>{{ total|abs|floatformat:2 }} Dr</center></th>
+                                      <th><center>{{ total|abs|floatformat:2|intcomma }} Dr</center></th>
 
                                     {% endif %}
 
