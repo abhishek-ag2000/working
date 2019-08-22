@@ -1,0 +1,163 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load poll_extras %}
+{% block title %}Journal Register{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-12">
+    <h3>Journal Register</h3>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+      </li>
+      <li class="breadcrumb-item">
+
+        <a href="{% url 'company:list' %}">Company list</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a
+          href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+      </li>
+
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Journal Register</strong>
+
+      </li>
+    </ol>
+    <br>
+    <a href="{% url 'stock_keeping:sale_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}"
+      class="btn btn-info" role="button">Sales Register</a>
+
+
+    <a href="{% url 'stock_keeping:purchase_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}"
+      class="btn btn-success" role="button">Purchase Register</a>
+
+    <a href="{% url 'accounting_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+      class="btn btn-warning" role="button">Day Book</a>
+
+    <button class="btn btn-info show-form-update pull-right"
+      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      Update Period
+    </button>
+
+    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+      <strong>Selected Period: From</strong>
+      {{ period_selected.start_date|date }}
+      <strong>To</strong>
+      {{ period_selected.end_date|date }} &nbsp;
+
+    </a>
+  </div>
+</div>
+<div id="printableArea">
+
+  <style>
+    @media print {
+      a[href]:after {
+        content: none !important;
+      }
+
+      @page {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      body {
+        padding-top: 72px;
+        padding-bottom: 72px;
+      }
+    }
+  </style>
+
+
+  <div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+
+              <tr>
+                <th>
+                  <center>Months</center>
+                </th>
+                <th>
+                  <center>Total Vouchers</center>
+                </th>
+              </tr>
+
+
+              {% for key, value in data %}
+              <tr>
+                <td>
+                  <center><a
+                      href="{% url 'accounting_entry:journal_datewise' company_pk=company.pk month=key period_selected_pk=period_selected.pk %}">{{ key|month_name }}</a>
+                  </center>
+                </td>
+                {% if value == 0 %}
+                <th>
+                  <center></center>
+                </th>
+                {% else %}
+                <td>
+                  <center>{{ value }} </center>
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+
+              <tr>
+                <th>
+                  <center></center>
+                </th>
+                <th>
+                  <center></center>
+                </th>
+              </tr>
+
+              <tr>
+                <th>
+                  <center>Grand Total</center>
+                </th>
+                <th>
+                  <center>{{ total }}</center>
+                </th>
+              </tr>
+            </table>
+          </div>
+          <br>
+          <p><input class='btn btn-default' type="button" onclick="printDiv('printableArea')" value="Print" />
+            <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content animated flipInY"></div>
+  </div>
+</div>
+
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+</script>
+{% endblock %}

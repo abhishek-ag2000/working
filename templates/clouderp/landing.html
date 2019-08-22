@@ -63,8 +63,8 @@
                      <p>An AI powered Business Ecosystem!</p>
                      <center>
                         <p>
-                        <a class="btn btn-lg btn-primary" href="{% url 'accounts:signup' %}" role="button">Register</a>
-                        <a class="btn btn-lg btn-primary" href="{% url 'accounts:login' %}" role="button">Login</a>
+                        <a class="btn btn-lg btn-primary" href="{% url 'bracketline:signup' %}" role="button">Register</a>
+                        <a class="btn btn-lg btn-primary" href="{% url 'bracketline:login' %}" role="button">Login</a>
                     </p>
                      </center>
                     
@@ -83,8 +83,8 @@
                      <h1>Carry your Business<br/> Wherever you go!</h1>
                     <p>Let Your Smartphone upgrade the way you work !</p>
                     <center>
-                    <p><a class="btn btn-lg btn-primary" href="{% url 'accounts:signup' %}" role="button">Register</a>
-                        <a class="btn btn-lg btn-primary" href="{% url 'accounts:login' %}" role="button">Login</a></p>
+                    <p><a class="btn btn-lg btn-primary" href="{% url 'bracketline:signup' %}" role="button">Register</a>
+                        <a class="btn btn-lg btn-primary" href="{% url 'bracketline:login' %}" role="button">Login</a></p>
                     </center>
                 </div>
             </div>
@@ -342,7 +342,7 @@
                         <div class="ibox" >
                             <div class="ibox-content" style="border-radius:20%;">
                                 <p><strong>BUSINESS USERS</strong></p>
-                                <p style="font-size: large;"><strong>{{ Bussiness_users }}/{{ users }}</strong></p>
+                                <p style="font-size: large;"><strong>{{ bussiness_user_count }}/{{ users }}</strong></p>
                                 <div class="text-center">
                                     <div id="sparkline5"></div>
                                 </div>
@@ -353,7 +353,7 @@
                         <div class="ibox">
                             <div class="ibox-content" style="border-radius:20%;">
                                 <p><strong>PRODUCT SOLUTION PARTNERS</strong></p>
-                                <p style="font-size: large;"><strong>{{ Professional_users }}/{{ users }}</strong></p>
+                                <p style="font-size: large;"><strong>{{ professional_user_count }}/{{ users }}</strong></p>
                                 <div class="text-center">
                                     <div id="sparkline6"></div>
                                 </div>
@@ -364,7 +364,7 @@
                         <div class="ibox">
                             <div class="ibox-content" style="border-radius:20%;">
                                 <p><strong>DATA OPERATORS</strong></p>
-                                <p style="font-size: large;"><strong>{{ Data_users }}/{{ users }}</strong></p>
+                                <p style="font-size: large;"><strong>{{ data_operator_count }}/{{ users }}</strong></p>
                                 <div class="text-center">
                                     <div id="sparkline7"></div>
                                 </div>
@@ -432,7 +432,7 @@
                                     <strong> &#8377; {{ products.price }}/-</strong>   annually.
                                 </span>
                                 
-                                <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="product-name">{{ products.title}}</a>
+                                <a href="{% url 'ecommerce_integration:productdetail' product_pk=products.pk %}" class="product-name">{{ products.title}}</a>
 
 
 
@@ -457,7 +457,7 @@
                             </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'ecommerce_integration:productdetail' product_pk=products.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>
@@ -671,7 +671,7 @@
 
         <div class="wrapper wrapper-content animated fadeInRight">
             <div class="row">
-{% for service in Services_list %}
+{% for service in services_list %}
                 <div class="col-md-3">
                     <div class="ibox">
                         <div class="ibox-content product-box">
@@ -688,7 +688,7 @@
                             <div class="product-desc">
                                 
                                 
-                                <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="product-name">{{ service.title}}</a>
+                                <a href="{% url 'ecommerce_integration:servicedetail' service_pk=service.pk %}" class="product-name">{{ service.title}}</a>
 
 
 
@@ -713,7 +713,7 @@
                             </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'ecommerce_integration:servicedetail' service_pk=service.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>
@@ -927,7 +927,7 @@
 
         <div class="wrapper wrapper-content animated fadeInRight">
             <div class="row">
-{% for api in Api_list %}
+{% for api in api_list %}
                 <div class="col-md-3">
                     <div class="ibox">
                         <div class="ibox-content product-box">
@@ -946,7 +946,7 @@
                                     <strong> &#8377; {{ api.price }}/-</strong>   annually.
                                 </span>
                                 
-                                <a href="{% url 'ecommerce_integration:apidetail' pk=api.pk %}" class="product-name">{{ api.title}}</a>
+                                <a href="{% url 'ecommerce_integration:apidetail' api_pk=api.pk %}" class="product-name">{{ api.title}}</a>
 
 
 
@@ -971,7 +971,7 @@
                             </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'ecommerce_integration:apidetail' pk=api.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'ecommerce_integration:apidetail' api_pk=api.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>
@@ -1335,16 +1335,16 @@
                 <h2>Play Store </h2>
                 <p>Download the app for perfect experience on your android smart phone and get the latest updates and everything done on your mobile seamlessly. We have integrated our app to work with all gestures keeping in mind the Android Users. Deeply integrated with latest android kernels and versions.</p>
                 <!-- <a href="" class="btn btn-primary">Download now !</a> -->
-                <input type="image" src="{% static 'img/landing/googleplay1.png' %}" onclick="alert('This will redirect you to the Play Store !')" width="112" height="41" />
+                <input type="image" src="{% static 'img/landing/googleplay1.jpg' %}" onclick="alert('This will redirect you to the Play Store !')" width="112" height="41" />
             </div>
             <div class="col-lg-6 m-t-n-lg wow zoomIn">
-                <img src="{% static 'img/landing/laptop_bracket book (1).png' %}" class="img-fluid" alt="dashboard">
+                <img src="{% static 'img/landing/laptop.jpg' %}" class="img-fluid" alt="dashboard">
             </div>
             <div class="col-lg-3 features-text text-right wow fadeInRight">
                 <small>For IOS devices</small>
                 <h2>App Store </h2>
                 <p> Download the app for perfect experience on your Apple Devices including Ipads and iwatches notifications and get the latest updates and everything done on your mobile seamlessly. We have integrated our app to work with all gestures keeping in mind the IOS Users ecosystem needs.</p>
-                <input type="image" src="{% static 'img/landing/appstore1.png' %}" onclick="alert('This will redirect you to the App Store !')" width="112" height="41" />
+                <input type="image" src="{% static 'img/landing/appstore1.jpg' %}" onclick="alert('This will redirect you to the App Store !')" width="112" height="41" />
             </div>
         </div>
     </div>
@@ -1454,19 +1454,19 @@
                      fillColor: "#ffffff"
                  });
 
-                 $("#sparkline5").sparkline([{{ Bussiness_users }}, {{ users }}], {
+                 $("#sparkline5").sparkline([{{ bussiness_user_count }}, {{ users }}], {
                      type: 'pie',
                      height: '140',
                      sliceColors: ['#1ab394', '#F5F5F5']
                  });
 
-                 $("#sparkline6").sparkline([{{ Professional_users }}, {{ users }}], {
+                 $("#sparkline6").sparkline([{{ professional_user_count }}, {{ users }}], {
                      type: 'pie',
                      height: '140',
                      sliceColors: ['#1ab394', '#F5F5F5']
                  });
 
-                 $("#sparkline7").sparkline([{{ Data_users }}, {{ users }}], {
+                 $("#sparkline7").sparkline([{{ data_operator_count }}, {{ users }}], {
                      type: 'pie',
                      height: '140',
                      sliceColors: ['#ed5565', '#F5F5F5']

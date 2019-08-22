@@ -1,13 +1,16 @@
+"""
+Models
+"""
 from django.db import models
-from ecommerce_integration.models import Product
-from userprofile.models import Profile
-from django.db.models.signals import pre_save, post_save, m2m_changed
 from django.db.models import Sum
-
-# Create your models here.
+from user_profile.models import Profile
+from ecommerce_integration.models import Product
 
 
 class OrderItem(models.Model):
+    """
+    Order Item model
+    """
     product = models.OneToOneField(Product, on_delete=models.SET_NULL, null=True)
     is_ordered = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now=True)
@@ -18,16 +21,25 @@ class OrderItem(models.Model):
 
 
 class Order(models.Model):
-    ref_code        = models.CharField(max_length=15)
-    owner           = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
-    is_ordered      = models.BooleanField(default=False)
-    items           = models.ManyToManyField(OrderItem)
-    date_ordered    = models.DateTimeField(auto_now=True)
-    
+    """
+    Order model
+    """
+    ref_code = models.CharField(max_length=15)
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    is_ordered = models.BooleanField(default=False)
+    items = models.ManyToManyField(OrderItem)
+    date_ordered = models.DateTimeField(auto_now=True)
+
     def get_cart_items(self):
+        """
+        Function to get the Items present in Cart
+        """
         return self.items.all()
 
     def get_cart_total(self):
+        """
+        Function to get the Cart Total
+        """
         return self.items.aggregate(total=Sum('product__price'))['total'] or 0
 
     def __str__(self):

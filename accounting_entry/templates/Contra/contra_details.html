@@ -1,0 +1,156 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Contra Details{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h3>Contra Details</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a
+                    href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a
+                    href="{% url 'accounting_entry:paymentlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Contra
+                    List</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Contra Details</strong>
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'accounting_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk  %}"
+            class="btn btn-success" role="button">Select Contra </a>
+        <a href="{% url 'accounting_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-warning" role="button">Create Contra</a>
+
+        <button class="btn btn-info show-form-update pull-right"
+            data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            Update Period
+        </button>
+
+        <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+            <strong>Selected Period: From</strong>
+            {{ period_selected.start_date|date }}
+            <strong>To</strong>
+            {{ period_selected.end_date|date }} &nbsp;
+
+        </a>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight ecommerce">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Account --</label>
+
+                        <div class="col-lg-10">
+                            {{ contra_voucher.account }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Date --</label>
+
+                        <div class="col-lg-10">
+                            {{ contra_voucher.voucher_date }}
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover" data-page-size="15" id="book-table">
+                            <tr>
+                                <th>
+                                    <center>#</center>
+                                </th>
+                                <th>
+                                    <center>Particulars</center>
+                                </th>
+                                <th>
+                                    <center>Debit</center>
+                                </th>
+                            </tr>
+
+                            {% for cntra in contra_voucher.contra_contra_voucher_row.all %}
+                            <tr>
+                                <td>
+                                    <center>{{ forloop.counter }}</center>
+                                </td>
+                                <td>
+                                    <center>{{cntra.particular}}</center>
+                                </td>
+                                <td>
+                                    <center>{{cntra.amount}}</center>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            <tr>
+                                <th>
+                                    <center></center>
+                                </th>
+                                <th>
+                                    <center>Total</center>
+                                </th>
+                                <th>
+                                    <center>{{contra_voucher.total_amt}}</center>
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                    <hr>
+                    <p><a class='btn btn-warning'
+                            href="{% url 'accounting_entry:contraupdate' company_pk=company.pk  contra_voucher_pk=contra_voucher.pk period_selected_pk=period_selected.pk %}">Update
+                            contra</a> <a class='btn btn-danger'
+                            href="{% url 'accounting_entry:contradelete' company_pk=company.pk contra_voucher_pk=contra_voucher.pk period_selected_pk=period_selected.pk %}">Delete
+                            contra</a>
+                        <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+
+
+<div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated fadeIn"></div>
+    </div>
+</div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+    {% endblock %}

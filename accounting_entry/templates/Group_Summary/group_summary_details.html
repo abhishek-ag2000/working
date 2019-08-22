@@ -1,0 +1,383 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Group Summary{% endblock %}
+
+{% block content %}
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h3>Group Summary</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'accounting_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}">Group List</a>
+                    </li>
+                    
+                    <li class="breadcrumb-item active">
+                    <strong>Group Summary</strong> 
+                        
+                    </li>
+                </ol>
+           <br>
+              <a href="{% url 'stock_keeping:purchase_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}" class="btn btn-primary" role="button">Purchase Register</a>
+
+              <a href="{% url 'stock_keeping:sale_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}" class="btn btn-info" role="button">Sales Register</a>
+
+              <a href="{% url 'accounting_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}" class="btn btn-default" role="button">Journal Register</a>
+
+    <button class="btn btn-info show-form-update pull-right"
+      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      Update Period
+    </button>
+
+    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+      <strong>Selected Period: From</strong>
+      {{ period_selected.start_date|date }}
+      <strong>To</strong>
+      {{ period_selected.end_date|date }} &nbsp;
+    </a>
+           
+                </div>
+            </div>
+<div id="printableArea">
+
+    <style>
+    @media print  
+    {
+    a[href]:after {
+    content: none !important;
+    }
+    @page {
+    margin-top: 0;
+    margin-bottom: 0;
+    }
+    body{
+    padding-top: 72px;
+    padding-bottom: 72px ;
+    }
+    }
+    </style>
+
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                        <div class="ibox-title">
+                            <h2><center><strong>{{ LedgerGroup_details.group_name }}</strong></center></h2>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                          <tr>
+                            <th></th>
+                            <th colspan="2"><center>Closing Balance</center></th>
+
+                          </tr>
+                          <tr>
+                            <th><center>Particulars</center></th>
+                            <th>Debit</th>
+                            <th>Credit</th>       
+                          </tr>
+
+                          {% for LedgerGroup in LedgerGroup_details.master_group.all %}
+                            {% if LedgerGroup.positive_closing != 0 or LedgerGroup.negative_closing != 0 %}
+                              {% if LedgerGroup.positive_closing != None or LedgerGroup.negative_closing != None %}
+                                <tr>
+                                  <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.group_name}}</a></center></th>
+                                    <td>{{ LedgerGroup.positive_closing|abs|floatformat:2 }}</td>
+                                      <td>{{ LedgerGroup.negative_closing|abs|floatformat:2 }}</td>
+                                </tr>
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
+
+
+
+                            {% for LedgerMaster in LedgerGroup_details.ledgergroups.all %}
+                              {% if LedgerMaster.Closing_balance != 0 %}
+                                {% if LedgerMaster.Closing_balance != None %}
+                                {% if LedgerMaster.ledger_group.balance_nature == 'Debit' %}
+                                    <tr>
+                                      <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                        {% if LedgerMaster.Closing_balance > 0 %}
+                                          <td><em>{{ LedgerMaster.Closing_balance|abs|floatformat:2 }}</em></td>
+                                          <td></td>
+                                        {% else %}
+                                          <td></td>
+                                          <td><em>{{ LedgerMaster.Closing_balance|abs|floatformat:2 }}</em></td>
+                                        {% endif %}  
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                      <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                        {% if LedgerMaster.Closing_balance > 0 %}
+                                          <td></td>
+                                          <td><em>{{ LedgerMaster.Closing_balance|abs|floatformat:2 }}</em></td>
+                                        {% else %}
+                                          <td><em>{{ LedgerMaster.Closing_balance|abs|floatformat:2 }}</em></td>
+                                          <td></td>
+                                        {% endif %}  
+                                    </tr>
+                                  {% endif %}
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+
+                          {% if LedgerGroup_details.group_name == 'Purchase Accounts' %}
+
+                            {% for LedgerMaster in LedgerGroup_details.ledgergroups.all %}
+                              {% if LedgerMaster.To_pl_debit != 0 or LedgerMaster.To_pl_credit != 0 %}
+                                {% if LedgerMaster.To_pl_debit != None or LedgerMaster.To_pl_credit != None %}
+                                  <tr>
+                                    <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                      {% if LedgerMaster.To_pl_debit %}
+                                        <td><em>{{ LedgerMaster.To_pl_debit|abs|floatformat:2 }}</em></td>
+                                        <td></td>
+                                      {% else %}
+                                      <td></td>
+                                        <td><em>{{ LedgerMaster.To_pl_credit|abs|floatformat:2 }}</em></td>  
+                                      {% endif %}
+                                  </tr>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+
+                          {% endif %}
+
+                          {% if LedgerGroup_details.group_name == 'Sales Account' %}
+
+                            {% for LedgerMaster in LedgerGroup_details.ledgergroups.all %}
+                              {% if LedgerMaster.To_pl_debit != 0 or LedgerMaster.To_pl_credit != 0 %}
+                                {% if LedgerMaster.To_pl_debit != None or LedgerMaster.To_pl_credit != None %}
+                                  <tr>
+                                    <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                      {% if LedgerMaster.To_pl_debit %}
+                                        <td><em>{{ LedgerMaster.To_pl_debit|abs|floatformat:2 }}</em></td>
+                                        <td></td>
+                                      {% else %}
+                                      <td></td>
+                                        <td><em>{{ LedgerMaster.To_pl_credit|abs|floatformat:2 }}</em></td>  
+                                      {% endif %}
+                                  </tr>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+
+                          {% endif %}
+
+                          {% if LedgerGroup_details.group_name == 'Direct Expenses' %}
+
+                            {% for LedgerMaster in LedgerGroup_details.ledgergroups.all %}
+                              {% if LedgerMaster.To_pl_debit != 0 or LedgerMaster.To_pl_credit != 0 %}
+                                {% if LedgerMaster.To_pl_debit != None or LedgerMaster.To_pl_credit != None %}
+                                  <tr>
+                                    <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                      {% if LedgerMaster.To_pl_debit %}
+                                        <td><em>{{ LedgerMaster.To_pl_debit|abs|floatformat:2 }}</em></td>
+                                        <td></td>
+                                      {% else %}
+                                      <td></td>
+                                        <td><em>{{ LedgerMaster.To_pl_credit|abs|floatformat:2 }}</em></td>  
+                                      {% endif %}
+                                  </tr>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+
+                          {% endif %}
+
+                          {% if LedgerGroup_details.group_name == 'Direct Incomes' %}
+
+                            {% for LedgerMaster in LedgerGroup_details.ledgergroups.all %}
+                              {% if LedgerMaster.To_pl_debit != 0 or LedgerMaster.To_pl_credit != 0 %}
+                                {% if LedgerMaster.To_pl_debit != None or LedgerMaster.To_pl_credit != None %}
+                                  <tr>
+                                    <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                      {% if LedgerMaster.To_pl_debit %}
+                                        <td><em>{{ LedgerMaster.To_pl_debit|abs|floatformat:2 }}</em></td>
+                                        <td></td>
+                                      {% else %}
+                                      <td></td>
+                                        <td><em>{{ LedgerMaster.To_pl_credit|abs|floatformat:2 }}</em></td>  
+                                      {% endif %}
+                                  </tr>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+
+                          {% endif %}
+
+                          {% if LedgerGroup_details.group_name == 'Indirect Expense' %}
+
+                            {% for LedgerMaster in LedgerGroup_details.ledgergroups.all %}
+                              {% if LedgerMaster.To_pl_debit != 0 or LedgerMaster.To_pl_credit != 0 %}
+                                {% if LedgerMaster.To_pl_debit != None or LedgerMaster.To_pl_credit != None %}
+                                  <tr>
+                                    <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                      {% if LedgerMaster.To_pl_debit %}
+                                        <td><em>{{ LedgerMaster.To_pl_debit|abs|floatformat:2 }}</em></td>
+                                        <td></td>
+                                      {% else %}
+                                      <td></td>
+                                        <td><em>{{ LedgerMaster.To_pl_credit|abs|floatformat:2 }}</em></td>  
+                                      {% endif %}
+                                  </tr>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+
+                          {% endif %}
+
+                          {% if LedgerGroup_details.group_name == 'Indirect Income' %}
+
+                            {% for LedgerMaster in LedgerGroup_details.ledgergroups.all %}
+                              {% if LedgerMaster.To_pl_debit != 0 or LedgerMaster.To_pl_credit != 0 %}
+                                {% if LedgerMaster.To_pl_debit != None or LedgerMaster.To_pl_credit != None %}
+                                  <tr>
+                                    <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></th>
+                                      {% if LedgerMaster.To_pl_debit %}
+                                        <td><em>{{ LedgerMaster.To_pl_debit|abs|floatformat:2 }}</em></td>
+                                        <td></td>
+                                      {% else %}
+                                      <td></td>
+                                        <td><em>{{ LedgerMaster.To_pl_credit|abs|floatformat:2 }}</em></td>  
+                                      {% endif %}
+                                  </tr>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+
+                          {% endif %}
+
+                          {% if LedgerGroup_details.group_name == 'Purchase Accounts' %}
+                            <tr>
+                              <th><center>Grand Total</center></th>
+                              {% if gs_purchase_total > 0 %}
+                                <th>{{ gs_purchase_total|abs|floatformat:2 }}</th>
+                                <th></th>
+                              {% else %}
+                                <th></th>
+                                <th>{{ gs_purchase_total|abs|floatformat:2 }}</th>
+                              {% endif %}
+                            </tr>
+                          {% elif LedgerGroup_details.group_name == 'Sales Account' %}
+                            <tr>
+                              <th><center>Grand Total</center></th>
+                              {% if gs_sales_total > 0 %}
+                                <th></th>
+                                <th>{{ gs_sales_total|abs|floatformat:2 }}</th>
+                              {% else %}
+                                <th>{{ gs_sales_total|abs|floatformat:2 }}</th>
+                                <th></th>
+                              {% endif %}
+                            </tr>
+                          {% elif LedgerGroup_details.group_name == 'Direct Incomes' %}
+                            <tr>
+                              <th><center>Grand Total</center></th>
+                              {% if gs_directinc_total > 0 %}
+                                <th></th>
+                                <th>{{ gs_directinc_total|abs|floatformat:2 }}</th>
+                              {% else %}
+                                <th>{{ gs_directinc_total|abs|floatformat:2 }}</th>
+                                <th></th>
+                              {% endif %}
+                            </tr>
+                          {% elif LedgerGroup_details.group_name == 'Direct Expenses' %}
+                            <tr>
+                              <th><center>Grand Total</center></th>
+                              {% if gs_directexp_total > 0 %}
+                                <th>{{ gs_directexp_total|abs|floatformat:2 }}</th>
+                                <th></th>
+                              {% else %}
+                                <th></th>
+                                <th>{{ gs_directexp_total|abs|floatformat:2 }}</th>
+                              {% endif %}
+                            </tr>
+                          {% elif LedgerGroup_details.group_name == 'Indirect Expense' %}
+                            <tr>
+                              <th><center>Grand Total</center></th>
+                              {% if gs_indirectexp_total < 0 %}
+                                <th></th>
+                                <th>{{ gs_indirectexp_total|abs|floatformat:2 }}</th>
+                              {% else %}
+                                <th>{{ gs_indirectexp_total|abs|floatformat:2 }}</th>
+                                <th></th>
+                              {% endif %}
+                            </tr>
+                          {% elif LedgerGroup_details.group_name == 'Indirect Income' %}
+                            <tr>
+                              <th><center>Grand Total</center></th>
+                              {% if gs_indirectinc_total < 0 %}
+                                <th>{{ gs_indirectinc_total|abs|floatformat:2 }}</th>
+                                <th></th>
+                              {% else %}
+                                <th></th>
+                                <th>{{ gs_indirectinc_total|abs|floatformat:2 }}</th>
+                              {% endif %}
+                            </tr>
+                          {% else %}
+                            <tr>
+                              <th><center>Grand Total</center></th>
+                              <th>{{ LedgerGroup_details.positive_closing|abs|floatformat:2 }}</th>
+                              <th>{{ LedgerGroup_details.negative_closing|abs|floatformat:2 }}</th>
+                            </tr>
+                          {% endif %}
+
+                        </table>
+                        </div>
+
+                             <br>
+                            <p><input class='btn btn-default' type="button" onclick="printDiv('printableArea')" value="Print" />
+
+                          <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+    <div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+    </div>
+  </div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script> 
+
+<script type="text/javascript">
+  
+  function printDiv(divName) {
+     var printContents = document.getElementById(divName).innerHTML;
+     var originalContents = document.body.innerHTML;
+
+     document.body.innerHTML = printContents;
+
+     window.print();
+
+     document.body.innerHTML = originalContents;
+  }
+</script>
+
+{% endblock %}

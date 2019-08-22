@@ -1,0 +1,268 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Bank Reconciliation Statement{% endblock %}
+
+{% block content %}
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h3>Bank Reconciliation Statement</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'accounting_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Banking Reports</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Bank Reconciliation Statement</strong>
+                    </li>
+                </ol>
+           <br>
+
+            <div class="btn-group">
+                            <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle">Create Voucher</button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'accounting_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create Journal</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounting_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create Payment</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounting_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create Receipt</a></li> 
+                                <li><a class="dropdown-item" href="{% url 'accounting_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create Contra</a></li>     
+                            </ul>
+                            
+
+             </div>
+                
+    <button class="btn btn-info show-form-update pull-right"
+      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      Update Period
+    </button>
+
+    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+      <strong>Selected Period: From</strong>
+      {{ period_selected.start_date|date }}
+      <strong>To</strong>
+      {{ period_selected.end_date|date }} &nbsp;
+    </a>
+           
+                </div>
+            </div>
+
+
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-sm-12 col-md-12 col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Ledger name - {{ ledger_master.ledger_name }}</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="table-responsive">
+                               <table class="table table-bordered table-hover dataTables-example" id="book-table">
+                                <thead>
+                                <tr>
+                                   <th>Date</th>
+                                    <th>Particulars</th>
+                                    <th>Voucher Type</th>
+                                    <th>Transaction Type</th>
+                                    <th>Instrument no</th>
+                                    <th>Instrument date</th>
+                                    <th>Bank Date</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                    <th>Update</th>
+                                </tr>
+                                </thead>
+
+
+
+
+                                <tbody>
+                                
+                                {% include "Bank/bank_list_2.html" %}
+
+
+                                </tbody>
+
+                                <tfoot>
+                                <tr>
+                                    <th>Closing Balance</th>
+                                    <th>On closing date</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td>Balance as per company books</td>
+                                    {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+                                        {% if closing_balance > 0 %}
+                                            <th>{{ closing_balance|abs }}</th>
+                                            <th></th>
+                                        {% else %}
+                                            <th></th>
+                                            <th>{{ closing_balance|abs }}</th>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if closing_balance > 0 %}
+                                            <th></th>
+                                            <th>{{ closing_balance|abs }}</th>
+                                        {% else %}
+                                            <th>{{ closing_balance|abs }}</th>
+                                            <th></th>
+                                        {% endif %}
+                                    {% endif %}
+                                    <td></td>
+                                </tr>
+
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td>Amounts not reflected in bank</td>
+                                    <th>{{ total_debit_not_reconciled|abs }}</th>
+                                    <th>{{ total_credit_not_reconciled|abs }}</th>
+                                    <th></th>
+                                </tr>
+
+                                 <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Balance as per bank</th>
+                                    {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+                                        {% if per_bank_balance > 0 %}
+                                            <th>{{ per_bank_balance|abs }}</th>
+                                            <th></th>
+                                        {% else %}
+                                            <th></th>
+                                            <th>{{ per_bank_balance|abs }}</th>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if per_bank_balance > 0 %}
+                                            <th></th>
+                                            <th>{{ per_bank_balance|abs }}</th>
+                                        {% else %}
+                                            <th>{{ per_bank_balance|abs }}</th>
+                                            <th></th>
+                                        {% endif %}
+                                    {% endif %}
+                                    <th></th>
+                                </tr>
+
+                                </tfoot>
+                                   <!--  Openign balance  -->
+                                <tfoot>
+                                <tr>
+                                    <th>Opening Balance</th>
+                                    <th>On Opening Date</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td>Balance as per company books</td>
+                                    {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+                                        {% if opening_balance > 0 %}
+                                            <th>{{ opening_balance|abs }}</th>
+                                            <th></th>
+                                        {% else %}
+                                            <th></th>
+                                            <th>{{ opening_balance|abs }}</th>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if opening_balance > 0 %}
+                                            <th></th>
+                                            <th>{{ opening_balance|abs }}</th>
+                                        {% else %}
+                                            <th>{{ opening_balance|abs }}</th>
+                                            <th></th>
+                                        {% endif %}
+                                    {% endif %}
+                                    <td></td>
+                                </tr>
+
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <td>Amounts not reflected in bank</td>
+                                    <th>{{ total_debit_opening|abs }}</th>
+                                    <th>{{ total_credit_opening|abs }}</th>
+                                    <th></th>
+                                </tr>
+
+                                 <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Balance as per bank</th>
+                                    {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+                                        {% if per_bank_balance_opening > 0 %}
+                                            <th>{{ per_bank_balance_opening|abs }}</th>
+                                            <th></th>
+                                        {% else %}
+                                            <th></th>
+                                            <th>{{ per_bank_balance_opening|abs }}</th>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if per_bank_balance_opening > 0 %}
+                                            <th></th>
+                                            <th>{{ per_bank_balance_opening|abs }}</th>
+                                        {% else %}
+                                            <th>{{ per_bank_balance_opening|abs }}</th>
+                                            <th></th>
+                                        {% endif %}
+                                    {% endif %}
+                                    <th></th>
+                                </tr>
+
+                                </tfoot>
+                            </table> 
+                            </div>
+                            
+                            <p><button class='btn btn-default pull-right' onclick="goBack()">Go Back</button></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+  <div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+    </div>
+  </div>
+
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+
+
+
+{% endblock %}

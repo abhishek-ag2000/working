@@ -1,0 +1,187 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Banking Reports{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h3>Banking Reports</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a
+                    href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Banking Reports</strong>
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'accounting_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-warning" role="button">Create Ledger</a>
+
+        <button class="btn btn-info show-form-update pull-right"
+            data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            Update Period
+        </button>
+
+        <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+            <strong>Selected Period: From</strong>
+            {{ period_selected.start_date|date }}
+            <strong>To</strong>
+            {{ period_selected.end_date|date }} &nbsp;
+        </a>
+    </div>
+</div>
+
+{% if ledgermaster_list %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <div class="ibox">
+            <div class="ibox-content">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover dataTables-example" id="book-table">
+                        <thead>
+                            <tr>
+                                <th>Ledger ID</th>
+                                <th>Ledger Name</th>
+                                <th>Under Group</th>
+                                <th>Balance Nature</th>
+                                <th>Opening Balance</th>
+                                <th>Closing Balance</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for ledger in ledgermaster_list %}
+                            <tr>
+
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.counter}}</a>
+                                </td>
+
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.ledger_name}}</a>
+                                </td>
+
+
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.ledger_group}}</a>
+                                </td>
+
+                                {% if ledger.ledger_group.group_base.is_debit == 'Yes' %}
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">Debit</a>
+                                </td>
+                                {% else %}
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">Credit</a>
+                                </td>
+                                {% endif %}
+
+                                {% if ledger.balance_opening < 0 %}
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.balance_opening|abs}})</a>
+                                </td>
+                                {% else %}
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.balance_opening|abs}}</a>
+                                </td>
+                                {% endif %}
+
+                                {% if ledger.closing_balance < 0 %}
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.closing_balance|abs}})</a>
+                                </td>
+                                {% else %}
+                                <td><a
+                                        href="{% url 'accounting_entry:bankledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.closing_balance|abs}}</a>
+                                </td>
+                                {% endif %}
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <td colspan="6">
+                                    <ul class="pagination float-right"></ul>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+
+<div class="wrapper wrapper-content animated fadeIn">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Alert</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                    <div class="alert alert-danger">
+                        No Bank Ledger Created <a class="alert-link"
+                            href="{% url 'accounting_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Click
+                            Here To Create</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endif %}
+
+
+<div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated fadeIn"></div>
+    </div>
+</div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+</div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
+{% endblock %}

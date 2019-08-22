@@ -17,48 +17,7 @@
 
 {% block content %}
 
-<div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-12">
-                <h2>Blogs</h2>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Blogs</strong>
-                    </li>
-                </ol>
-                <br>
-                    {% if user.is_authenticated %}
-                        <div class="btn-group">
-                            <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">View Posts By</button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'blog:latestbloglist' %}">Most Recent</a></li>
-                                <li><a class="dropdown-item" href="{% url 'blog:viewbloglist' %}">Most Popular</a></li>
-                                <li><a class="dropdown-item" href="{% url 'blog:likebloglist' %}">Most Helpful</a></li>     
-                            </ul>
-                            
-
-                        </div>
-                        <div class="btn-group">
-                            <button data-toggle="dropdown" class="btn btn-success dropdown-toggle pull-right">Categories</button>
-                            <ul class="dropdown-menu">
-                            {% for categories in categories_list %}
-                                <li><a class="dropdown-item" href="{% url 'blog:categoryDetail' pk=categories.pk  %}"><strong>{{ categories.Title }}</strong>
-                                <span class="label label-success pull-right">
-                                  {{ categories.blogs.count }}</span></a></li>
-                            {% endfor %}    
-                            </ul>
-                        </div>
-                        <div class='pull-right'>
-                            <a href="{% url 'blog:bloglist' %}" class="btn btn-info" role="button">Show my Posts</a>
-                            <a href="{% url 'blog:blogcreate' %}" class="btn btn-warning" role="button">Create Post</a>
-                        </div>
-                    {% else %}
-                        {% include 'blog/unauthorised_modal_2.html' %}
-                    {% endif %}
-            </div>
-</div>
+{% include "blog/heading_snippet.html" %}
 
 <div class="row wrapper border-bottom white-bg page-heading">
             <div class="col-lg-12">
@@ -88,26 +47,26 @@
                                 <button class="btn btn-white btn-xs" type="button">Modern</button> -->
                             </div>
                             <div class="text-center article-title">
-                            <span class="text-muted"><i class="fa fa-clock-o"></i>&nbsp;{{ blog_details.Date|date }} </span><br>
+                            <span class="text-muted"><i class="fa fa-clock-o"></i>&nbsp;{{ blog_details.date|date }} </span><br>
                             
                                 <h1>
-                                    {{ blog_details.Blog_title }}
+                                    {{ blog_details.blog_title }}
                                 </h1>
                                 <h2 class="float-right">
-                                    By:&nbsp;<a href="{% url 'userprofile:specific_profile' pk=blog_details.User.profile.pk %}">{{ blog_details.User }}</a>
+                                    By:&nbsp;<a href="{% url 'user_profile:specific_profile' profile_pk=blog_details.user.profile.pk %}">{{ blog_details.user }}</a>
                                 </h2>
                             </div>
 
 
                             <div>
 
-                            {% if blog_details.Blog_image %}
-                              <center> <img class="product_img" src="{{ blog_details.Blog_image.url }}/" alt="product picture" height="300" width="700"></center>
+                            {% if blog_details.blog_image %}
+                              <center> <img class="product_img" src="{{ blog_details.blog_image.url }}/" alt="product picture" height="300" width="700"></center>
                             {% endif %}
 
                             </div>
                             <p>
-                                {{ blog_details.Description|safe|linebreaks }}
+                                {{ blog_details.description|safe|linebreaks }}
                             </p>
                             
                             <hr>

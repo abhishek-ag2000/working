@@ -5,96 +5,95 @@
 
 {% block content %}
 
- <div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-10">
-                <h2>Product details</h2>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Product detail</strong>
-                    </li>
-                </ol>
-            </div>
-            <div class="col-lg-2">
-
-            </div>
-        </div>
-
-
-        <div class="wrapper wrapper-content animated fadeInRight">
-            <div class="row">
-                <div class="col-lg-12">
-
-                    <div class="ibox product-detail">
-                        <div class="ibox-content">
-
-                            <div class="row">
-                                <div class="col-md-5">
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Product details</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Product detail</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
 
 
-                                    <div class="product-images">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
 
-                                        <div>
-                                            <div>
-                                                {% if products_details.image %}
-                                                    <img class="product_img" src="{{ products_details.image.url }}/" alt="product picture" height="100%" width="100%">
-                                                {% else %}
-                                                    <img src="{% static 'userprofile/comming soon.jpg' %}" alt="product picture" height="438" width="419">
-                                                {% endif %}
-                                            </div>
-                                        </div>
+            <div class="ibox product-detail">
+                <div class="ibox-content">
+
+                    <div class="row">
+                        <div class="col-md-5">
 
 
-                                    </div>
+                            <div class="product-images">
 
-                                </div>
-                                <div class="col-md-7">
-
-                                    <h2 class="font-bold m-b-xs">
-                                        {{ products_details.title}}
-                                    </h2>
-                                    
-                                    <hr>
+                                <div>
                                     <div>
-                                        {% if products_details in user.profile.subscribed_role_products.all %}
-                                            <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#myModal4">
-                                                SUBSCRIBED
-                                            </button>
-                                        
+                                        {% if products_details.image %}
+                                        <img class="product_img" src="{{ products_details.image.url }}/"
+                                            alt="product picture" height="100%" width="100%">
+                                        {% else %}
+                                        <img src="{% static 'userprofile/comming soon.jpg' %}" alt="product picture"
+                                            height="438" width="419">
                                         {% endif %}
                                     </div>
-                                     <div>
-                                        <style type="text/css">
-                                          .checked {
-                                            color: orange;
-                                        }
-                                      </style>
-                                      
-                                        <div class="product-rating">
-                                          <i class="fa fa-star checked"></i>
-                                          <i class="fa fa-star checked"></i>
-                                          <i class="fa fa-star checked"></i>
-                                          <i class="fa fa-star-o empty"></i>
-                                          <i class="fa fa-star-o empty"></i>
-                                        </div>
-                                        
-                                      </div>
-                                    <hr>
-                                    <h4>Product description</h4>
-
-                                    <div class="small text-muted">
-                                        {{ products_details.description}}
-                                    </div>
-                                    <dl class="row m-t-md small">
-                                        <dt class="col-md-4 text-right">Summary</dt>
-                                        <dd class="col-md-8">{{ products_details.summary}}</dd>
-                                    </dl>
-
-
                                 </div>
+
+
                             </div>
+
+                        </div>
+                        <div class="col-md-7">
+
+                            <h2 class="font-bold m-b-xs">
+                                {{ products_details.title}}
+                            </h2>
+
+                            <hr>
+                            <div>
+                                {% if products_details in user.profile.subscribed_role_products.all %}
+                                <button type="button" class="btn btn-success float-right" data-toggle="modal"
+                                    data-target="#myModal4">
+                                    SUBSCRIBED
+                                </button>
+
+                                {% endif %}
+                            </div>
+                            <div>
+                                <style type="text/css">
+                                    .checked {
+                                        color: orange;
+                                    }
+                                </style>
+
+                                <div class="product-rating">
+                                    <i class="fa fa-star checked"></i>
+                                    <i class="fa fa-star checked"></i>
+                                    <i class="fa fa-star checked"></i>
+                                    <i class="fa fa-star-o empty"></i>
+                                    <i class="fa fa-star-o empty"></i>
+                                </div>
+
+                            </div>
+                            <hr>
+                            <h4>Product description</h4>
+
+                            <div class="small text-muted">
+                                {{ products_details.description}}
+                            </div>
+                            <dl class="row m-t-md small">
+                                <dt class="col-md-4 text-right">Summary</dt>
+                                <dd class="col-md-8">{{ products_details.summary}}</dd>
+                            </dl>
+
 
                         </div>
                     </div>
@@ -102,17 +101,17 @@
                 </div>
             </div>
 
-
-
-
         </div>
+    </div>
+</div>
 
 
-<div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog"  aria-hidden="true">
+<div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
             </div>
             <div class="modal-body">
                 <p><strong>You have already subscribed to this product&hellip;</strong></p>
@@ -123,7 +122,4 @@
         </div>
     </div>
 </div>
-
-
-
 {% endblock %}

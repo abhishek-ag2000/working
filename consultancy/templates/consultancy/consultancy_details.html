@@ -45,7 +45,7 @@
                                 <div class="col-lg-12">
                                     <div class="m-b-md">
                                         
-                                        <h2>{{ consultancy_details.Questions }}</h2>
+                                        <h2>{{ consultancy_details.question }}</h2>
                                     </div>
 
                                 </div>
@@ -58,7 +58,7 @@
                                     </dl>
                                     <dl class="row mb-0">
                                         <div class="col-sm-4 text-sm-right"><dt>Created by:</dt> </div>
-                                        <div class="col-sm-8 text-sm-left"><dd class="mb-1"><a href="{% url 'userprofile:specific_profile' pk=consultancy_details.User.profile.pk %}">{{ consultancy_details.User }}</a></dd> </div>
+                                        <div class="col-sm-8 text-sm-left"><dd class="mb-1"><a href="{% url 'user_profile:specific_profile' profile_pk=consultancy_details.user.profile.pk %}">{{ consultancy_details.user }}</a></dd> </div>
                                     </dl>
                                     <dl class="row mb-0">
                                         <div class="col-sm-4 text-sm-right"><dt>Messages:</dt> </div>
@@ -89,7 +89,7 @@
                                             <dt>Created:</dt>
                                         </div>
                                         <div class="col-sm-8 text-sm-left">
-                                            <dd class="mb-1"> {{ consultancy_details.Date }}</dd>
+                                            <dd class="mb-1"> {{ consultancy_details.date }}</dd>
                                         </div>
                                     </dl>
                                     <dl class="row mb-0">
@@ -101,9 +101,9 @@
                                             <dd class="project-people mb-1">
                                         {% for u in consultancy_details.like.all|slice:":5" %}
                                             {% if u.profile.image %}
-                                                <a href="{% url 'userprofile:specific_profile' pk=u.profile.pk %}"><img alt="image" class="rounded-circle" src="{{ u.profile.image.url }}/"></a>
+                                                <a href="{% url 'user_profile:specific_profile' profile_pk=u.profile.pk %}"><img alt="image" class="rounded-circle" src="{{ u.profile.image.url }}/"></a>
                                             {% else %}
-                                                <a href="{% url 'userprofile:specific_profile' pk=u.profile.pk %}"><img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}"></a>
+                                                <a href="{% url 'user_profile:specific_profile' profile_pk=u.profile.pk %}"><img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}"></a>
                                             {% endif %}
                                         {% endfor %}
                                             </dd>
@@ -177,7 +177,7 @@
                                       
                                       
                                       <div class="input-group input-group-sm">
-                                        {{ Answer_form.text}}
+                                        {{ answer_form.text}}
                                         <div class="input-group-append">
                                             <input type="submit" class="btn btn-info pull-right" value="Submit">
                                         </div>

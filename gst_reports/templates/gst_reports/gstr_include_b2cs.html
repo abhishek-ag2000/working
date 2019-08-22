@@ -1,0 +1,41 @@
+{% load humanize %}
+
+<table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="15" id="book-table">
+        <thead>
+                <tr>
+                        <th>Particulars</th>
+                        <th>Taxable</th>
+                        <th>Tax Rate</th>
+                        <th>SGST</th>
+                        <th>CGST</th>
+                        <th>IGST</th>
+                        <th>Cess</th>
+                        <th>Tax Total</th>
+                </tr>
+        </thead>
+
+        <tbody>
+                {% for invoice in object_list %}
+                {% url 'stock_keeping:salesdetail' pk2=invoice.pk company_pk=company.pk period_selected_pk=period_selected.pk as link %}
+                <tr>
+                        <td><a href="{{ link }}">{{ invoice.state_name_out }}</a>
+                        </td>
+                        <td><a href="{{ link }}">{{ invoice.taxable_amount_out|intcomma }}</a>
+                        </td>
+                        <td><a href="{{ link }}">{{ invoice.tax_rate_out|intcomma }}</a>
+                        </td>
+                        <td><a href="{{ link }}">{{ invoice.sgst_amount_out|intcomma }}</a>
+                        </td>
+                        <td><a href="{{ link }}">{{ invoice.cgst_amount_out|intcomma }}</a>
+                        </td>
+                        <td><a href="{{ link }}">{{ invoice.igst_amount_out|intcomma }}</a>
+                        </td>
+                        <td><a href="{{ link }}">0.00</a>
+                        </td>
+                        <td><a href="{{ link }}">{{ invoice.tax_total_amount_out|intcomma }}</a>
+                        </td>
+                </tr>
+                {% endfor %}
+
+        </tbody>
+</table>

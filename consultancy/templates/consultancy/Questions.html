@@ -4,32 +4,32 @@
             <span class="label label-primary">Question</span>
         </td>
         <td class="issue-info">
-            <a href="{% url 'consultancy:consultancydetail' pk=consultancy.pk %}">
-                {{ consultancy.Questions }}
+            <a href="{% url 'consultancy:consultancydetail' consultancy_pk=consultancy.pk %}">
+                {{ consultancy.question }}
             </a>
 
             <small>
-                {{ consultancy.Questions }}
+                {{ consultancy.question }}
             </small>
         </td>
         <td>
-            <a href="{% url 'userprofile:specific_profile' pk=consultancy.User.profile.pk %}">{{ consultancy.User }}</a>
+            <a href="{% url 'user_profile:specific_profile' profile_pk=consultancy.user.profile.pk %}">{{ consultancy.user }}</a>
         </td>
         <td>
-            {{ consultancy.Date|date }} {{ consultancy.Date|date:"h" }}:{{ consultancy.Date|date:"i" }} {{ consultancy.Date|date:"a" }}
+            {{ consultancy.date|date }} {{ consultancy.date|date:"h" }}:{{ consultancy.date|date:"i" }} {{ consultancy.date|date:"a" }}
         </td>
         <td>
             <span class="pie">0.52,1.041</span>
             {{ consultancy.consultancies.count }} Solution{{ consultancy.consultancies.count|pluralize }} - {{ consultancy.like.count }} Like{{ consultancy.like.count|pluralize }}
         </td>
         <td class="text-right">
-            <a href="{% url 'consultancy:consultancydetail' pk=consultancy.pk %}" class="btn btn-success btn-xs">Answer</a>
-            {% if consultancy.User == user %}
-              <button class="show-form-update btn btn-warning btn-xs" data-url="{% url 'consultancy:consultancyupdate' id=consultancy.id %}">
+            <a href="{% url 'consultancy:consultancydetail' consultancy_pk=consultancy.pk %}" class="btn btn-success btn-xs">Answer</a>
+            {% if consultancy.user == user %}
+              <button class="show-form-update btn btn-warning btn-xs" data-url="{% url 'consultancy:consultancyupdate' consultancy_pk=consultancy.id %}">
                 Update
               </button>
 
-              <button class="show-form-delete btn btn-danger btn-xs" data-url="{% url 'consultancy:consultancydelete' id=consultancy.id %}">
+              <button class="show-form-delete btn btn-danger btn-xs" data-url="{% url 'consultancy:consultancydelete' consultancy_pk=consultancy.id %}">
                 Delete
               </button>
 

@@ -1,0 +1,980 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}GSTR - 3B{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>GST REPORTS</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+
+            <li class="breadcrumb-item active">
+                <strong>GSTR-Overview</strong>
+
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-warning" role="button">GSTR-1</a>
+        <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-primary" role="button">GSTR-2A</a>
+        <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-success" role="button">GSTR-3B</a>
+        <a href="{% url 'company:create' %}" class="btn btn-info" role="button">GSTR-4</a>
+
+        <button class="btn btn-info show-form-update pull-right"
+            data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            Update Period
+        </button>
+
+        <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+            <strong>Selected Period: From</strong>
+            {{ period_selected.start_date|date }}
+            <strong>To</strong>
+            {{ period_selected.end_date|date }} &nbsp;
+
+        </a>
+
+    </div>
+</div>
+
+<br>
+<div class="row">
+    <div class="col-lg-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>GSTR-3B Summary </h5>
+
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+
+                </div>
+            </div>
+            <div class="ibox-content">
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+
+                            <th>Particulars </th>
+                            <th>Details</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+
+                            <td><strong>Total no of Vouchers</strong></td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Included in returns</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Excluded in Returns</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Participating in return Tables</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>No Direct Implication In return tables</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Not relevant for returns</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Incomplete/mismatch in information<br>
+                                <small> (to be resolved)</small></td>
+                            <td>-----</td>
+
+                        </tr>
+                        <!-- <tr>
+                                  
+                                    <td></td>
+                                    <td></td>
+                                  
+                                </tr> -->
+
+
+
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <div class="col-lg-8">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Detailed Data </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-wrench"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user">
+                                    <li><a href="#" class="dropdown-item">Config option 1</a>
+                                    </li>
+                                    <li><a href="#" class="dropdown-item">Config option 2</a>
+                                    </li>
+                                </ul>
+                                <a class="close-link">
+                                    <i class="fa fa-times"></i>
+                                </a> -->
+                </div>
+            </div>
+            <div class="ibox-content">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Filing Status</th>
+                            <th>GSTR-3B</th>
+                            <th>Due Date of filing</th>
+                            <th>Date of filing</th>
+                            <th>Late fees</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- from date range -->
+                            <!-- <td><span class="pie">0.52,1.041</span></td>
+                                	<td class="text-navy"> <i class="fa fa-level-up"></i> 40% </td> -->
+
+                            <td>July 2018</td>
+                            <td>Filed</td>
+                            <td>20th August 2018</td>
+                            <td>19th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+
+                        </tr>
+                        <tr>
+                            <td>August 2018</td>
+                            <td>Filed</td>
+                            <td>20th August 2018</td>
+                            <td>19th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>September 2018</td>
+                            <td>Filed</td>
+                            <td>20th August 2018</td>
+                            <td>19th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>Ocotober 2018</td>
+                            <td>Filed</td>
+                            <td>20th August 2018</td>
+                            <td>19th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>November 2018</td>
+                            <td>Filed</td>
+                            <td>20th August 2018</td>
+                            <td>19th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>December 2018</td>
+                            <td>Filed</td>
+                            <td>20th August 2018</td>
+                            <td>19th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>January 2018</td>
+                            <td>Filed</td>
+                            <td>20th August 2018</td>
+                            <td>19th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Returns Summary </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-wrench"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user">
+                                    <li><a href="#" class="dropdown-item">Config option 1</a>
+                                    </li>
+                                    <li><a href="#" class="dropdown-item">Config option 2</a>
+                                    </li>
+                                </ul>
+                                <a class="close-link">
+                                    <i class="fa fa-times"></i>
+                                </a> -->
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-sm-5 m-b-xs"><select class="form-control-sm form-control input-s-sm inline">
+                            <option value="0">Option 1</option>
+                            <option value="1">Option 2</option>
+                            <option value="2">Option 3</option>
+                            <option value="3">Option 4</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 m-b-xs">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-sm btn-white ">
+                                <input type="radio" name="options" id="option1" autocomplete="off" checked> Day
+                            </label>
+                            <label class="btn btn-sm btn-white active">
+                                <input type="radio" name="options" id="option2" autocomplete="off"> Week
+                            </label>
+                            <label class="btn btn-sm btn-white">
+                                <input type="radio" name="options" id="option3" autocomplete="off"> Month
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group"><input placeholder="Search" type="text"
+                                class="form-control form-control-sm"> <span class="input-group-append"> <button
+                                    type="button" class="btn btn-sm btn-primary">Go!
+                                </button> </span></div>
+
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Table No. </th>
+                                <th>Particulars </th>
+                                <th>Vouchers</th>
+                                <th>Taxable Value</th>
+                                <th>CGST</th>
+                                <th>SGST</th>
+                                <th>IGST</th>
+                                <th>Cess</th>
+                                <th>Tax Amount</th>
+                                <th>Invoice Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+
+                                <td><strong>3.1</strong></td>
+                                <td><strong>Outward Supplies & Inward Supplies liable to reverse charge</strong>
+                                </td>
+
+                                <td><strong>5</strong></td>
+
+                                <td><strong>1742510</strong> </td>
+                                <td><strong>15478</strong></td>
+                                <td><strong>15487</strong></td>
+                                <td><strong>1547</strong></td>
+                                <td><strong>0.0</strong></td>
+                                <td><strong>1742510</strong></td>
+                                <td><strong>1742510</strong></td>
+                            </tr>
+                            <tr>
+
+                                <td>a</td>
+                                <td>Outward Taxable Supplies<small>(other than zero rated, nil rated & exempted)
+                                    </small>
+                                </td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td>b</td>
+                                <td>Outward Taxable Supplies<small>(Zero rated)
+                                    </small>
+                                </td>
+
+                                <td>3</td>
+
+                                <td>254111</td>
+                                <td>25415</td>
+                                <td>25687</td>
+                                <td>N/A</td>
+                                <td>0.0</td>
+                                <td>125447</td>
+                                <td>258965</td>
+                            </tr>
+                            <tr>
+
+                                <td>c</td>
+                                <td>Other Outward Supplies<small>(Nil rated ,exempted)
+                                    </small>
+                                </td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td>d</td>
+                                <td>Credit/Debit notes(Unregistered)<small>- 9B
+                                    </small>
+                                </td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td>e</td>
+                                <td>Export Invoices<small>- 6A
+                                    </small>
+                                </td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td><strong>3.2</strong></td>
+                                <td><strong>Of the supplies shown in 3.1(a) above,details of the interstate supplies
+                                        madeto unregistered persons, composite taxable persons & UIN holders</strong>
+                                </td>
+
+                                <td><strong>5</td>
+
+                                <td><strong>398500</strong></td>
+                                <td><strong>2541</strong></td>
+                                <td><strong>2541</strong></td>
+                                <td><strong>N/A</strong></td>
+                                <td><strong>N/A</strong></td>
+                                <td><strong>5241</strong></td>
+                                <td><strong>39852</strong></td>
+                            </tr>
+
+                            <tr>
+
+                                <td><small>3.2.1</small></td>
+                                <td><small>Supplies made to unregistered persons
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td><small>3.2.2</small></td>
+                                <td><small>Supplies made to Composition Taxable Persons
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td><small>3.2.3</small></td>
+                                <td><small>Supplies made to UIN Holders
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td><strong>4</strong></td>
+                                <td><strong>Eligible ITC</strong>
+                                </td>
+
+                                <td><strong>5</td>
+
+                                <td><strong>59500</strong></td>
+                                <td><strong>25001</strong></td>
+                                <td><strong>25001</strong></td>
+                                <td><strong>N/A</strong></td>
+                                <td><strong>N/A</strong></td>
+                                <td><strong>50241</strong></td>
+                                <td><strong>39002</strong></td>
+                            </tr>
+
+                            <tr>
+
+                                <td><small>A</small></td>
+                                <td><small>ITC available (whether in full or in parts)
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(1) Import of Goods
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(2) Import of Services
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(3) Inward Supplies liable to reverse charge(other than 1 & 2 above)
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(4) Import of Goods
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(5) Inward Supplies from ISD
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(5) All other ITC
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+
+                            <tr>
+
+                                <td><small>B</small></td>
+                                <td><small>ITC Reversed
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td></td>
+                                <td><small>(1) As per rules 42 & 43 of CGST Rules
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(2) Others
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td><small>C</small></td>
+                                <td><small>Net ITC available (A) - (B)
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td><small>D</small></td>
+                                <td><small>Ineligible ITC
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td></td>
+                                <td><small>(1)As per Section 17(5)
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td></td>
+                                <td><small>(2) Others
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+
+                                <td><strong>5</strong></td>
+                                <td><strong>Value of exempt, Nil Rated & non-GST inward Supplies </strong>
+                                </td>
+
+                                <td><strong>-</td>
+
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                            </tr>
+
+                            <tr>
+
+                                <td></td>
+                                <td><small>From a supplier under composition scheme, exempt and nil rated supply
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td></td>
+                                <td><small>Non GST Supply
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td><strong>5.1</strong></td>
+                                <td><strong>Interest & Late Fees Payable</strong>
+                                </td>
+
+                                <td><strong>-</td>
+
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>-</strong></td>
+                            </tr>
+
+                            <tr>
+
+                                <td></td>
+                                <td><small>Interest
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+
+                                <td></td>
+                                <td><small>Late Fees
+                                    </small></td>
+
+                                <td></td>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                        </tbody>
+
+                        <!-- body ends and another head for total -->
+                        <thead>
+                            <tr>
+
+                                <th>#</th>
+                                <th>Total </th>
+                                <th></th>
+                                <th>254785121</th>
+                                <th>152487</th>
+                                <th>45874</th>
+                                <th>456985</th>
+                                <th>0.0</th>
+                                <th>125478</th>
+                                <th>4569852</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Reverse Charge liability and Input Credit to be booked</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-wrench"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                <li><a href="#" class="dropdown-item">Config option 1</a>
+                                </li>
+                                <li><a href="#" class="dropdown-item">Config option 2</a>
+                                </li>
+                            </ul>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a> -->
+                </div>
+            </div>
+            <div class="ibox-content">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Particulars</th>
+                            <th>Taxable Value</th>
+                            <th>Tax Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>URD Purchases</td>
+                            <!-- <td><span class="line">5,3,2,-1,-3,-2,2,3,5,2</span></td> -->
+                            <td>-</td>
+                            <!-- <td class="text-navy"> <i class="fa fa-level-up"></i> 40% </td> -->
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Reverse Charge Inward Supplies</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Import of services</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+
+                        <tr>
+                            <td>4</td>
+                            <td>Input Credit to be booked</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="ibox-title">
+                <h5>Advance Payments</h5>
+            </div>
+            <div class="ibox-content">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Particulars</th>
+                            <th>Taxable Value</th>
+                            <th>Tax Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Amount Unadjusted against Purchases</td>
+                            <!-- <td><span class="line">5,3,2,-1,-3,-2,2,3,5,2</span></td> -->
+                            <td>-</td>
+                            <!-- <td class="text-navy"> <i class="fa fa-level-up"></i> 40% </td> -->
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Purchases Against Advance from Previous Periods</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div><!--  for title  -->
+    </div>
+
+</div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+
+    {% endblock %}

@@ -1,0 +1,309 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Day Book{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h3>Day Book</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a
+                    href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Day Book</strong>
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'stock_keeping:purchase_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}"
+            class="btn btn-primary" role="button">Purchase Register</a>
+
+        <a href="{% url 'stock_keeping:sale_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}"
+            class="btn btn-info" role="button">Sales Register</a>
+
+        <a href="{% url 'accounting_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-default" role="button">Journal Register</a>
+
+        <button class="btn btn-info show-form-update pull-right"
+            data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            Update Period
+        </button>
+
+        <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+            <strong>Selected Period: From</strong>
+            {{ period_selected.start_date|date }}
+            <strong>To</strong>
+            {{ period_selected.end_date|date }} &nbsp;
+
+        </a>
+    </div>
+
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12 col-xs-8">
+            <div class="ibox">
+                <div class="ibox-content">
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example"
+                            id="book-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <center>Date</center>
+                                    </th>
+                                    <th>
+                                        <center>Debit A/c</center>
+                                    </th>
+                                    <th>
+                                        <center>Credit A/c</center>
+                                    </th>
+                                    <th>
+                                        <center>Voucher No</center>
+                                    </th>
+                                    <th>
+                                        <center>Voucher Type</center>
+                                    </th>
+                                    <th>
+                                        <center>Debit</center>
+                                    </th>
+                                    <th>
+                                        <center>Narration</center>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for i in new %}
+
+                                {% for j in i|slice:"0:1" %}
+                                {% if j != None %}
+
+                                <tr>
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_date}}</a>
+                                        </center>
+                                    </td>
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
+                                        </center>
+                                    </td>
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% if j.voucher_id == None %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.id}}</a>
+                                        </center>
+                                    </td>
+                                    {% else %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_id}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% endif %}
+
+
+                                    {% if j.voucher_type == '' %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">Journal</a>
+                                        </center>
+                                    </td>
+
+                                    {% else %}
+
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_type}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% endif %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.Debit}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% if j.narration %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.narration|safe|truncatewords:"8"}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% else %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">being
+                                                {{j.cr_ledger}} debited by {{j.cr_ledger}} for {{j.Credit}}.</a>
+                                        </center>
+                                    </td>
+
+                                    {% endif %}
+
+
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+
+                                {% for k in i|slice:"1:2" %}
+                                {% if k != None %}
+
+                                <tr>
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.voucher_date}}</a>
+                                        </center>
+                                    </td>
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.cr_ledger}}</a>
+                                        </center>
+                                    </td>
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.cr_ledger}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% if k.voucher_id == None %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.id}}</a>
+                                        </center>
+                                    </td>
+                                    {% else %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.voucher_id}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% endif %}
+
+
+                                    {% if k.voucher_type == '' %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">Journal</a>
+                                        </center>
+                                    </td>
+
+                                    {% else %}
+
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.voucher_type}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% endif %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.Debit}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% if k.narration %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.narration|safe|truncatewords:"8"}}</a>
+                                        </center>
+                                    </td>
+
+                                    {% else %}
+
+                                    <td>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">being
+                                                {{k.cr_ledger}} debited by {{k.cr_ledger}} for {{k.Credit}}.</a>
+                                        </center>
+                                    </td>
+
+                                    {% endif %}
+
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+
+
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <td colspan="6">
+                                        <ul class="pagination float-right"></ul>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p><button class='btn btn-default pull-right' onclick="goBack()">Go Back</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+
+    {% endblock %}

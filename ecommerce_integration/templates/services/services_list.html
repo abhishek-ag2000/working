@@ -48,7 +48,7 @@
                             </div>
                             <div class="product-desc">
                                 
-                                <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="product-name">{{ service.title}}</a>
+                                <a href="{% url 'ecommerce_integration:servicedetail' service_pk=service.pk %}" class="product-name">{{ service.title}}</a>
 
 
 
@@ -72,7 +72,7 @@
 				            </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'ecommerce_integration:servicedetail' pk=service.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'ecommerce_integration:servicedetail' service_pk=service.pk %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>

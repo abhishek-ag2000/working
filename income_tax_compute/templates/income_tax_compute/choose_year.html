@@ -1,0 +1,39 @@
+{% load crispy_forms_tags %}
+<form method="post" id="choose-year-form"
+	data-url="{% url 'income_tax_compute:IncomeTaxYearUpdate' company_pk=company.pk period_selected_pk=period_selected.pk last_period=last_period %}"
+	class="update-form">
+	{% csrf_token %}
+	<div class="modal-header">
+		<h5 class="modal-title">Choose Financial Year</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div id="modal_div_alert" class="alert alert-danger" style="display: none"></div>
+	<div class="modal-body">
+		{{form|crispy}}
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		<button type="submit" id="submit_button" class="btn btn-primary">Set Year</button>
+	</div>
+</form>
+
+
+<script type="text/javascript">
+	$('#submit_button').click(function () {
+		//location.reload();
+		var year_sel = $('#id_Choose_Year').val();
+		if (year_sel == "")
+			return
+		var new_url = "{% url 'income_tax_compute:incometaxdetailview' company_pk=company.pk period_selected_pk=period_selected.pk period='0000-0000' %}"
+		new_url = new_url.replace("0000-0000", year_sel)
+		window.location.replace(new_url);
+	});
+
+	$(document).ready(function () { // Wait until document is fully parsed
+		$("#choose-year-form").on('submit', function (e) {
+			e.preventDefault();
+		});
+	});
+</script>

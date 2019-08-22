@@ -1,0 +1,260 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% block title %}
+Credit Note Invoice
+{% endblock %}
+
+{% block content %}
+
+<style type="text/css" media="print">
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+</style>
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-12">
+    <h2>Credit Note Invoice</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+      </li>
+      <li class="breadcrumb-item">
+
+        <a href="{% url 'company:list' %}">Company list</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a
+          href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Credit
+          Note
+          List</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Credit Note Invoice</strong>
+      </li>
+    </ol>
+    <a href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+      class="btn btn-success" role="button">Select Credit Note Invoice</a>
+
+    <button class="btn btn-info show-form-update pull-right"
+      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      Update Period
+    </button>
+
+    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+      <strong>Selected Period: From</strong>
+      {{ period_selected.start_date }}
+      <strong>To</strong>
+      {{ period_selected.end_date}} &nbsp;
+
+    </a>
+
+
+
+  </div>
+
+</div>
+
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="wrapper wrapper-content animated fadeInRight">
+
+      <div class="ibox-content p-xl">
+        <div id="printableArea">
+          <center>
+
+          </center>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <h5>Buyer:</h5>
+              <address>
+                {% if credit_details.party_ac.ledger_name == 'Cash' %}
+                <strong>{{ credit_details.party_ac.ledger_name }}&nbsp;(Cash Payment)</strong><br>
+                {% else %}
+                <strong>{{ credit_details.party_ac.ledger_name }}&nbsp;(Credit Payment)</strong><br>
+                {% endif %}
+                {{credit_details.Party_ac.Address}}<br>
+
+                <abbr><strong>GSTIN/UIN:</strong></abbr>{% if credit_details.party_ac.gst_no %}
+                {{ credit_details.party_ac.gst_no }} {% endif %}
+
+                <br>
+
+                <abbr><strong>PAN/IT No:</strong></abbr>{% if credit_details.party_ac.pan_no %}
+                {{ credit_details.party_ac.pan_no }} {% endif %}
+
+                <br>
+                <strong>State</strong>: {{credit_details.party_ac.state.state_name }}&nbsp; <strong>Code</strong> :
+                {{credit_details.party_ac.state.state_code }}&nbsp;<br>
+                <strong>Place of Supply</strong> : {{credit_details.supply_place }}&nbsp;<br>
+
+              </address>
+
+
+              <div class="col-sm-6">
+                <hr>
+              </div>
+
+            </div>
+
+
+
+            <div class="col-sm-6 text-right">
+              <h4>Invoice No.</h4>
+              <h4 class="text-navy">{{credit_details.ref_no}}</h4>
+              <span class="pull-right"><strong>Invoice Date:&nbsp;</strong>{{credit_details.voucher_date}}</span>
+
+
+
+
+            </div>
+          </div>
+
+          <div class="table-responsive m-t">
+            <table class="table invoice-table">
+              <thead>
+                <tr>
+                  <th>Sl.no</th>
+                  <th>Goods And Services</th>
+                  <th>HSN/SAC</th>
+                  <th>Quantity</th>
+                  <th>Rate</th>
+                  <th>Discount(%)</th>
+                  <th>Sub total(&#8377;)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for stock_total in stocklist %}
+                {% if stock_total.stock_item %}
+                <tr>
+                  <td>{{forloop.counter}}</td>
+                  <td>{{stock_total.stock_item}}</td>
+                  <td>{{stock_total.stock_item.hsn}}</td>
+                  <td>
+                    <center>{{stock_total.quantity}}</center>
+                  </td>
+                  <td>{{stock_total.rate }}</td>
+                  <td>{{stock_total.disc }}</td>
+                  <td>{{stock_total.total|abs|floatformat:2|intcomma}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+
+
+                {% for extra in extra_charge_credit %}
+                {% if extra.ledger.ledger_name %}
+                <tr>
+                  <td></td>
+                  <td><em>{{extra.ledger.ledger_name}}</em></td>
+                  <td><em>{{extra.ledger.hsn_no}}</em></td>
+                  <td></td>
+                  {% if extra.rate != 0 %}
+                  <td>{{extra.rate|abs|floatformat:0|intcomma}}&nbsp;%</td>
+                  {% else %}
+                  <td></td>
+                  {% endif %}
+                  <td></td>
+                  <td>{{extra.total|abs|floatformat:2|intcomma}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div><!-- /table-responsive -->
+
+          <div class="row">
+            <div class="col-sm-6 col-lg-6">
+
+            </div>
+
+            <div class="col-sm-6 col-lg-6">
+              <table class="table invoice-total">
+                <tbody>
+                  <tr>
+                    <td><strong>Sub total For Goods(&#8377;) :</strong></td>
+                    <td>{{credit_details.sub_total|abs|floatformat:2|intcomma}}</td>
+                  </tr>
+                  {% for extra in extra_charge_credit %}
+                  {% if extra.total != 0 %}
+                  <tr>
+                    <td><strong><em>{{ extra.ledger.ledger_name }}</em>(&#8377;) :</strong></td>
+                    <td>{{extra.total|abs|floatformat:2|intcomma}}</td>
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                  {% if credit_details.tax_total != 0 %}
+                  <tr>
+                    <td><strong>Tax(&#8377;) :</strong></td>
+                    <td>{{credit_details.tax_total|abs|floatformat:2|intcomma}}</td>
+                  </tr>
+                  {% else %}
+                  {% for tax in extra_gst_credit %}
+                  {% if tax.total != 0 %}
+                  <tr>
+                    <td><strong>{{ tax.ledger.ledger_name }}(&#8377;) :</strong></td>
+                    <td>{{tax.total|abs|floatformat:2|intcomma}}</td>
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                  {% endif %}
+                  <tr>
+                    <td><strong>Total(&#8377;) :</strong></td>
+                    <td>{{credit_details.total|abs|floatformat:2|intcomma}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <hr>
+        </div>
+        <input class='btn btn-info' type="button" onclick="printDiv('printableArea')" value="Print" />
+
+        <a class='btn btn-warning'
+          href="{% url 'stock_keeping:creditupdate' company_pk=company.pk credit_note_pk=credit_details.pk period_selected_pk=period_selected.pk %}">Update
+          Credit Note Invoice</a><a class='btn btn-danger pull-right'
+          href="{% url 'stock_keeping:creditdelete' company_pk=company.pk credit_note_pk=credit_details.pk period_selected_pk=period_selected.pk %}">Delete
+          Credit Note Invoice</a>
+
+      </div>
+      <br>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content animated flipInY"></div>
+  </div>
+
+  <script type="text/javascript">
+
+    function printDiv(divName) {
+      var printContents = document.getElementById(divName).innerHTML;
+      var originalContents = document.body.innerHTML;
+
+      document.body.innerHTML = printContents;
+
+      window.print();
+
+      document.body.innerHTML = originalContents;
+    }
+  </script>
+
+  {% endblock %}

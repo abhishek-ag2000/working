@@ -1,33 +1,39 @@
+"""
+Forms
+"""
 from django import forms
-from blog.models import Blog, Blog_comments
+from blog.models import Blog, BlogComments
 
+class BlogForm(forms.ModelForm):
+    """
+    Blog Form
+    """
+    def __init__(self, *args, **kwargs):
+        super(BlogForm, self).__init__(*args, **kwargs)
+        self.fields['category'].widget.attrs = {'class': 'select2_demo_2 form-control', 'placeholder': "Select Category", }
 
-class DateInput(forms.DateInput):
-    input_type = 'date'
+    blog_title = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-class Blogform(forms.ModelForm):
-
-	def __init__(self, *args, **kwargs):
-		super(Blogform, self).__init__(*args, **kwargs)
-		self.fields['Category'].widget.attrs = {'class': 'form-control select2', 'placeholder':"Select Category",}
-	
-	Blog_title = forms.CharField(widget=forms.TextInput(attrs={'class' : 'form-control'}))
-	class Meta:
-		model = Blog
-		fields = ['Blog_title', 'Description', 'Blog_image', 'Category']
-
+    class Meta:
+        model = Blog
+        fields = ['blog_title', 'description', 'blog_image', 'category']
 
 
 class BlogSearchForm(forms.Form):
-    name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class' : 'form-control'}))
+    """
+    Blog Search Form
+    """
+    name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
-class Blog_comments_form(forms.ModelForm):
+class BlogCommentForm(forms.ModelForm):
+    """
+    Blog Comment Form
+    """
+    def __init__(self, *args, **kwargs):
+        super(BlogCommentForm, self).__init__(*args, **kwargs)
+        self.fields['text'].widget.attrs = {'class': 'form-control', 'placeholder': 'Post Comment Here'}
 
-	def __init__(self, *args, **kwargs):
-		super(Blog_comments_form, self).__init__(*args, **kwargs)
-		self.fields['text'].widget.attrs = {'class': 'form-control', 'placeholder' : 'Post Comment Here'}
-
-	class Meta:
-		model = Blog_comments
-		fields = ['text',]
+    class Meta:
+        model = BlogComments
+        fields = ['text', ]

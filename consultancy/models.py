@@ -1,43 +1,47 @@
-from django.db import models
-from django.conf import settings
-from django.urls import reverse
+"""
+Models
+"""
 import datetime
-# Create your models here.
+from django.conf import settings
+from django.db import models
+from django.urls import reverse
 
 
-class consultancy(models.Model):
-	User = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True,blank=True)
-	Date = models.DateTimeField(auto_now_add=True)
-	modified_date = models.DateField(auto_now=True)
-	Questions = models.TextField()
-	like = models.ManyToManyField(settings.AUTH_USER_MODEL,related_name='like',blank=True)
+class Consultancy(models.Model):
+    """
+    Consultancy model
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateField(auto_now=True)
+    question = models.TextField()
+    like = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like', blank=True)
 
-	def __str__(self):
-		return self.Questions
+    def __str__(self):
+        return self.question
 
-	def get_absolute_url(self):
-		return reverse("consultancy:consultancydetail", kwargs={'pk':self.pk})
+    def get_absolute_url(self):
+        return reverse("consultancy:consultancydetail", kwargs={'consultancy_pk': self.pk})
 
-	def save(self):
-		if self.id:
-			self.modified_date = datetime.datetime.now()
-		else:
-			self.Date = datetime.datetime.now()
-		super(consultancy,self).save()
+    def save(self):
+        if self.id:
+            self.modified_date = datetime.datetime.now()
+        else:
+            self.date = datetime.datetime.now()
+        super(Consultancy, self).save()
 
-	def total_like(self):
-		return self.like.count()
+    def total_like(self):
+        return self.like.count()
+
 
 class Answer(models.Model):
-	User = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True,blank=True)
-	Questions = models.ForeignKey(consultancy,on_delete=models.CASCADE,related_name='consultancies')
-	text = models.TextField()
-	Date = models.DateTimeField(auto_now_add=True)
+    """
+    Answer model
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    question = models.ForeignKey(Consultancy, on_delete=models.CASCADE, related_name='consultancies')
+    text = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
 
-	def __str__(self):
-		return self.text
-
-
-
-
-
+    def __str__(self):
+        return self.text

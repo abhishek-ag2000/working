@@ -6,70 +6,71 @@
 {% block content %}
 
 <div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-12">
-                <h2>Legal Categories</h2>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Legal Categories</strong>
-                    </li>
-                </ol>
+    <div class="col-lg-12">
+        <h2>Legal Categories</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Legal Categories</strong>
+            </li>
+        </ol>
 
-                <br>
+        <br>
 
-            </div>
+    </div>
 </div>
 
-        <div class="wrapper wrapper-content animated fadeInRight">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="ibox">
-                        <div class="ibox-title">
-                            <h5>Legal Categories</h5>
-                            <div class="ibox-tools">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Legal Categories</h5>
+                    <div class="ibox-tools">
 
-                                
+
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                    <div class="m-b-lg">
+                        <form method='GET' class="form-horizontal" id="search-form"
+                            action="{% url 'aggrement:search' %}">
+                            <div class="input-group input-group-sm">
+                                <input class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search">
+                                <div class="input-group-append">
+                                    <button class="btn btn-white" type="submit">Search</button>
+                                </div>
                             </div>
+                        </form>
+
+                        <div class="m-t-md">
+
+                            <strong>Found {{ categories_count }} categories.</strong>
+
+
+
                         </div>
-                        <div class="ibox-content">
 
-                            <div class="m-b-lg">
-                                <form method='GET' class="form-horizontal" id="search-form" action="{% url 'aggrement:search' %}">
-                                <div class="input-group input-group-sm">
-                                    <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-white" type="submit">Search</button>
-                                    </div>
-                                </div>
-                                </form>
+                    </div>
 
-                                <div class="m-t-md">
-
-                                    <strong>Found {{ categories_count }} categories.</strong>
-
-
-
-                                </div>
-
-                            </div>
-
-                        <div class="table-responsive">
+                    <div class="table-responsive">
                         <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
-                                <thead>
+                            <thead>
                                 <tr>
 
                                     <th data-toggle="true">Title</th>
                                     {% if categories_cbct != 0 %}
-                                        <th data-hide="all">Central Acts</th>
+                                    <th data-hide="all">Central Acts</th>
                                     {% else %}
-                                        <th data-hide="all"></th>
+                                    <th data-hide="all"></th>
                                     {% endif %}
                                     {% if categories_sact != 0 %}
-                                        <th data-hide="phone,tablet" >State Acts</th>
+                                    <th data-hide="phone,tablet">State Acts</th>
                                     {% else %}
-                                        <th data-hide="phone,tablet"></th>
+                                    <th data-hide="phone,tablet"></th>
                                     {% endif %}
                                     <th data-hide="phone">Total ACTS</th>
                                     <th data-hide="phone">Total Case laws</th>
@@ -77,79 +78,84 @@
                                     <th data-hide="phone">Total Notifications</th>
 
                                 </tr>
-                                </thead>
-                                <tbody>
+                            </thead>
+                            <tbody>
                                 {% for category in categories_list %}
                                 <tr>
                                     <td>
-                                       <strong>{{category.title}}</strong>
+                                        <strong>{{category.title}}</strong>
                                     </td>
-                                    
+
                                     {% if categories_cbct != 0 %}
-                                        <td>
-                                            <ol>
+                                    <td>
+                                        <ol>
                                             {% for act in category.cb_acts.all %}
-                                                <li><a href="{% url 'legal_database:central_act' pk=act.pk  %}">{{act.title}}</a></li>
-                                            {% endfor %} 
-                                            </ol>
-                                        </td>
-                                    {% else %}
-                                        <td></td>
-                                    {% endif %}
-                                    
-                                    {% if categories_sact != 0 %}
-                                        <td>
-                                             <ol>
-                                           {% for act in category.sb_acts.all %}
-                                                <li><a href="{% url 'legal_database:state_act' pk=act.pk  %}">{{act.title}}</a></li>
+                                            <li><a
+                                                    href="{% url 'legal_database:central_act' central_bare_act_pk=act.pk  %}">{{act.title}}</a>
+                                            </li>
                                             {% endfor %}
-                                            
                                         </ol>
-                                        </td>
+                                    </td>
                                     {% else %}
-                                        <td></td>
+                                    <td></td>
+                                    {% endif %}
+
+                                    {% if categories_sact != 0 %}
+                                    <td>
+                                        <ol>
+                                            {% for act in category.sb_acts.all %}
+                                            <li><a
+                                                    href="{% url 'legal_database:state_act' state_bare_act_pk=act.pk  %}">{{act.title}}</a>
+                                            </li>
+                                            {% endfor %}
+
+                                        </ol>
+                                    </td>
+                                    {% else %}
+                                    <td></td>
                                     {% endif %}
                                     <td>
-                                        <span class="label label-success">{{ category.cb_acts.count|add:category.sb_acts.count }}</span>
+                                        <span
+                                            class="label label-success">{{ category.cb_acts.count|add:category.sb_acts.count }}</span>
                                     </td>
                                     <td>
                                         <span class="label label-warning">{{ category.Case_cat.count }}</span>
-                                    </td> 
+                                    </td>
                                     <td>
                                         <span class="label label-primary">{{ category.order_category.count }}</span>
-                                    </td> 
+                                    </td>
                                     <td>
                                         <span class="label label-info">{{ category.noti_category.count }}</span>
-                                    </td> 
+                                    </td>
                                 </tr>
                                 {% endfor %}
-                               
 
 
-                                </tbody>
-                                <tfoot>
+
+                            </tbody>
+                            <tfoot>
                                 <tr>
                                     <td colspan="6">
                                         <ul class="pagination float-right"></ul>
                                     </td>
                                 </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                        <p><button class='btn btn-default pull-right' onclick="goBack()">Go Back</button></p>
-                        </div>
-                        
+                            </tfoot>
+                        </table>
                     </div>
+                    <p><button class='btn btn-default pull-right' onclick="goBack()">Go Back</button></p>
                 </div>
+
             </div>
-
-
         </div>
+    </div>
+
+
+</div>
 
 
 <script>
-function goBack() {
-  window.history.back();
-}
+    function goBack() {
+        window.history.back();
+    }
 </script>
 {% endblock %}

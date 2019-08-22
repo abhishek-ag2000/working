@@ -1,0 +1,173 @@
+{% extends "clouderp/common_base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% load poll_extras %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+        <div class="wrapper wrapper-content">
+
+            
+        <div class="row wrapper border-bottom white-bg page-heading">
+                   <div class="col-lg-12">
+                    <h2>Company : {{organisation.name}}</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong> Dashboard</strong>
+                    </li>
+                </ol>
+                <br>
+            <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Select Company </a>
+              <a href="{% url 'company:update' company_pk=organisation.pk %}" class="btn btn-warning" role="button">Update Company details</a>
+            
+              
+              
+            </div> 
+        </div>
+<br>
+       <div class="wrapper wrapper-content animated fadeIn">
+        <div class="col-lg-12 bg-white p-0 m-0">
+            <div style="    width: 100%;
+                padding: 0;
+                margin: 0;
+                background: 0 0;
+                position: relative;
+                overflow: hidden;">
+                {% if organisation.cover %}
+                <img class="img-responsive" style="width: 100%;
+                    height: 200px;"
+                    src="{{organisation.cover.url}}">
+                {% else %}
+                <img class="img-responsive" style="width: 100%;
+                    height: 200px;"
+                    src="{% static 'static_page/img/cover/coverpic2.jpg' %}">
+
+                {% endif %}
+            </div>
+            <div style="order: 1;
+            margin-right: -3px;
+            margin-bottom: 24px;
+            top: 130px;
+            left: 50px;
+            right: auto;
+            width: 100px;
+            height: 100px;
+            min-width: 72px;
+            min-height: 72px;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px rgba(0,0,0,.15), 0 2px 3px rgba(0,0,0,.2);
+            position: absolute;
+            overflow: hidden;">
+            {% if organisation.logo %}
+            <img class="img-responsive" style="width: 100%;
+                    "
+                    src="{{organisation.logo.url}}">
+
+            {% else %}
+            <img class="img-responsive" src="{% static 'static_page/img/logos/default_logo.jpg' %}">
+            {% endif %}
+
+
+            </div>
+        </div>
+        <div class="ibox-content  border-bottom">
+            <div class="col-lg-12 row">
+                    <div class="col-lg-9 p-2">
+                            <h2 class="">{{organisation.name }} </h2>
+                            <span>{{organisation.bussiness_nature }}. <samll><i class="fa fa-map-marker"></i> {{organisation.address}}, {{organisation.state}}, {{organisation.pincode}}</samll></span><br>
+                            <small>Created: {{organisation.created_date }}</small>
+                    </div>
+                    <div class="col-lg-3 pt-5">
+                        <a href="{% url 'company:demo-page' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}" class="link text-info border-right pr-1 " >Demo Page</a>
+
+                       
+                        
+                       
+                       {% if static_page_details %}
+                       <a href="{% url 'company:update-page' organisation_pk=organisation.pk period_selected_pk=period_selected.pk  %}" class="link text-info border-right pr-1" >Update</a>
+
+                        <a href="{% url 'company:live-page' organisation_pk=organisation.pk period_selected_pk=period_selected.pk   %}" class="link text-info ">Live</a>
+                        {% else %}
+                          <a href="{% url 'company:static-page' organisation_pk=organisation.pk period_selected_pk=period_selected.pk  %}" class="link text-info  pr-1" >Create</a>
+
+                        {% endif %}
+                    
+
+                        
+                    </div>
+            </div>
+        </div>
+
+      
+                <div class="col-lg-12 p-2 m-0 bg-white Postbox row ">
+                        
+                        <div class="col-lg-6"></div>
+                        <div class="col-lg-6   row ">
+                        <div class="col-lg-3  p-2">
+                                    
+                            </div>
+                             <div class="col-lg-3  p-2">
+                            </div>
+                            <div class="col-lg-3  p-2  ">
+                                    <a href="{% url 'job:joblist' organisation_pk=organisation.pk period_selected_pk=period_selected.pk  %}" class=" "> <i class="fa fa-search"></i>  Find jobs</a>
+                            </div>
+                            <div class="col-lg-3  p-2 ">
+                                    <a href="{% url 'job:post-job' organisation_pk=organisation.pk period_selected_pk=period_selected.pk  %}" class=" "> <i class="fa fa-paper-plane"></i> Post a job</a>
+                            </div>
+                            
+                          
+                        </div>
+                         
+                            
+
+                </div>
+
+    
+
+
+        <div class="ibox-content  border-bottom">
+            <div class="col-lg-12 row">
+                    <div class="col-lg-8">
+                        <div class="p-3 text-justify">
+                                <p> <h3>Overview</h3>
+
+                                <p>Tokopedia's mission is to democratize commerce through technology. Since its founding in 2009, Tokopedia has been a force that pioneers digital transformation in Indonesia. </p>
+                                
+                                <p>Our vision is to build an ecosystem where anyone can start and discover anything. We empower millions of merchants and users across our marketplace, logistics, payments, and financial technology businesses. </p>
+                                
+                                <p>Headquartered in Jakarta, we are building a world-class technology company that creates opportunities, increase financial inclusion and help people achieve more. Join our movement.</p>
+                                
+                                Website http://www.tokopedia.com/careers Industry Internet Company size 1,001-5,000 employees Headquarters Jakarta Selatan, DKI Jakarta Type Privately Held Founded 2009 Specialties Internet, E-commerce, Marketplace, Customer to Customer Business, and Technology
+                                </p>
+                        </div>
+                           
+                        </div>
+                        <div class="col-lg-4">
+                           
+                        </div>
+            </div>
+          
+
+        </div>
+
+
+
+    </div>
+
+
+        </div> 
+
+
+
+
+
+{% endblock %}

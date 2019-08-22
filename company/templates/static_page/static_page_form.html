@@ -1,0 +1,281 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% load poll_extras %}
+{% block title %}Create static Page{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content animated fadeIn">
+  <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="ibox ">
+      <div class="ibox-title">
+        {% if not form.instance.pk %}
+        <h5>Create Page</h5>
+        {% else %}
+        <h5>Update page</h5>
+        {% endif %}
+
+        <div class="ibox-tools">
+          <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+          </a>
+          <a class="close-link">
+            <i class="fa fa-times"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="ibox-content">
+
+
+        <style type="text/css">
+          .errorlist {
+            color: red;
+          }
+        </style>
+
+        <div class="col-sm-9 m-b-xs">
+          <div data-toggle="buttons" class="btn-group btn-group-toggle">
+            <label class="btn btn-sm btn-white"><a href="#basic_details" data-toggle="collapse">Basic
+                Details</a></label>
+            <label class="btn btn-sm btn-white"><a href="#service" data-toggle="collapse">Service Details </a></label>
+            <label class="btn btn-sm btn-white"><a href="#portfolio" data-toggle="collapse">Portfolio
+                Details</a></label>
+            <label class="btn btn-sm btn-white"><a href="#team" data-toggle="collapse">Team Details</a></label>
+
+          </div>
+        </div>
+
+
+        <br>
+        <div class="hidden-md" id="sales-info">
+          <div class="panel-collapse collapse show active" id="basic_details" data-parent="#sales-info">
+            <h3>Basic Details</h3>
+            <hr>
+
+            <div class="form-group row">
+              <label for="Invoice1" class="col-lg-2 control-label">Name<i class="material-icons"
+                  style="font-size:16px;color:red">*</i></label>
+              <div class="col-lg-4">
+                {{ form.name.errors }}
+                {{form.name}}
+              </div>
+
+              <label for="Date3" class="col-lg-2 control-label">Title 1<i class="material-icons"
+                  style="font-size:16px;color:red">*</i></label>
+              <div class="col-lg-4">
+                {{ form.title1.errors }}
+                {{form.title1}}
+              </div>
+
+
+            </div>
+
+            <div class="form-group row">
+              <label for="Seller2" class="col-lg-2 control-label">Title 2<i class="material-icons"
+                  style="font-size:16px;color:red">*</i></label>
+              <div class="col-lg-4">
+                {{ form.title2.errors }}
+                {{form.title2}}
+              </div>
+
+              <label for="Seller2" class="col-lg-2 control-label">Facebook Url</label>
+              <div class="col-lg-4">
+                {{ form.facebook_url.errors }}
+                {{form.facebook_url}}
+              </div>
+            </div>
+
+
+            <div class="form-group row">
+              <label for="Seller2" class="col-lg-2 control-label">Twitter Url</label>
+              <div class="col-lg-4">
+
+
+                {{ form.twitter_url  }}
+                {{ form.twitter_url.errors }}
+              </div>
+              <label for="Seller2" class="col-lg-2 control-label">Linkedin Url</label>
+              <div class="col-lg-4">
+
+
+                {{ form.linkedin_url   }}
+                {{ form.linkedin_url.errors }}
+              </div>
+
+
+            </div>
+
+
+          </div>
+
+
+          <div class="panel-collapse collapse" id="service" data-parent="#sales-info">
+            <h3>Service Details</h3>
+            <hr>
+            <label for="Seller2" class="col-lg-2 control-label">Service details </label>
+            <div class="col-lg-4">
+
+
+              {{ form.linkedin_url   }}
+              {{ form.linkedin_url.errors }}
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover dataTables-example">
+                {{ services.management_form }}
+                <thead>
+                  <tr>
+                    <th>Services</th>
+                    <th>Descriptions</th>
+                    <th>Icon</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for form in services %}
+
+                  <tr class='{% cycle "row1" "row2" %}  formset_row'>
+                    <td style="text-align: center ; width: 40%; height: 20%;">{{ form.name}}</td>
+                    <td>{{ form.desc}}</td>
+                    <td>{{ form.icon}}</td>
+
+
+                    <td></td>
+                  </tr>
+                  {% endfor %}
+
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+
+
+          <div class="panel-collapse collapse" id="portfolio" data-parent="#sales-info">
+            <h3>Portfolio Details</h3>
+            <hr>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover dataTables-example">
+                {{ portfolios.management_form }}
+                <thead>
+                  <tr>
+                    <th>Services</th>
+                    <th>Descriptions</th>
+                    <th>Image</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for form in portfolios %}
+
+                  <tr class='{% cycle "row1" "row2" %}  formset_row_1'>
+                    <td style="text-align: center ; width: 40%; height: 20%;">{{ form.name}}</td>
+                    <td>{{ form.desc}}</td>
+                    <td>{{ form.image}}</td>
+
+
+                    <td></td>
+                  </tr>
+                  {% endfor %}
+
+                </tbody>
+
+              </table>
+            </div>
+
+          </div>
+
+
+          <div class="panel-collapse collapse" id="team" data-parent="#sales-info">
+            <h3>Team Details</h3>
+            <hr>
+
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover dataTables-example">
+                {{ teams.management_form }}
+
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Profession</th>
+                    <th>Facebook</th>
+                    <th>Twitter</th>
+                    <th>Linkedin</th>
+                    <th>Image</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                
+                <tbody>
+                  {% for form in teams %}
+
+                  <tr class='{% cycle "row1" "row2" %}  formset_row_2'>
+                    <td style="text-align: center ; width: 40%; height: 20%;">{{ form.name}}</td>
+                    <td>{{ form.profession}}</td>
+                    <td>{{ form.facebook_url}}</td>
+                    <td>{{ form.twitter_url}}</td>
+                    <td>{{ form.linkedin_url}}</td>
+                    <td>{{ form.pic}}</td>
+
+
+                    <td title="remove" class="delete_row">Action</td>
+                  </tr>
+                  {% endfor %}
+
+                </tbody>
+
+              </table>
+            </div>
+
+          </div>
+     
+                    {% if not form.instance.pk %}
+                    <button type="submit" class="btn btn-info " value="Submit">Create</button>
+                    {% else %}
+                    <button type="submit" class="btn btn-info " value="Submit">Update</button>
+                    {% endif %}
+
+        </div>
+
+      </div>
+
+
+
+
+  </form>
+</div>
+
+
+
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="{% static 'formset/jquery.formset.js' %}"></script>
+
+<script type="text/javascript">
+  $('.formset_row').formset({
+    addText: 'add stock',
+    deleteText: 'remove',
+    prefix: 'saletotal'
+  });
+</script>
+
+<script type="text/javascript">
+  $('.formset_row_1').formset({
+    addText: 'add ledgers',
+    deleteText: 'remove',
+    prefix: 'salesextra'
+  });
+</script>
+
+<script type="text/javascript">
+  $('.formset_row_2').formset({
+    addText: 'add charges',
+    deleteText: 'remove',
+    prefix: 'salesgst'
+  });
+</script>
+
+{% endblock %}

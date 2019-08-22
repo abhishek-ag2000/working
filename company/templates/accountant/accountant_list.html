@@ -21,7 +21,7 @@
                     <a href="{% url 'company:list' %}">Company list</a>
                     </li>
                     <li class="breadcrumb-item">
-                    <a href="{% url 'company:company_details' pk=company_details.pk %}">Company Settings</a>
+                    <a href="{% url 'company:company_details' company_pk=company.pk %}">Company Settings</a>
                     </li>
                     <li class="breadcrumb-item active">
                     <strong>Accountants List</strong>
@@ -29,7 +29,7 @@
                 </ol>
                 <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Select Company </a>
                 <a href="{% url 'company:create' %}" class="btn btn-warning" role="button">Create Company details</a>
-                <a href="{% url 'company:search_accountant' pk=company_details.pk %}" class="btn btn-primary" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Accountant</a>
+                <a href="{% url 'company:search_accountant' company_pk=company.pk %}" class="btn btn-primary" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Accountant</a>
                 <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                                           <td><center><a href="#">{{accountant}}</a></center></td>
 
                                           <td>
-                                              <center><a href="{% url 'company:delete_accountant' pk=company_details.pk pk2=accountant.profile.pk %}" data-balloon="remove this member" class="text-danger btn btn-danger" onclick="return confirm_delete();">
+                                              <center><a href="{% url 'company:delete_accountant' company_pk=company.pk pk2=accountant.profile.pk %}" data-balloon="remove this member" class="text-danger btn btn-danger" onclick="return confirm_delete();">
                                                     <i class="fa fa-trash" style="color: white"></i>
                                                 </a></center>
                                           </td> 

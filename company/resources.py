@@ -1,6 +1,16 @@
+"""
+Resources
+"""
 from import_export import resources
-from .models import company
+from .models import Company
+
 
 class CompanyResource(resources.ModelResource):
-	class Meta:
-		model = company
+    """
+    Company Resource
+    """
+    class Meta:
+        """
+        Meta
+        """
+        model = Company

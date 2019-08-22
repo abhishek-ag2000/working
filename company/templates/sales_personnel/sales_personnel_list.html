@@ -21,7 +21,7 @@
                     <a href="{% url 'company:list' %}">Company list</a>
                     </li>
                     <li class="breadcrumb-item">
-                    <a href="{% url 'company:company_details' pk=company_details.pk %}">Company Settings</a>
+                    <a href="{% url 'company:company_details' company_pk=company.pk %}">Company Settings</a>
                     </li>
                     <li class="breadcrumb-item active">
                     <strong>Sales Personnals List</strong>
@@ -29,7 +29,7 @@
                 </ol>
                 <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Select Company </a>
                 <a href="{% url 'company:create' %}" class="btn btn-warning" role="button">Create Company details</a>
-                <a href="{% url 'company:search_sales_personal' pk=company_details.pk %}" class="btn btn-primary" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Sales Personnel</a>
+                <a href="{% url 'company:search_sale_personel' company_pk=company.pk %}" class="btn btn-primary" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Sales Personnel</a>
                 </div>
             </div>
 
@@ -53,7 +53,7 @@
 
                                 <tbody>
 
-                                      {% for sales in company_details.sales_personal.all %}
+                                      {% for sales in company_details.sale_personel.all %}
                                         <tr>
 
                                           <td><center><a href="#">{{ forloop.counter }}</a></center></td>
@@ -62,7 +62,7 @@
                                           <td><center><a href="#">{{sales}}</a></center></td>
 
                                           <td>
-                                              <center><a href="{% url 'company:delete_sales_personal' pk=company_details.pk pk2=sales.profile.pk %}" data-balloon="remove this member" class="text-danger btn btn-danger" onclick="return confirm_delete();">
+                                              <center><a href="{% url 'company:delete_sale_personel' company_pk=company.pk pk2=sales.profile.pk %}" data-balloon="remove this member" class="text-danger btn btn-danger" onclick="return confirm_delete();">
                                                     <i class="fa fa-trash" style="color: white"></i>
                                                 </a></center>
                                           </td> 

@@ -1,0 +1,1782 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% block title %}Ledger Details{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h3>Ledger Details</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a
+                    href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a
+                    href="{% url 'accounting_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Ledger
+                    List</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Ledger Details</strong>
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'accounting_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-primary" role="button">Select Ledger </a>
+        <a href="{% url 'accounting_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-warning" role="button">Create Ledger</a>
+        <a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk ledger_master_pk=ledger_master.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-success" role="button">Ledger List View</a>
+
+        <button class="btn btn-info show-form-update pull-right"
+            data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            Update Period
+        </button>
+
+        <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+            <strong>Selected Period: From</strong>
+            {{ period_selected.start_date|date }}
+            <strong>To</strong>
+            {{ period_selected.end_date|date }} &nbsp;
+
+        </a>
+
+    </div>
+</div>
+
+<div id="printableArea">
+
+    <style>
+        @media print {
+            a[href]:after {
+                content: none !important;
+            }
+
+            @page {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+
+            body {
+                padding-top: 72px;
+                padding-bottom: 72px;
+            }
+        }
+    </style>
+
+    <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+
+                        <div class="table-responsive">
+                            <table class="table table-hover" data-page-size="15" id="book-table">
+                                <tr>
+                                    <th>
+                                        <h4>Debit</h4>
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th class="text-center">
+                                        <h2>{{ ledger_master.ledger_name }}</h2>
+                                        <small><strong>({{ledger_master.ledger_group}})</strong></small>
+                                    </th>
+                                    <th></th>
+
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+
+                                    <th class="text-right">
+                                        <h4>Credit</h4>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <center>Date</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Particulars</center>
+                                    </th>
+                                    <th>
+                                        <center>JF</center>
+                                    </th>
+                                    <th>
+                                        <center>Amount(Rs)</center>
+                                    </th>
+
+                                    <th>
+                                        <center>Date</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Particulars</center>
+                                    </th>
+                                    <th>
+                                        <center>JF</center>
+                                    </th>
+                                    <th>
+                                        <center>Amount(Rs)</center>
+                                    </th>
+                                </tr>
+
+                                {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+                                {% if opening_balance >= 0 %}
+                                <tr>
+                                    <th>
+                                        <center>{{ period_selected.start_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>To</center>
+                                    </th>
+                                    <th>
+                                        <center>Opening Balance</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>-</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+
+                                    <th>
+                                        <center>{{ period_selected.start_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>By</center>
+                                    </th>
+                                    <th>
+                                        <center>Opening Balance</center>
+                                    </th>
+
+                                    <th>
+                                        <center>-</center>
+                                    </th>
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+                                </tr>
+                                {% endif %}
+
+                                {% else %}
+
+                                {% if opening_balance >= 0 %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+
+                                    <th>
+                                        <center>{{ period_selected.start_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>By</center>
+                                    </th>
+                                    <th>
+                                        <center>Opening Balance</center>
+                                    </th>
+
+                                    <th>
+                                        <center>-</center>
+                                    </th>
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+                                </tr>
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center>{{ period_selected.start_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>To</center>
+                                    </th>
+                                    <th>
+                                        <center>Opening Balance</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>-</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                </tr>
+                                {% endif %}
+
+                                {% endif %}
+
+
+                                {% if n %}
+
+                                {% for i in n %}
+
+                                <tr>
+                                    {% for j in i|slice:"0:1" %}
+                                    {% if j == None %}
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    {% else %}
+
+                                    <td>
+                                        <center>{{ j.voucher_date}}</center>
+                                    </td>
+                                    <td>
+                                        <center>To</center>
+                                    </td>
+                                    {% if ledger_master.name == 'Profit & Loss A/c' %}
+                                    {% if j.stock %}
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}&nbsp;
+                                                ({{ j.stock }})</a></center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                    {% else %}
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                    <td>
+                                        <center>{{ j.id }}</center>
+                                    </td>
+                                    <td>
+                                        <center>{{j.amount|abs|floatformat:2|intcomma}}</center>
+                                    </td>
+
+                                    {% endif %}
+                                    {% endfor %}
+
+                                    {% for k in i|slice:"1:2" %}
+
+
+                                    {% if k == None %}
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    {% else %}
+
+                                    <td>
+                                        <center>{{ k.voucher_date}}</center>
+                                    </td>
+                                    <td>
+                                        <center>By</center>
+                                    </td>
+                                    {% if ledger_master.name == 'Profit & Loss A/c' %}
+                                    {% if k.stock %}
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.dr_ledger}}&nbsp;
+                                                ({{ k.stock }})</a></center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.dr_ledger}}</a>
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                    {% else %}
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.dr_ledger}}</a>
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                    <td>
+                                        <center>{{ k.id }}</center>
+                                    </td>
+                                    <td>
+                                        <center>{{ k.amount|abs|floatformat:2|intcomma }}</center>
+                                    </td>
+
+                                    {% endif %}
+
+                                    {% endfor %}
+
+
+                                </tr>
+                                {% endfor %}
+
+
+
+
+                                {% else %}
+
+                                {% for journal in journal_debit %}
+
+                                <tr>
+                                    <td>
+                                        <center>{{ journal.voucher_date}}</center>
+                                    </td>
+                                    <td>
+                                        <center>To</center>
+                                    </td>
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=journal.pk period_selected_pk=period_selected.pk %}">{{journal.cr_ledger}}</a>
+                                        </center>
+                                    </th>
+                                    <td>
+                                        <center>{{ journal.id }}</center>
+                                    </td>
+                                    <td>
+                                        <center>{{journal.amount|abs|floatformat:2|intcomma}}</center>
+                                    </td>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                </tr>
+
+
+                                {% endfor %}
+
+
+                                {% for journal in journal_credit %}
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <td>
+                                        <center>{{ journal.voucher_date}}</center>
+                                    </td>
+                                    <td>
+                                        <center>By</center>
+                                    </td>
+                                    <th>
+                                        <center><a
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=journal.pk period_selected_pk=period_selected.pk %}">{{journal.dr_ledger}}</a>
+                                        </center>
+                                    </th>
+                                    <td>
+                                        <center>{{ journal.id }}</center>
+                                    </td>
+                                    <td>
+                                        <center>{{journal.amount|abs|floatformat:2|intcomma}}</center>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                                {% endif %}
+
+
+
+                                {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+
+                                {% if closing_balance >= 0 %}
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>{{ period_selected.end_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>By</center>
+                                    </th>
+                                    <th>
+                                        <center>Closing Balance</center>
+                                    </th>
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center>{{ period_selected.end_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>To</center>
+                                    </th>
+                                    <th>
+                                        <center>Closing Balance</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                </tr>
+
+                                {% endif %}
+
+
+
+                                {% else %}
+                                <!-- main -->
+
+                                {% if closing_balance >= 0 %}
+                                <tr>
+                                    <th>
+                                        <center>{{ period_selected.end_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>To</center>
+                                    </th>
+                                    <th>
+                                        <center>Closing Balance</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                </tr>
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>{{ period_selected.end_date}}</center>
+                                    </th>
+                                    <th>
+                                        <center>By</center>
+                                    </th>
+                                    <th>
+                                        <center>Closing Balance</center>
+                                    </th>
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                </tr>
+
+                                {% endif %}
+                                {% endif %}
+
+                                {% if ledger_master.name != 'Profit & Loss A/c' %}
+
+                                {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+
+                                {% if opening_balance >= 0 %}
+
+                                {% if closing_balance >= 0 %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>{{ total_debit|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>{{ total_debit_pl|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit and total_debit_pl %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:total_debit|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>{{ total_credit|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>{{ total_credit_pl|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|add:total_credit|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:total_debit|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>{{ total_credit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>{{ total_credit_pl|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ total_credit_pl|add:total_credit|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+
+
+                                </tr>
+
+                                {% endif %}
+
+                                {% else %}
+
+                                {% if closing_balance >= 0 %}
+
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>{{ total_debit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>{{ total_debit_pl|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ total_debit_pl|add:total_debit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit|sub:opening_balance|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|sub:opening_balance|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|add:total_credit|sub:opening_balance|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>{{ total_credit|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>{{ total_credit_pl|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|add:total_credit|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit|sub:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|sub:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:total_debit|sub:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ total_credit|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% endif %}
+
+
+                                {% else %}
+
+                                {% if opening_balance >= 0 %}
+
+                                {% if closing_balance >= 0 %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>{{ total_credit|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>{{ total_credit_pl|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|add:total_credit|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>{{ total_debit|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>{{ total_debit_pl|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:total_debit|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|add:total_credit|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>{{ total_debit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>{{ total_debit_pl|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ total_debit_pl|add:total_debit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+
+                                {% endif %}
+                                {% else %}
+
+                                {% if closing_balance >= 0 %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>{{ total_credit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>{{ total_credit_pl|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ total_credit_pl|add:total_credit|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+
+
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit|add:closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:total_debit|add:closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    {% if total_debit and not total_debit_pl %}
+                                    <th>
+                                        <center>{{ total_debit|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and not total_debit %}
+                                    <th>
+                                        <center>{{ total_debit_pl|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_debit_pl and total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit_pl|add:total_debit|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit and not total_credit_pl %}
+                                    <th>
+                                        <center>{{ total_credit|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and not total_credit %}
+                                    <th>
+                                        <center>{{ total_credit_pl|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% elif total_credit_pl and total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit_pl|add:total_credit|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+
+                                {% endif %}
+                                {% endif %}
+
+                                {% endif %}
+
+                                {% else %}
+                                <!-- no profit & Loss -->
+
+                                {% if ledger_master.ledger_group.group_base.is_debit == 'Yes' %}
+
+                                {% if opening_balance >= 0 %}
+
+                                {% if closing_balance >= 0 %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit %}
+                                    <th>
+                                        <center>{{ total_debit|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit %}
+                                    <th>
+                                        <center>{{ total_credit|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+                                {% else %} <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>{{ total_credit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+
+
+                                </tr>
+
+                                {% endif %}
+
+                                {% else %}
+
+                                {% if closing_balance >= 0 %}
+
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>{{ total_debit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit|sub:opening_balance|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit %}
+                                    <th>
+                                        <center>{{ total_credit|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit|sub:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% endif %}
+
+
+                                {% else %}
+
+                                {% if opening_balance >= 0 %}
+
+                                {% if closing_balance >= 0 %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit %}
+                                    <th>
+                                        <center>{{ total_credit|add:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit %}
+                                    <th>
+                                        <center>{{ total_debit|add:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit %}
+                                    <th>
+                                        <center>
+                                            {{ total_credit|add:opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+                                    <th>
+                                        <center>{{ opening_balance|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>{{ total_debit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+
+
+                                </tr>
+
+                                {% endif %}
+                                {% else %}
+
+                                {% if closing_balance >= 0 %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    <th>
+                                        <center>{{ total_credit|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+
+
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_debit %}
+                                    <th>
+                                        <center>
+                                            {{ total_debit|add:closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ closing_balance|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+
+                                    {% if total_debit %}
+                                    <th>
+                                        <center>{{ total_debit|sub:opening_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ opening_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+
+
+
+
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    <th>
+                                        <center>Total:</center>
+                                    </th>
+                                    <th>
+                                        <center></center>
+                                    </th>
+                                    {% if total_credit %}
+                                    <th>
+                                        <center>{{ total_credit|sub:closing_balance|abs|floatformat:2|intcomma }}
+                                        </center>
+                                    </th>
+                                    {% else %}
+
+                                    <th>
+                                        <center>{{ closing_balance|abs|floatformat:2|intcomma }}</center>
+                                    </th>
+                                    {% endif %}
+                                </tr>
+
+                                {% endif %}
+                                {% endif %}
+
+                                {% endif %}
+
+                                {% endif %}
+
+
+                            </table>
+                        </div>
+
+                        <br>
+                        <p><input class='btn btn-default' type="button" onclick="printDiv('printableArea')"
+                                value="Print" />
+
+                            <a class='btn btn-warning'
+                                href="{% url 'accounting_entry:ledgerupdate' company_pk=company.pk ledger_master_pk=ledger_master.pk period_selected_pk=period_selected.pk %}">Update
+                                Ledger</a>
+
+                            <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated fadeIn"></div>
+    </div>
+</div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+</div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
+<script type="text/javascript">
+
+    function printDiv(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+
+    }
+
+</script>
+{% endblock %}

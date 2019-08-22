@@ -1,4 +1,6 @@
-
+/*
+Date Range Selection Modal Event Handling
+*/
 $(document).ready(function () {
   var ShowForm = function () {
     var btn = $(this)
@@ -12,6 +14,10 @@ $(document).ready(function () {
       },
       success: function (data) {
         $('#modal-book-date .modal-content').html(data.html_form)
+        if(data.is_error){
+          $('modal_div_alert').html(data.error_message)
+          $('modal_div_alert').show()
+        }
       }
     })
   }
@@ -23,13 +29,21 @@ $(document).ready(function () {
       data: form.serialize(),
       type: form.attr('method'),
       dataType: 'json',
+      error: function(xhr, error){
+        $('#modal_div_alert').html('<b>Request Status: </b>' + xhr.status + '<br /><b>Status Text: </b>' + xhr.statusText + '<br /><b>Response: </b>' + xhr.responseText)
+        $('#modal_div_alert').show()
+      },
       success: function (data) {
         jQuery.noConflict()
-        if (data.form_is_valid) {
-          $('#book-table-date tbody').html(data.selectdatefields_list)
-          $('#modal-book-date').modal('hide')
-        } else {
+        if(data.is_error){
           $('#modal-book-date .modal-content').html(data.html_form)
+          $('#modal_div_alert').html(data.error_message)
+          $('#modal_div_alert').show()
+        }
+        else{
+          $('#modal-book-date').modal('hide')
+          
+          window.location.reload();
         }
       }
     })
@@ -37,8 +51,8 @@ $(document).ready(function () {
   }
 
   // create
-  $('.show-form').click(ShowForm)
-  $('#modal-book-date').on('submit', '.create-form', SaveForm)
+  // $('.show-form').click(ShowForm)
+  // $('#modal-book-date').on('submit', '.create-form', SaveForm)
 
   // update
   $('.show-form-update').click(ShowForm)

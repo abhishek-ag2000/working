@@ -99,8 +99,8 @@
                         <td class="check-mail">
                             <input type="checkbox" class="i-checks">
                         </td>
-                        <td class="mail-ontact"><a href="{% url 'messaging:messagedetails' pk=message.pk %}">{{ message.sender }}</a></td>
-                        <td class="mail-subject"><a href="{% url 'messaging:messagedetails' pk=message.pk %}">{{ message.subject|safe|truncatewords:"4" }}</a></td>
+                        <td class="mail-ontact"><a href="{% url 'messaging:messagedetails' message_pk=message.pk %}">{{ message.sender }}</a></td>
+                        <td class="mail-subject"><a href="{% url 'messaging:messagedetails' message_pk=message.pk %}">{{ message.subject|safe|truncatewords:"4" }}</a></td>
                         <td class=""><i class="fa fa-paperclip"></i></td>
                         <td class="text-right mail-date">{{ message.created_at}}</td>
                     </tr>

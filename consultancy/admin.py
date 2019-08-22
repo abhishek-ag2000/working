@@ -1,6 +1,8 @@
+"""
+Admin
+"""
 from django.contrib import admin
-from consultancy.models import consultancy,Answer
-# Register your models here.
+from .models import Consultancy, Answer
 
-admin.site.register(consultancy)
+admin.site.register(Consultancy)
 admin.site.register(Answer)

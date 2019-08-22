@@ -19,9 +19,9 @@
         </form>
         <br>
 
-          {% if blog_details.User == user %}
-              <p><a class='btn btn-warning btn-md' href="{% url 'blog:blogupdate' pk=blog_details.pk %}">Update This Blog</a>
-                <a class='btn btn-danger btn-md' href="{% url 'blog:blogdelete' pk=blog_details.pk %}">Delete This Blog</a></p>
+          {% if blog_details.user == user %}
+              <p><a class='btn btn-warning btn-md' href="{% url 'blog:blogupdate' blog_pk=blog_details.pk %}">Update This Blog</a>
+                <a class='btn btn-danger btn-md' href="{% url 'blog:blogdelete' blog_pk=blog_details.pk %}">Delete This Blog</a></p>
 
           {% endif %}
 

@@ -5,73 +5,77 @@
 
 {% block content %}
 
-            <div class="row wrapper border-bottom white-bg page-heading">
-                <div class="col-lg-12">
-                    <h2>Section Details</h2>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'legal_database:categorieslist' %}">Legal Categories</a>
-                    </li>
-                    {% if section_details.state_act %}
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'legal_database:state_act' pk=section_details.state_act.pk %}">State Act Details</a>
-                        </li>
-                    {% else %}
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'legal_database:central_act' pk=section_details.central_act.pk %}">Central Act Details</a>
-                        </li>
-                    {% endif %}
-                    <li class="breadcrumb-item active">
-                        <strong>Section Details</strong>
-                    </li>
-                </ol>
-            
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Section Details</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'legal_database:categorieslist' %}">Legal Categories</a>
+            </li>
+            {% if section_details.state_act %}
+            <li class="breadcrumb-item">
+                <a href="{% url 'legal_database:state_act' state_bare_act_pk=section_details.state_act.pk %}">State Act
+                    Details</a>
+            </li>
+            {% else %}
+            <li class="breadcrumb-item">
+                <a href="{% url 'legal_database:central_act' central_bare_act_pk=section_details.central_act.pk %}">Central
+                    Act Details</a>
+            </li>
+            {% endif %}
+            <li class="breadcrumb-item active">
+                <strong>Section Details</strong>
+            </li>
+        </ol>
 
 
+
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+
+                <div class="ibox-title">
+                    <h2>
+                        <center><strong>{{ section_details.title }}</strong></center>
+                    </h2>
+                </div>
+
+                <div class="ibox-content">
+                    <p>{{ section_details.body|safe|linebreaks }}</p>
+                </div>
+                <div class="ibox-content">
+                    <p><strong> ** SITEMAP **</strong></p>
+                    <p>{{ section_details.sitations|safe|linebreaks }}</p>
                 </div>
             </div>
-        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
-
-
-
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="ibox">
-
-                    <div class="ibox-title">
-                            <h2><center><strong>{{ section_details.title }}</strong></center></h2>
-                        </div>
-                        
-                        <div class="ibox-content">
-                            <p>{{ section_details.body|safe|linebreaks }}</p>
-                        </div>
-                        <div class="ibox-content">
-                        <p><strong> ** SITEMAP **</strong></p>
-                            <p>{{ section_details.sitations|safe|linebreaks }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
         </div>
-
-
-  <div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content animated fadeIn"></div>
     </div>
-  </div>
 
-  <div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+
+</div>
+
+
+<div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content animated flipInY"></div>
+        <div class="modal-content animated fadeIn"></div>
     </div>
-  </div>
-  
+</div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+</div>
+
 
 
 {% endblock %}

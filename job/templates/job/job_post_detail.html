@@ -1,0 +1,65 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+
+
+{% block title %}Job Post{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content animated fadeIn">
+		<div class="ibox-content m-b-sm border-bottom">
+				<div class="col-lg-12 ">
+					<div class="col-lg-12 row">
+						<div class="col-lg-2">
+								<div class=" " >
+										<div class="social-avatar">
+												{% if job.image %}
+												<img alt="image" class="rounded-circle" style="width: 100px;height: 97px;" src="{{ job.image.url }}/">
+												{% else %}
+												<img alt="image" class="rounded-circle" style="width: 100px;height: 97px;" src="{% static 'userprofile/download (1).jpg' %}">
+												{% endif %}
+
+										</div>
+								</div>
+						</div>
+						<div class="col-lg-6 p-4">
+								<h2 class="">{{job.seniority }} </h2>
+								<span>{{job.company }}.<samll><i class="fa fa-map-marker"></i> {{job.location}}</samll></span>
+						</div>
+						<div class="col-lg-4 pt-5">
+							<button class="btn btn-info pull-right">Apply</button>
+						</div>
+								
+					</div>
+					<hr>
+					<div class="col-lg-12 row">
+						<div class="col-lg-9">
+								{{job.job_desc|safe }}
+						</div>
+						<div class="col-lg-3">
+							<h3 class="forum-item-title">Seniority Level</h3>
+							<p class="forum-sub-title">{{job.seniority}}</p>
+							<h3 class="forum-item-title">Industry</h3>
+							<p class="forum-sub-title">{{job.company_industry}}</p>
+							<h3 class="forum-item-title">Employment Type</h3>
+							<p class="forum-sub-title">{{job.employment_type}}</p>
+							<h3 class="forum-item-title">Job Functions</h3>
+							<p class="forum-sub-title">{{job.job_function}}</p>
+						</div>
+					</div>
+					
+					
+				
+				</div>
+				
+				
+					
+				
+				
+			</div>
+			
+	
+</div>	
+	
+
+{% endblock %}

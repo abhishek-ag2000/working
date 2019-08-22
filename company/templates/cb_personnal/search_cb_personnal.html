@@ -19,17 +19,17 @@
                         <a href="{% url 'company:list' %}">Company list</a>
                     </li>
                     <li class="breadcrumb-item">
-                        <a href="{% url 'company:company_details' pk=company_details.pk %}">Company Settings</a>
+                        <a href="{% url 'company:company_details' company_pk=company.pk %}">Company Settings</a>
                     </li>
                     <li class="breadcrumb-item">
-                        <a href="{% url 'company:cb_personal_list' pk=company_details.pk %}">Cash Bank Personnel list</a>
+                        <a href="{% url 'company:cb_personal_list' company_pk=company.pk %}">Cash Bank Personnel list</a>
                     </li>
                     <li class="breadcrumb-item active">
                     <strong>Find Cash Bank Personnel</strong>
                     </li>
                 </ol>
                 <br>
-                <a href="{% url 'company:cb_personal_list' pk=company_details.pk %}" class="btn btn-warning" role="button">View Cash Bank Personnel list</a> 
+                <a href="{% url 'company:cb_personal_list' company_pk=company.pk %}" class="btn btn-warning" role="button">View Cash Bank Personnel list</a> 
                 </div>
             </div>
 <br>
@@ -37,7 +37,7 @@
             <br>
                 <div class="col-lg-12">
                 <br>
-                     <form method='GET' class="form-horizontal" id="search-form" action="{% url 'company:search_cb_personal' pk=company_details.pk %}">
+                     <form method='GET' class="form-horizontal" id="search-form" action="{% url 'company:search_cb_personal' company_pk=company.pk %}">
 
                         <div class="col-lg-11 col-md-11 col-sm-11 col-xs-10">
                           <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Cash Bank Personnel Here">
@@ -64,7 +64,7 @@
                 <div class="contact-box center-version">
 
 
-                    <a href="{% url 'userprofile:specific_profile' pk=prof.pk %}">
+                    <a href="{% url 'user_profile:specific_profile' pk=prof.pk %}">
                         {% if prof.image %}
                             <img alt="image" class="rounded-circle" src="{{ prof.image.url }}/">
                         {% else %}
@@ -76,7 +76,7 @@
 
                         <div class="font-bold">{{ prof.user_type }}</div>
                         <address class="m-t-md">
-                            {{ prof.Permanant_Address }}<br>
+                            {{ prof.permanent_Address }}<br>
                             State: {{ prof.State }}<br>
                             <abbr title="Phone">P:</abbr> {{ prof.Phone_no }}
                         </address>
@@ -85,7 +85,7 @@
                     <div class="contact-box-footer">
                         <div class="m-t-xs btn-group">
                             {% if not user in company_details.cb_personal.all %}
-                              <a href="{% url 'company:add_cb_personal' pk=company_details.pk pk2=prof.pk %}" class="btn btn-info" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Cash Bank personnel</a>
+                              <a href="{% url 'company:add_cb_personal' company_pk=company.pk pk2=prof.pk %}" class="btn btn-info" role="button"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Cash Bank personnel</a>
                             {% else %}
                               <a href="#" class="btn btn-primary" role="button">Already added</a>
                             {% endif %}

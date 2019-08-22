@@ -1,0 +1,61 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+
+
+{% block title %}Job Post{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+
+        {% for job in joblist %}
+        <div class="col-md-3">
+            <div class="ibox">
+                <div class="ibox-content product-box">
+                    <div>
+                        {% if job.image %}
+                        <img class="img-fluid p-2" src="{{ job.image.url }}/" alt="company logo" height="200" width="100">
+                        {% else %}
+                        <img class="img-fluid p-2" alt="image" height="200" width="100" src="{% static 'userprofile/download (1).jpg' %}">
+                        {% endif %}
+
+                    </div>
+                  
+                    
+                    <p style="position: absolute; right: 10%;font-size: 0.7rem;">
+                        {{job.date|timesince}}&nbsp;ago </p>
+                    <div class="product-desc p-2">
+                        <a href="{% url 'job:job' pk=job.pk %}" class="product-name ">{{ job.job_title}} </a>
+                        <div class="  m-t-xs">
+                            <a href="{% url 'job:job' pk=job.pk %}"
+                                class="text-dark text-justify">{{ job.job_desc|safe|truncatewords:9 }}</a>
+                        </div>
+                        <a href="" class="">{{ job.company}} </a>
+                        <div class="p-1">
+
+                            <i class="fa fa-map-marker"></i> {{ job.location }}
+                        </div>
+
+                        <div class="ratings">
+                            <p class="pull-right"></p>
+
+                            <style type="text/css">
+                                .checked {
+                                    color: orange;
+                                }
+                            </style>
+                         
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}

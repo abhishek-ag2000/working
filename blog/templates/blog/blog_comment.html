@@ -7,17 +7,17 @@
       <div class="social-feed-box">
           <div class="social-avatar">
               <a href="" class="float-left">
-              {% if comment.User.profile.image %}
-                  <img alt="image" src="{{ comment.User.profile.image.url }}/">
+              {% if comment.user.profile.image %}
+                  <img alt="image" src="{{ comment.user.profile.image.url }}/">
               {% else %}
                 <img alt="image" src="{% static 'userprofile/download (1).jpg' %}">
               {% endif %}
               </a>
               <div class="media-body">
-                  <a href="{% url 'userprofile:specific_profile' pk=comment.User.profile.pk %}">
-                      {{ comment.User }}
+                  <a href="{% url 'user_profile:specific_profile' profile_pk=comment.user.profile.pk %}">
+                      {{ comment.user }}
                   </a>
-                  <small class="text-muted"> {{ comment.Date|timesince }} ago</small>
+                  <small class="text-muted"> {{ comment.date|timesince }} ago</small>
               </div>
           </div>
           <div class="social-body">
@@ -35,7 +35,7 @@
         {% csrf_token %}
 
         <div class="input-group input-group-sm">
-            {{ Blog_comments_user_form.text}}
+            {{ blog_comment_form.text}}
             <div class="input-group-append">
                 <input type="submit" class="btn btn-info pull-right" value="Submit">
             </div>

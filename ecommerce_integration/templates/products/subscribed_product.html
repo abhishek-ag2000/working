@@ -5,235 +5,276 @@
 
 {% block content %}
 
-            <div class="row wrapper border-bottom white-bg page-heading">
-                <div class="col-lg-10">
-                    <h2>Subscribed product list</h2>
-                </div>
-                <div class="col-lg-2">
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Subscribed product list</h2>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+{% if active_product_1 %}
+<div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+
+                    <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
+                        <thead>
+                            <tr>
+
+                                <th data-toggle="true">Sl No</th>
+                                <th data-hide="phone">Product Name</th>
+                                <th data-hide="all">Subscribed On</th>
+                                <th data-hide="phone">Activate or Deactivate</th>
+                                <th data-hide="phone,tablet">Valid Till</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for products in user.profile.subscribed_products.all %}
+                            <tr>
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+                                <td>
+                                    <a
+                                        href="{% url 'ecommerce_integration:productdetail' product_pk=products.pk %}">{{ products.title}}</a>
+                                </td>
+                                {% for productactivate in products.product_activate.all %}
+                                {% if productactivate.user == user %}
+                                <td><strong>{{ productactivate.date }}</td>
+                                {% if productactivate.is_active == False %}
+                                <td><a class="btn btn-success"
+                                        href="{% url 'user_profile:activate' productactivate.id %}">Activate</a></td>
+                                {% else %}
+                                <td><a class="btn btn-danger"
+                                        href="{% url 'user_profile:deactivate' productactivate.id %}">Deactivate</a>
+                                </td>
+                                {% endif %}
+                                {% endif %}
+                                {% endfor %}
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6">
+                                    <ul class="pagination float-right"></ul>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
                 </div>
             </div>
-    {% if products %}
-        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
-
-
-
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="ibox">
-                        <div class="ibox-content">
-
-                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
-                                <thead>
-                                <tr>
-
-                                    <th data-toggle="true">Sl No</th>
-                                    <th data-hide="phone">Product Name</th>
-                                    <th data-hide="all">Subscribed On</th>
-                                    <th data-hide="phone">Activate or Decativate</th>
-                                    <th data-hide="phone,tablet" >Valid Till</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    {% for products in user.profile.subscribed_products.all %}
-                                        <tr>
-                                            <td>
-                                               {{ forloop.counter }}
-                                            </td>
-                                            <td>
-                                               <a href="{% url 'ecommerce_integration:productdetail' pk=products.pk %}">{{ products.title}}</a>
-                                            </td>
-                                            {% for productactivate in products.product_activate.all %}
-                                                {% if productactivate.User == user %}
-                                                  <td><strong>{{ productactivate.date }}</td>
-                                                  {% if productactivate.is_active == False %}
-                                                    <td><a class="btn btn-success" href="{% url 'userprofile:activate' productactivate.id %}">Activate</a></td>
-                                                  {% else %}
-                                                    <td><a class="btn btn-danger" href="{% url 'userprofile:deactivate' productactivate.id %}">DeActivate</a></td>
-                                                  {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <td colspan="6">
-                                        <ul class="pagination float-right"></ul>
-                                    </td>
-                                </tr>
-                                </tfoot>
-                            </table>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
         </div>
-    {% endif %}
-
-            <div class="row wrapper border-bottom white-bg page-heading">
-                <div class="col-lg-10">
-                    <h2>Role Based product list</h2>
-                </div>
-                <div class="col-lg-2">
-
-                </div>
-            </div>
-
-    {% if role_products_list %}
-
-        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+    </div>
 
 
+</div>
+{% endif %}
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="ibox">
-                        <div class="ibox-content">
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Role Based product list</h2>
+    </div>
+    <div class="col-lg-2">
 
-                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
-                                <thead>
-                                <tr>
+    </div>
+</div>
 
-                                    <th data-toggle="true">Sl No</th>
-                                    <th data-hide="phone">Product Name</th>
-                                    <th data-hide="all">See Details</th>
-                                    <th data-hide="phone">Activate or Decativate</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    {% for products in user.profile.subscribed_role_products.all %}
-                                        <tr>
-                                            <td>
-                                               {{ forloop.counter }}
-                                            </td>
-                                            <td>
-                                               <a href="{% url 'ecommerce_integration:roleproductdetail' pk=products.pk %}">{{ products.title}}</a>
-                                            </td>
-                                            {% for productactivate in products.role_product_activate.all %}
-                        {% if productactivate.User == user %}
-                          {% if productactivate.is_active == False %}
-                          <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{ products.pk }}">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                            </button></td>
+{% if role_products_list %}
+
+<div class="wrapper wrapper-content animated fadeInRight ecommerce">
 
 
-                            <div class="modal inmodal" id="{{ products.pk }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content animated flipInY">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                                            <h4 class="modal-title">{{ products.title }}</h4>
-                                            
-                                        </div>
-                                        <div class="modal-body">
-                                            
-                                                <p><center><strong>Shared Company List</strong></center></p>
-                                            <ul>
-                                                <li style="color: red"><center><strong></strong>Activate the product to see the Shared Company list</center></li> 
-                                                <br>
-                                            </ul>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                                            
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+
+                    <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
+                        <thead>
+                            <tr>
+
+                                <th data-toggle="true">Sl No</th>
+                                <th data-hide="phone">Product Name</th>
+                                <th data-hide="all">See Details</th>
+                                <th data-hide="phone">Activate or Decativate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for products in user.profile.subscribed_role_products.all %}
+                            <tr>
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+                                <td>
+                                    <a
+                                        href="{% url 'ecommerce_integration:roleproductdetail' product_pk=products.pk %}">{{ products.title}}</a>
+                                </td>
+                                {% for productactivate in products.role_product_activate.all %}
+                                {% if productactivate.user == user %}
+                                {% if productactivate.is_active == False %}
+                                <td><button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#{{ products.pk }}">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </button></td>
+
+
+                                <div class="modal inmodal" id="{{ products.pk }}" tabindex="-1" role="dialog"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content animated flipInY">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span
+                                                        class="sr-only">Close</span></button>
+                                                <h4 class="modal-title">{{ products.title }}</h4>
+
+                                            </div>
+                                            <div class="modal-body">
+
+                                                <p>
+                                                    <center><strong>Shared Company List</strong></center>
+                                                </p>
+                                                <ul>
+                                                    <li style="color: red">
+                                                        <center><strong></strong>Activate the product to see the Shared
+                                                            Company list</center>
+                                                    </li>
+                                                    <br>
+                                                </ul>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-white"
+                                                    data-dismiss="modal">Close</button>
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <td><a class="btn btn-success" href="{% url 'userprofile:activate_roleproduct' productactivate.id %}">Activate</a></td>
-                          {% else %}
-                          <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{ products.pk }}">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                            </button></td>
+                                <td><a class="btn btn-success"
+                                        href="{% url 'user_profile:activate_roleproduct' productactivate.id %}">Activate</a>
+                                </td>
+                                {% else %}
+                                <td><button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#{{ products.pk }}">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </button></td>
 
-                            <div class="modal inmodal" id="{{ products.pk }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content animated flipInY">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                                            <h4 class="modal-title">{{ products.title }}</h4>
-                                            
-                                        </div>
-                                        <div class="modal-body">
-                                            
-                                                <p><center><strong>Shared Company List</strong></center></p>
-                                            <ul>
-                                            {% for i in shared_companys %}
-                                                {% for j in i|slice:"0:1" %}
+                                <div class="modal inmodal" id="{{ products.pk }}" tabindex="-1" role="dialog"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content animated flipInY">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span
+                                                        class="sr-only">Close</span></button>
+                                                <h4 class="modal-title">{{ products.title }}</h4>
+
+                                            </div>
+                                            <div class="modal-body">
+
+                                                <p>
+                                                    <center><strong>Shared Company List</strong></center>
+                                                </p>
+                                                <ul>
+                                                    {% for i in shared_companys %}
+                                                    {% for j in i|slice:"0:1" %}
                                                     {% if j != None %}
-                                                        <li><a href="#">{{ j.Name }}&nbsp; <strong> as a Auditor</strong></a></li>
-                                                        <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>&nbsp;<span>{{ j.User }}</span></p>
+                                                    <li><a href="#">{{ j.Name }}&nbsp; <strong> as a
+                                                                Auditor</strong></a></li>
+                                                    <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right"
+                                                                aria-hidden="true"></i></span>&nbsp;<span>{{ j.User }}</span>
+                                                    </p>
                                                     {% endif %}
-                                                {% endfor %}
+                                                    {% endfor %}
 
-                                                {% for k in i|slice:"1:2" %}
+                                                    {% for k in i|slice:"1:2" %}
                                                     {% if k != None %}
-                                                        <li><a href="#">{{ k.Name }}&nbsp; <strong> as a Accountant</strong></a></li>
-                                                        <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>&nbsp;<span>{{ k.User }}</span></p>
+                                                    <li><a href="#">{{ k.Name }}&nbsp; <strong> as a
+                                                                Accountant</strong></a></li>
+                                                    <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right"
+                                                                aria-hidden="true"></i></span>&nbsp;<span>{{ k.User }}</span>
+                                                    </p>
                                                     {% endif %}
-                                                {% endfor %}
+                                                    {% endfor %}
 
-                                                {% for l in i|slice:"2:3" %}
+                                                    {% for l in i|slice:"2:3" %}
                                                     {% if l != None %}
-                                                        <li><a href="#">{{ l.Name }}&nbsp; <strong> as a Purchase Personnel</strong></a></li>
-                                                        <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>&nbsp;<span>{{ l.User }}</span></p>
+                                                    <li><a href="#">{{ l.Name }}&nbsp; <strong> as a Purchase
+                                                                Personnel</strong></a></li>
+                                                    <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right"
+                                                                aria-hidden="true"></i></span>&nbsp;<span>{{ l.User }}</span>
+                                                    </p>
                                                     {% endif %}
-                                                {% endfor %}
+                                                    {% endfor %}
 
-                                                {% for m in i|slice:"3:4" %}
+                                                    {% for m in i|slice:"3:4" %}
                                                     {% if m != None %}
-                                                        <li><a href="#">{{ m.Name }}&nbsp; <strong> as a Sales Personnel</strong></a></li>
-                                                        <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>&nbsp;<span>{{ m.User }}</span></p>
+                                                    <li><a href="#">{{ m.Name }}&nbsp; <strong> as a Sales
+                                                                Personnel</strong></a></li>
+                                                    <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right"
+                                                                aria-hidden="true"></i></span>&nbsp;<span>{{ m.User }}</span>
+                                                    </p>
                                                     {% endif %}
-                                                {% endfor %}
+                                                    {% endfor %}
 
-                                                {% for n in i|slice:"4:5" %}
+                                                    {% for n in i|slice:"4:5" %}
                                                     {% if n != None %}
-                                                        <li><a href="#">{{ n.Name }}&nbsp; <strong> as a Cash Bank Personnel</strong></a></li>
-                                                        <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>&nbsp;<span>{{ n.User }}</span></p>
+                                                    <li><a href="#">{{ n.Name }}&nbsp; <strong> as a Cash Bank
+                                                                Personnel</strong></a></li>
+                                                    <p><span>Owner&nbsp;<i class="fa fa-long-arrow-right"
+                                                                aria-hidden="true"></i></span>&nbsp;<span>{{ n.User }}</span>
+                                                    </p>
                                                     {% endif %}
-                                                {% endfor %}
-                                            {% endfor %}
+                                                    {% endfor %}
+                                                    {% endfor %}
 
-                                            </ul>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                                            
+                                                </ul>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-white"
+                                                    data-dismiss="modal">Close</button>
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <td><a class="btn btn-danger" href="{% url 'userprofile:deactivate_roleproduct' productactivate.id %}">DeActivate</a></td>
-                          {% endif %}
-                        {% endif %}
-                      {% endfor %}
-                                            
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <td colspan="6">
-                                        <ul class="pagination float-right"></ul>
-                                    </td>
-                                </tr>
-                                </tfoot>
-                            </table>
+                                <td><a class="btn btn-danger"
+                                        href="{% url 'user_profile:deactivate_roleproduct' productactivate.id %}">Deactivate</a>
+                                </td>
+                                {% endif %}
+                                {% endif %}
+                                {% endfor %}
 
-                        </div>
-                    </div>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6">
+                                    <ul class="pagination float-right"></ul>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
                 </div>
             </div>
-
-
         </div>
-    {% endif %}
+    </div>
+
+
+</div>
+{% endif %}
 
 
 

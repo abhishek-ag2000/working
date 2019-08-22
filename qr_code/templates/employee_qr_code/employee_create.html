@@ -1,0 +1,189 @@
+{% extends "clouderp/base_qr.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+{% if not form.instance.pk %}
+Register Employees
+{% else %}
+Update Employees Info
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% include "snippet_common/snippet_company.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        {% if not form.instance.pk %}
+        <h3>Register Employees</h3>
+        {% else %}
+        <h3>Update Employees Info</h3>
+        {% endif %}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a
+                    href="{% url 'qr_code:qr_dashboard' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">QR-Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'qr_code:employee_qr' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">Employees
+                    List</a>
+            </li>
+
+            <li class="breadcrumb-item active">
+                {% if not form.instance.pk %}
+                <strong>Register Employees</strong>
+                {% else %}
+                <strong>Update Employees Info</strong>
+                {% endif %}
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'qr_code:employee_qr' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-success" role="button">Employees List</a>
+
+
+    </div>
+</div>
+
+<br>
+<form method="POST">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="ibox ">
+                <div class="ibox-title">
+                    {% if not form.instance.pk %}
+                    <h5>Register Employees</h5>
+                    {% else %}
+                    <h5>Update Employees Info</h5>
+                    {% endif %}
+
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                    {% csrf_token %}
+
+                    <style type="text/css">
+                        .errorlist {
+                            color: red;
+                        }
+                    </style>
+
+                    {{ form.non_field_errors }}
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Employee name<i class="material-icons"
+                                style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10">
+
+                            {{ form.employee_name.errors }}
+                            {{ form.employee_name }}
+
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Job Role</label>
+
+                        <div class="col-lg-10">
+                            {{ form.post.errors }}
+                            {{ form.post }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Email ID</label>
+
+                        <div class="col-lg-10">
+                            {{ form.email.errors }}
+                            {{ form.email }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Phone No</label>
+
+                        <div class="col-lg-10">
+                            {{ form.phone_no.errors }}
+                            {{ form.phone_no }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Salary</label>
+
+                        <div class="col-lg-10">
+                            {{ form.salary.errors }}
+                            {{ form.salary }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Date of Joining</label>
+
+                        <div class="col-lg-10">
+                            {{ form.joining_date.errors }}
+                            {{ form.joining_date }}
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="ibox ">
+                <div class="ibox-content">
+
+                    <div class="form-group row">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            {% if not form.instance.pk %}
+                            <button type="submit" class="btn btn-info pull-right" value="Submit">Register
+                                Employee</button>
+                            {% else %}
+                            <button type="submit" class="btn btn-info pull-right" value="Submit">Update Employees
+                                Info</button>
+                            {% endif %}
+                            <button type="button" class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+{% endblock %}

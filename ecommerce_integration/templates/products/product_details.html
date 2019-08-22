@@ -5,99 +5,98 @@
 
 {% block content %}
 
- <div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-10">
-                <h2>Product details</h2>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Product detail</strong>
-                    </li>
-                </ol>
-            </div>
-            <div class="col-lg-2">
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Product details</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Product detail</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
 
-            </div>
-        </div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
 
+            <div class="ibox product-detail">
+                <div class="ibox-content">
 
-        <div class="wrapper wrapper-content animated fadeInRight">
-            <div class="row">
-                <div class="col-lg-12">
-
-                    <div class="ibox product-detail">
-                        <div class="ibox-content">
-
-                            <div class="row">
-                                <div class="col-md-5">
+                    <div class="row">
+                        <div class="col-md-5">
 
 
-                                    <div class="product-images">
+                            <div class="product-images">
 
-                                        <div>
-                                            <div>
-                                                {% if products_details.image %}
-                                                    <img class="product_img" src="{{ products_details.image.url }}/" alt="product picture" height="100%" width="100%">
-                                                {% else %}
-                                                    <img src="{% static 'userprofile/comming soon.jpg' %}" alt="product picture" height="438" width="419">
-                                                {% endif %}
-                                            </div>
-                                        </div>
-
-
-                                    </div>
-
-                                </div>
-                                <div class="col-md-7">
-
-                                    <h2 class="font-bold m-b-xs">
-                                        {{ products_details.title}}
-                                    </h2>
-                                    
-                                    <hr>
+                                <div>
                                     <div>
-                                        {% if products_details in user.profile.subscribed_products.all %}
-                                            <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#myModal4">
-                                                SUBSCRIBED
-                                            </button>
-                                        {% elif products_details in current_order_products %}
-                                            <a href="{% url 'ecommerce_cart:order_summary' %}" class="btn btn-warning pull-right">Go to Cart</a>
+                                        {% if products_details.image %}
+                                        <img class="product_img" src="{{ products_details.image.url }}/"
+                                            alt="product picture" height="100%" width="100%">
                                         {% else %}
-                                            <a href="{% url 'ecommerce_cart:add_to_cart' products_details.id %}" class="btn btn-primary pull-right" onclick="return confirm_delete();"><i class="fa fa-shopping-cart" style="font-size:16px"></i>&nbsp; Add to cart</a>
+                                        <img src="{% static 'userprofile/comming soon.jpg' %}" alt="product picture"
+                                            height="438" width="419">
                                         {% endif %}
                                     </div>
-                                     <div>
-                                        <style type="text/css">
-                                          .checked {
-                                            color: orange;
-                                        }
-                                      </style>
-                                      <a href="#">{{ products_details.product_review.count }} Review{{ products_details.product_review.count|pluralize }}</a>
-                                        <div class="product-rating">
-                                          <i class="fa fa-star checked"></i>
-                                          <i class="fa fa-star checked"></i>
-                                          <i class="fa fa-star checked"></i>
-                                          <i class="fa fa-star-o empty"></i>
-                                          <i class="fa fa-star-o empty"></i>
-                                        </div>
-                                        
-                                      </div>
-                                    <hr>
-                                    <h4>Product description</h4>
-
-                                    <div class="small text-muted">
-                                        {{ products_details.description}}
-                                    </div>
-                                    <dl class="row m-t-md small">
-                                        <dt class="col-md-4 text-right">Summary</dt>
-                                        <dd class="col-md-8">{{ products_details.summary}}</dd>
-                                    </dl>
-
-
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-md-7">
+
+                            <h2 class="font-bold m-b-xs">
+                                {{ products_details.title}}
+                            </h2>
+
+                            <hr>
+                            <div>
+                                {% if products_details in user.profile.subscribed_products.all %}
+                                <button type="button" class="btn btn-success float-right" data-toggle="modal"
+                                    data-target="#myModal4">
+                                    SUBSCRIBED
+                                </button>
+                                {% elif products_details in current_order_products %}
+                                <a href="{% url 'ecommerce_cart:order_summary' %}" class="btn btn-warning pull-right">Go
+                                    to Cart</a>
+                                {% else %}
+                                <a href="{% url 'ecommerce_cart:add_to_cart' products_details.id %}"
+                                    class="btn btn-primary pull-right" onclick="return confirm_delete();"><i
+                                        class="fa fa-shopping-cart" style="font-size:16px"></i>&nbsp; Add to cart</a>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <style type="text/css">
+                                    .checked {
+                                        color: orange;
+                                    }
+                                </style>
+                                <a href="#">{{ products_details.product_review.count }}
+                                    Review{{ products_details.product_review.count|pluralize }}</a>
+                                <div class="product-rating">
+                                    <i class="fa fa-star checked"></i>
+                                    <i class="fa fa-star checked"></i>
+                                    <i class="fa fa-star checked"></i>
+                                    <i class="fa fa-star-o empty"></i>
+                                    <i class="fa fa-star-o empty"></i>
+                                </div>
+
+                            </div>
+                            <hr>
+                            <h4>Product description</h4>
+
+                            <div class="small text-muted">
+                                {{ products_details.description}}
+                            </div>
+                            <dl class="row m-t-md small">
+                                <dt class="col-md-4 text-right">Summary</dt>
+                                <dd class="col-md-8">{{ products_details.summary}}</dd>
+                            </dl>
+
 
                         </div>
                     </div>
@@ -105,17 +104,15 @@
                 </div>
             </div>
 
-
-
-
         </div>
-
-
-<div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog"  aria-hidden="true">
+    </div>
+</div>
+<div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
             </div>
             <div class="modal-body">
                 <p><strong>You have already subscribed to this product&hellip;</strong></p>
@@ -127,99 +124,84 @@
     </div>
 </div>
 
-        <div class="wrapper wrapper-content animated fadeInRight">
-            <div class="row">
-                <div class="col-lg-12">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
 
-                    <div class="ibox product-detail">
-                        <div class="ibox-content">
+            <div class="ibox product-detail">
+                <div class="ibox-content">
 
-                            <div class="row">
-                                <div class="col-md-5">
-
-
-                                    <div class="product-images">
-                                         <h4 class="text-uppercase"><strong>Reviews</strong></h4>
-                                        <div>
-                                            <div>
-                                                <div id="book-table">
-                                                    {% include 'products/reviews.html' %}
-                                                </div>
-                                            </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="product-images">
+                                <h4 class="text-uppercase"><strong>Reviews</strong></h4>
+                                <div>
+                                    <div>
+                                        <div id="book-table">
+                                            {% include 'products/reviews.html' %}
                                         </div>
-
-
                                     </div>
-
-                                </div>
-                                <div class="col-md-7">
-                                {% if user.is_authenticated %}
-                                  <h4 class="text-uppercase"><strong>Write Your Review</strong></h4>
-                                  <p>Your email address will not be published.</p>
-                                  <form method="post" class="form-horizontal">
-                                    {% csrf_token %}
-                                  <div class="form-group">
-
-                                      <div class="col-sm-10">
-                                        {{ Productreview_form.name }}
-                                    </div>
-                                  </div>
-                              
-                              <div class="form-group">
-                               
-
-                                <div class="col-sm-10">
-                                  {{ Productreview_form.e_mail }}
-                                </div>
-                              </div>
-                                    <div class="form-group">
-                                       <div class="col-sm-10">
-                                      {{ Productreview_form.text }}
-                                    </div>
-                                    </div>
-
-
-                                    <div class="form-group">
-                                      <div class="col-sm-10">
-                                      <div class="input-rating">
-
-                                      <style type="text/css">
-                                        .checked {
-                                        color: orange;
-                                      }
-                                      </style>
-
-                                        <strong class="text-uppercase">Your Rating: </strong>
-                                        <div class="stars">
-                                          <span class="fa fa-star checked"></span>
-                                          <span class="fa fa-star checked"></span>
-                                          <span class="fa fa-star checked"></span>
-                                          <span class="fa fa-star-o empty"></span>
-                                          <span class="fa fa-star-o empty"></span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    </div>
-                                    <input type="submit" class="btn btn-info" value="Submit">
-                                  </form>
-
-                                {% endif %}
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-md-7">
+                            {% if user.is_authenticated %}
+                            <h4 class="text-uppercase"><strong>Write Your Review</strong></h4>
+                            <p>Your email address will not be published.</p>
+                            <form method="post" class="form-horizontal">
+                                {% csrf_token %}
+                                <div class="form-group">
 
+                                    <div class="col-sm-10">
+                                        {{ Productreview_form.name }}
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-10">
+                                        {{ Productreview_form.email }}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-10">
+                                        {{ Productreview_form.text }}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-10">
+                                        <div class="input-rating">
+
+                                            <style type="text/css">
+                                                .checked {
+                                                    color: orange;
+                                                }
+                                            </style>
+
+                                            <strong class="text-uppercase">Your Rating: </strong>
+                                            <div class="stars">
+                                                <span class="fa fa-star checked"></span>
+                                                <span class="fa fa-star checked"></span>
+                                                <span class="fa fa-star checked"></span>
+                                                <span class="fa fa-star-o empty"></span>
+                                                <span class="fa fa-star-o empty"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="submit" class="btn btn-info" value="Submit">
+                            </form>
+
+                            {% endif %}
                         </div>
                     </div>
 
                 </div>
             </div>
 
-
-
-
         </div>
-
-
-<div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog"  aria-hidden="true">
+    </div>
+</div>
+<div class="modal inmodal" id="modal-book" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content animated flipInY">
         </div>

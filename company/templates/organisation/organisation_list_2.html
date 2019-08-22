@@ -1,0 +1,42 @@
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% for organisation in organisation_list %}
+
+
+<tr>
+  <td><a
+      href="{% url 'company:CommonDashboard' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">{{organisation.name}}</a>
+  </td>
+  <td><a
+      href="{% url 'company:CommonDashboard' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">{{organisation.created_date}}</a>
+  </td>
+  <td><a class="btn btn-default"
+      href="{% url 'company:CommonDashboard' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">Post/View
+      Jobs</a></td>
+  {% if Products %}
+  {% if not organisation.company_organisation %}
+  <td><a class="btn btn-primary"
+      href="{% url 'company:create' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">Go To
+      Bracket-Books</a></td>
+  {% else %}
+  <td><a class="btn btn-primary"
+      href="{% url 'company:Dashboard' company_pk=organisation.company_organisation.pk period_selected_pk=period_selected.pk %}">Go
+      To Bracket-Books</a></td>
+  {% endif %}
+  {% endif %}
+
+  {% if Products_QR %}
+  <td><a class="btn btn-success"
+      href="{% url 'qr_code:qr_dashboard' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">Go
+      To Bracket-QR</a></td>
+  {% endif %}
+  <td>
+    <button class="btn btn-danger show-form-delete"
+      data-url="{% url 'company:delete' organisation_pk=organisation.pk %}">
+      <span class="glyphicon glyphicon-trash"></span>
+    </button>
+
+  </td>
+</tr>
+{% endfor %}

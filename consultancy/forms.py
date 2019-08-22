@@ -1,36 +1,37 @@
+"""
+Forms
+"""
 from django import forms
-from consultancy.models import consultancy,Answer
+from .models import Consultancy, Answer
 
 
+class ConsultancyForm(forms.ModelForm):
+    """
+    Consultancy Form
+    """
 
-class consultancyform(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ConsultancyForm, self).__init__(*args, **kwargs)
+        self.fields['question'].widget.attrs = {'class': 'form-control'}
 
-	def __init__(self, *args, **kwargs):
-		super(consultancyform, self).__init__(*args, **kwargs)
-		self.fields['Questions'].widget.attrs = {'class': 'form-control'}
+    class Meta:
+        model = Consultancy
+        fields = ['question', ]
 
-	class Meta:
-		model = consultancy
-		fields = ['Questions',]
-		
-
-	def clean(self):
-		cleaned_data = super(consultancyform, self).clean()
-		Questions = cleaned_data.get('Questions')
-
-class Answerform(forms.ModelForm):
-
-	def __init__(self, *args, **kwargs):
-		super(Answerform, self).__init__(*args, **kwargs)
-		self.fields['text'].widget.attrs = {'class': 'form-control', 'placeholder' : 'Post Answers Here'}
-
-	class Meta:
-		model = Answer
-		fields = ['text',]
+    def clean(self):
+        cleaned_data = super(ConsultancyForm, self).clean()
+        question = cleaned_data.get('question')
 
 
+class AnswerForm(forms.ModelForm):
+    """
+    Answer Form
+    """
 
+    def __init__(self, *args, **kwargs):
+        super(AnswerForm, self).__init__(*args, **kwargs)
+        self.fields['text'].widget.attrs = {'class': 'form-control', 'placeholder': 'Post Answers Here'}
 
-
-
-
+    class Meta:
+        model = Answer
+        fields = ['text', ]

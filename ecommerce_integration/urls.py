@@ -1,22 +1,22 @@
+"""
+URLs
+"""
 from django.conf.urls import url
-from django.urls import path
-from ecommerce_integration import views
+from . import views
 
 app_name = 'ecommerce_integration'
 
 urlpatterns = [
+    url(r'^$', views.product_list_view, name='productlist'),
+    url(r'^productsubscribed/$', views.subscribed_product_list_view, name='subscribedproductlist'),
+    url(r'^product/(?P<product_pk>\d+)/$', views.product_detail_view, name='productdetail'),
+    url(r'^reviews/(?P<product_pk>\d+)/delete$', views.review_delete, name='reviewdelete'),
 
-	url(r'^$',views.Products_listview,name='productlist'),
-	url(r'^productsubscribed/$',views.Subscribed_Products_listview,name='subscribedproductlist'),
-	url(r'^product/(?P<pk>\d+)/$',views.Products_detailsview,name='productdetail'),
-	url(r'^reviews/(?P<id>\d+)/delete$', views.review_delete, name='reviewdelete'),
+    url(r'^services/$', views.service_list_view, name='servicelist'),
+    url(r'^services/(?P<service_pk>\d+)/$', views.service_detail_view, name='servicedetail'),
 
-	url(r'^services/$',views.Services_listview,name='servicelist'),
-	url(r'^services/(?P<pk>\d+)/$',views.Service_detailsview,name='servicedetail'),
+    url(r'^apis/$', views.api_list_view, name='apilist'),
+    url(r'^apis/(?P<api_pk>\d+)/$', views.api_detail_view, name='apidetail'),
 
-	url(r'^apis/$',views.Api_listview,name='apilist'),
-	url(r'^apis/(?P<pk>\d+)/$',views.Api_detailsview,name='apidetail'),
-
-	url(r'^roleproduct/(?P<pk>\d+)/$',views.Role_products_detailsview,name='roleproductdetail'),
-
+    url(r'^roleproduct/(?P<product_pk>\d+)/$', views.role_product_detail_view, name='roleproductdetail'),
 ]

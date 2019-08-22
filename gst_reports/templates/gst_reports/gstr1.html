@@ -1,0 +1,505 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% block title %}GSTR - 1{% endblock %}
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>GST REPORTS</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>GSTR-1</strong>
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-warning" role="button">GSTR-1</a>
+        <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-primary" role="button">GSTR-2A</a>
+        <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-success" role="button">GSTR-3B</a>
+        <a href="#" class="btn btn-info" role="button">GSTR-4</a>
+
+        <button class="btn btn-info show-form-update pull-right"
+            data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            Update Period
+        </button>
+
+        <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+            <strong>Selected Period: From</strong>
+            {{ period_selected.start_date|date }}
+            <strong>To</strong>
+            {{ period_selected.end_date|date }} &nbsp;
+
+        </a>
+
+    </div>
+</div>
+
+<br>
+<div class="row">
+    <div class="col-lg-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Overview </h5>
+
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+
+                </div>
+            </div>
+            <div class="ibox-content">
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+
+                            <th>Particulars </th>
+                            <th>Details</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+
+                            <td><strong>Total no of Invoices</strong></td>
+                            <td>{{ invoice_count }}</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Included in returns</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Excluded in Returns</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Mismatched Invoices</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Invoices Filed</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Invoices pending</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>HSN wise Summary</td>
+                            <td>-----</td>
+
+                        </tr>
+                        <tr>
+
+                            <td>Document Summary</td>
+                            <td>-----</td>
+
+                        </tr>
+
+
+
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <div class="col-lg-8">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Detailed Data </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="#" class="dropdown-item">Config option 1</a>
+                        </li>
+                        <li><a href="#" class="dropdown-item">Config option 2</a>
+                        </li>
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Filing Status</th>
+                            <th>GSTR-1</th>
+                            <th>Due Date of filing</th>
+                            <th>Date of filing</th>
+                            <th>Late fees</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- from date range -->
+                            <!-- <td><span class="pie">0.52,1.041</span></td>
+                                    <td class="text-navy"> <i class="fa fa-level-up"></i> 40% </td> -->
+
+                            <td>July 2018</td>
+                            <td>Filed</td>
+                            <td>10th August 2018</td>
+                            <td>9th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+
+                        </tr>
+                        <tr>
+                            <td>August 2018</td>
+                            <td>Filed</td>
+                            <td>10th August 2018</td>
+                            <td>9th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>September 2018</td>
+                            <td>Filed</td>
+                            <td>10th August 2018</td>
+                            <td>9th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>Ocotober 2018</td>
+                            <td>Filed</td>
+                            <td>10th August 2018</td>
+                            <td>9th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>November 2018</td>
+                            <td>Filed</td>
+                            <td>10th August 2018</td>
+                            <td>9th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>December 2018</td>
+                            <td>Filed</td>
+                            <td>10th August 2018</td>
+                            <td>9th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>January 2018</td>
+                            <td>Filed</td>
+                            <td>10th August 2018</td>
+                            <td>9th August 2018</td>
+                            <td>N/A</td>
+                            <td><a href="#"><i class="fa fa-check text-navy"></i></a></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Custom responsive table </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-sm-5 m-b-xs"><select class="form-control-sm form-control input-s-sm inline">
+                            <option value="0">Option 1</option>
+                            <option value="1">Option 2</option>
+                            <option value="2">Option 3</option>
+                            <option value="3">Option 4</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 m-b-xs">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-sm btn-white ">
+                                <input type="radio" name="options" id="option1" autocomplete="off" checked> Day
+                            </label>
+                            <label class="btn btn-sm btn-white active">
+                                <input type="radio" name="options" id="option2" autocomplete="off"> Week
+                            </label>
+                            <label class="btn btn-sm btn-white">
+                                <input type="radio" name="options" id="option3" autocomplete="off"> Month
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group"><input placeholder="Search" type="text"
+                                class="form-control form-control-sm"> <span class="input-group-append"> <button
+                                    type="button" class="btn btn-sm btn-primary">Go!
+                                </button> </span></div>
+
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>#</th>
+                                <th>Particulars </th>
+                                <th>Vouchers </th>
+                                <th>Taxable Value</th>
+                                <th>Central Tax</th>
+                                <th>State Tax</th>
+                                <th>Integrated Tax</th>
+                                <th>Cess</th>
+                                <th>Tax Amount</th>
+                                <th>Invoice Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+
+                                <td>1</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='b2b' %}">
+                                        B2B Invoices<small> - 4A, 4B, 4C, 6B, 6C</a>
+                                    <br><i> Taxable Sales
+                                        <br>Reverse charge suppies</i></small>
+                                </td>
+                                <td>{{ b2b_count }}</td>
+
+                                <td>{{ b2b_taxable|floatformat:2|intcomma }}</b>
+                                    <br><small><b>{{ b2b_taxable|floatformat:2|intcomma }}</b>
+                                        <br>--</small>
+
+                                </td>
+                                <td>{{ b2b_cgst_total|floatformat:2|intcomma }}</td>
+                                <td>{{ b2b_sgst_total|floatformat:2|intcomma }}</td>
+                                <td>{{ b2b_igst_total|floatformat:2|intcomma }}</td>
+                                <td>0.00</td>
+                                <td>{{ b2b_tax_total|floatformat:2|intcomma }}</b>
+                                    <br><small><b>{{ b2b_tax_total|floatformat:2|intcomma }}</b>
+                                        <br>--</small>
+                                </td>
+                                <td>{{ b2b_invoice_total|floatformat:2|intcomma }}</b>
+                                    <br><small><b>{{ b2b_invoice_total|floatformat:2|intcomma }}</b>
+                                        <br>--</small>
+                                </td>
+                            </tr>
+                            <tr>
+
+                                <td>2</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='b2cl' %}">B2C
+                                        Large Invoices<small> - 5A, 5B
+                                        </small></a>
+                                </td>
+
+                                <td>{{ b2cl_count }}</td>
+
+                                <td>{{ b2cl_taxable|floatformat:2|intcomma }}</b>
+                                </td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>{{ b2cl_igst_total|floatformat:2|intcomma }}</td>
+                                <td>0.00</td>
+                                <td>{{ b2cl_tax_total|floatformat:2|intcomma }}</b>
+                                </td>
+                                <td>{{ b2cl_invoice_total|floatformat:2|intcomma }}</b>
+                                </td>
+                            </tr>
+
+                            <tr>
+
+                                <td>3</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='b2cs' %}">B2C
+                                        Small Invoices<small> - 7
+                                        </small></a>
+                                </td>
+
+                                <td>{{ b2cs_count }}</td>
+                                <td>{{ b2cs_taxable|floatformat:2|intcomma }}</td>
+                                <td>{{ b2cs_cgst_total|floatformat:2|intcomma }}</td>
+                                <td>{{ b2cs_sgst_total|floatformat:2|intcomma }}</td>
+                                <td>{{ b2cs_igst_total|floatformat:2|intcomma }}</td>
+                                <td>0.00</td>
+                                <td>{{ b2cs_tax_total|floatformat:2|intcomma }}</td>
+                                <td>{{ b2cs_invoice_total|floatformat:2|intcomma }}</td>
+                            </tr>
+                            <tr>
+
+                                <td>4</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='noter' %}">Credit/Debit
+                                        notes (Registered)<small> - 9B
+                                        </small></a>
+                                </td>
+                                <td>{{ notes_reg_count }}</td>
+                                <td>{{ notes_reg_taxable|floatformat:2|intcomma }}</td>
+                                <td>{{ notes_reg_cgst_total|floatformat:2|intcomma }}</td>
+                                <td>{{ notes_reg_sgst_total|floatformat:2|intcomma }}</td>
+                                <td>{{ notes_reg_igst_total|floatformat:2|intcomma }}</td>
+                                <td>-0.00</td>
+                                <td>{{ notes_reg_tax_total|floatformat:2|intcomma }}</td>
+                                <td>{{ notes_reg_invoice_total|floatformat:2|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='noteu' %}">Credit/Debit
+                                        notes (Unregistered)<small> - 9B
+                                        </small></a>
+                                </td>
+                                <td>{{ notes_ureg_count }}</td>
+                                <td>{{ notes_ureg_taxable|floatformat:2|intcomma }}</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>{{ notes_ureg_igst_total|floatformat:2|intcomma }}</td>
+                                <td>-0.00</td>
+                                <td>{{ notes_ureg_tax_total|floatformat:2|intcomma }}</td>
+                                <td>{{ notes_ureg_invoice_total|floatformat:2|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='expt' %}">Export
+                                        Invoices<small> - 6A
+                                        </small></a>
+                                </td>
+                                <td>{{ export_count }}</td>
+                                <td>{{ export_taxable|floatformat:2|intcomma }}</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>{{ export_igst_total|floatformat:2|intcomma }}</td>
+                                <td>0.0</td>
+                                <td>{{ export_tax_total|floatformat:2|intcomma }}</td>
+                                <td>{{ export_invoice_total|floatformat:2|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='advr' %}">Tax
+                                        Liability (Advances Recieved)<small> - 11A(1), 11A(2)
+                                        </small></a>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='adva' %}">Adjustment
+                                        of Advances<small> - 11B(1), 11B(2)
+                                        </small></a>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td><a
+                                        href="{% url 'gst:gstrinvoices' company_pk=company.pk period_selected_pk=period_selected.pk gst_type='nilr' %}">Nil
+                                        Rated Invoices<small> - 8A, 8B, 8C, 8D
+                                        </small></a>
+                                </td>
+                                <td>{{ nil_rated_count }}</td>
+                                <td>{{ nil_rated_taxable|floatformat:2|intcomma }}</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td></td>
+                                <td>-</td>
+                                <td>{{ exempted_invoice_total|floatformat:2|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                        <thead>
+                            <tr>
+
+                                <th>#</th>
+                                <th>Total </th>
+                                <th></th>
+                                <th>{{ taxable_total|floatformat:2|intcomma }}</th>
+                                <th>{{ cgst_total|floatformat:2|intcomma }}</th>
+                                <th>{{ sgst_total|floatformat:2|intcomma }}</th>
+                                <th>{{ igst_total|floatformat:2|intcomma }}</th>
+                                <th>0.00</th>
+                                <th>{{ tax_total|floatformat:2|intcomma }}</th>
+                                <th>{{ invoice_total|floatformat:2|intcomma }}</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+
+    {% endblock %}

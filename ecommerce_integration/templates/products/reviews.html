@@ -3,7 +3,7 @@
                       
   <div class="single-review">
     <div class="review-heading">
-      <div><a href="{% url 'userprofile:specific_profile' pk=review.User.profile.pk %}"><i class="fa fa-user-o"></i> {{ review.User }}</a>
+      <div><a href="{% url 'user_profile:specific_profile' profile_pk=review.User.profile.pk %}"><i class="fa fa-user-o"></i> {{ review.User }}</a>
         
       </div>
         <div><a href="#"><i class="fa fa-clock-o"></i> {{ review.date|date }} / {{ review.date|date:"h" }}:{{ review.date|date:"i" }} {{ review.date|date:"A" }}</a></div>
@@ -24,7 +24,7 @@
         <p>{{ review.text }}</p>
     </div>
 
-                    {% if user.is_superuser or review.User == user %}
+                    {% if user.is_superuser or review.user == user %}
                       
                         <button class="show-form-delete pull-right" data-url="{% url 'ecommerce_integration:reviewdelete' review.id %}">
                         <span class="glyphicon glyphicon-trash"></span>

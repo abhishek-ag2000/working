@@ -79,27 +79,27 @@
                                   </tr>
 
                                   <tr>
-                                    <th><a href="{% url 'company:auditor_list' pk=company_details.pk %}">Total Auditor</a> </th>
+                                    <th><a href="{% url 'company:auditor_list' company_pk=company.pk %}">Total Auditor</a> </th>
                                     <th>{{ company_details.auditor.count }}</th>
                                   </tr>
 
                                   <tr>
-                                    <th><a href="{% url 'company:accountant_list' pk=company_details.pk %}">Total Accountant</a></th>
+                                    <th><a href="{% url 'company:accountant_list' company_pk=company.pk %}">Total Accountant</a></th>
                                     <th>{{ company_details.accountant.count  }}</th>
                                   </tr>
 
                                   <tr>
-                                    <th><a href="{% url 'company:purchase_personal_list' pk=company_details.pk %}">Total Purchase personnel</a></th>
-                                    <th>{{ company_details.purchase_personal.count }}</th>
+                                    <th><a href="{% url 'company:purchase_personel_list' company_pk=company.pk %}">Total Purchase personnel</a></th>
+                                    <th>{{ company_details.purchase_personel.count }}</th>
                                   </tr>
 
                                   <tr>
-                                    <th><a href="{% url 'company:sales_personal_list' pk=company_details.pk %}">Total Sales personnel</a></th>
-                                    <th>{{ company_details.sales_personal.count }}</th>
+                                    <th><a href="{% url 'company:sale_personel_list' company_pk=company.pk %}">Total Sales personnel</a></th>
+                                    <th>{{ company_details.sale_personel.count }}</th>
                                   </tr>
 
                                   <tr>
-                                    <th><a href="{% url 'company:cb_personal_list' pk=company_details.pk %}">Total Cash Bank accounting</a></th>
+                                    <th><a href="{% url 'company:cb_personal_list' company_pk=company.pk %}">Total Cash Bank accounting</a></th>
                                     <th>{{ company_details.cb_personal.count }}</th>
                                   </tr>
 

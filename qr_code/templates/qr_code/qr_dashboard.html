@@ -1,0 +1,170 @@
+{% extends "clouderp/base_qr.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% load poll_extras %}
+{% block title %}Bracket-QRStock Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="wrapper wrapper-content">
+
+    {% include "snippet_common/snippet_company.html" %}
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-12">
+            <h2>Bracket-QRStock Dashboard</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                </li>
+                <li class="breadcrumb-item">
+
+                    <a href="{% url 'company:list' %}">Company list</a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <strong>Bracket-QRStock Dashboard</strong>
+                </li>
+            </ol>
+            <br>
+            <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Select Company </a>
+    
+
+
+
+        </div>
+    </div>
+    <br>
+
+
+
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="ibox">
+                <div class="ibox-content product-box">
+
+                    <div>
+
+                        <img class="img-responsive" src="{% static 'img/landing/companyQR.png' %}" alt="product picture"
+                            height="200" width="100%">
+
+                    </div>
+                    <div class="product-desc">
+
+                        <a href="#" class="product-name">Unique company Qr code</a>
+
+
+
+                        <div class="small m-t-xs">
+                            (i) helps to distinguish your company as a brand with a Qr code for your customers to check
+                            genuinity of products
+                        </div>
+                        <div class="ratings">
+                            <!-- <p>
+                                  <a class="btn btn-warning" href="#">Generate QR</a>  
+                                </p> -->
+
+                        </div>
+                        <div class="m-t text-righ">
+
+                            <a href="#" class="btn btn-xs btn-outline btn-warning">Generate QR<i
+                                    class="fa fa-long-arrow-right"></i> </a>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="ibox">
+                <div class="ibox-content product-box">
+
+                    <div>
+
+                        <img class="img-responsive" src="{% static 'img/landing/employeeQR.jpg' %}" alt="product picture"
+                            height="200" width="100%">
+
+                    </div>
+                    <div class="product-desc">
+
+                        <a href="#" class="product-name">Unique Employee Qr code</a>
+
+
+
+                        <div class="small m-t-xs">
+                            Generate a unique QR code for each employee with Contant info to digitize their business
+                            cards
+                        </div>
+                        <div class="ratings">
+                            <!-- <p>
+                                  <a class="btn btn-primary" href="#"></a>  
+                                </p> -->
+
+                        </div>
+                        <div class="m-t text-righ">
+
+                            <a href="{% url 'qr_code:employee_qr' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}" class="btn btn-xs btn-outline btn-success">Start Now<i
+                                    class="fa fa-long-arrow-right"></i> </a>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="col-md-3">
+            <div class="ibox">
+                <div class="ibox-content product-box">
+
+                    <div>
+
+                        <img class="img-responsive" src="{% static 'img/landing/scan-qr-code.jpg' %}" alt="product picture"
+                            height="200" width="100%">
+
+                    </div>
+                    <div class="product-desc">
+
+                        <a href="#" class="product-name">Single Qr code for Stock items</a>
+
+
+
+                        <div class="small m-t-xs">
+                            Helps in quick feed in billing of stock item search
+                        </div>
+                        <div class="ratings">
+                            <!-- <p>
+                                  <a class="btn btn-success" href="#"></a>  
+                                </p> -->
+
+                        </div>
+                        <div class="m-t text-righ">
+
+                            <a href="{% url 'qr_code:stock_items_qr' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}"
+                                class="btn btn-xs btn-outline btn-primary">Start Now<i
+                                    class="fa fa-long-arrow-right"></i> </a>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+
+    </div>
+</div>
+
+
+
+{% endblock %}

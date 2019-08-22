@@ -1,0 +1,256 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load poll_extras %}
+{% load humanize %}
+{% block title %}Stock Item Monthly Summary{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-12">
+    <h3>Stock Item Monthly Summary</h3>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+      </li>
+      <li class="breadcrumb-item">
+
+        <a href="{% url 'company:list' %}">Company list</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a
+          href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item ">
+        <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}">Stock
+          Summary</a>
+
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Stock Item Monthly Summary</strong>
+
+      </li>
+    </ol>
+    <br>
+
+    <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+      class="btn btn-primary" role="button">See Stock Summary</a>
+
+    <button class="btn btn-info show-form-update pull-right"
+      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      Update Period
+    </button>
+
+    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+      <strong>Selected Period: From</strong>
+      {{ period_selected.start_date }}
+      <strong>To</strong>
+      {{ period_selected.end_date|date }} &nbsp;
+
+    </a>
+
+  </div>
+</div>
+<div id="printableArea">
+
+  <style>
+    @media print {
+      a[href]:after {
+        content: none !important;
+      }
+
+      @page {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      body {
+        padding-top: 72px;
+        padding-bottom: 72px;
+      }
+    }
+  </style>
+
+
+  <div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h2>
+            <center><strong>{{ stock_item.stock_name }}</strong></center>
+          </h2>
+        </div>
+        <div class="ibox-content">
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover" data-page-size="15" id="book-table">
+
+              <tr>
+                <th>
+                  <center></center>
+                </th>
+                <th colspan="2">
+                  <center>Inward</center>
+                </th>
+
+
+                <th colspan="2">
+                  <center>Outward</center>
+                </th>
+
+
+                <th colspan="2">
+                  <center>Closing Balance</center>
+                </th>
+              </tr>
+
+              <tr>
+                <th>
+                  <center>Particulars</center>
+                </th>
+                <th>Total Quantity</th>
+                <th>Value(&#8377)</th>
+                <th>Total Quantity</th>
+                <th>Value(&#8377)</th>
+                <th>Total Quantity</th>
+                <th>Value(&#8377)</th>
+
+              </tr>
+
+              <tr>
+                <th>
+                  <center>Opening Balance</center>
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                {% if stock_item.opening == 0 %}
+                <th></th>
+                <th></th>
+                {% else %}
+                <th>{{ stock_item.quantity }}</th>
+                <th>{{ stock_item.opening|abs }}</th>
+                {% endif %}
+
+              </tr>
+
+
+              {% for key, value in data %}
+              <tr>
+                <td>
+                  <center><a
+                      href="{% url 'stock_keeping:stockdatewise' company_pk=company.pk stock_item_pk=stock_item.pk month=key.0 year=key.1 period_selected_pk=period_selected.pk %}">{{ key.0|month_name }},{{ key.1 }}</a>
+                  </center>
+                </td>
+
+                {% if value.1 == 0 %}
+                <td></td>
+                {% else %}
+                {% if value.1 < 0 %}
+                <td>(-){{ value.1|abs|floatformat:2 }}</td>
+                {% else %}
+                <td>{{ value.1|abs|floatformat:2 }}</td>
+                {% endif %}
+                {% endif %}
+
+                {% if value.3 == 0 %}
+                <td></td>
+                {% else %}
+                {% if value.3 < 0 %}
+                <td>(-){{ value.3|abs|floatformat:2 }}</td>
+                {% else %}
+                <td>{{ value.3|abs|floatformat:2 }}</td>
+                {% endif %}
+                {% endif %}
+
+                {% if value.2 == 0 %}
+                <td></td>
+                {% else %}
+                {% if value.2 < 0 %}
+                <td>(-){{ value.2|abs|floatformat:2 }}</td>
+                {% else %}
+                <td>{{ value.2|abs|floatformat:2 }}</td>
+                {% endif %}
+                {% endif %}
+
+                {% if value.4 == 0 %}
+                <td></td>
+                {% else %}
+                {% if value.4 < 0 %}
+                <td>(-){{ value.4|abs|floatformat:2 }}</td>
+                {% else %}
+                <td>{{ value.4|abs|floatformat:2 }}</td>
+                {% endif %}
+                {% endif %}
+
+                {% if stockitem.Quantity == None %}
+                <td>{{ value.0|abs }}</td>
+                {% else %}
+                <td>{{ value.0|add:stockitem.Quantity|abs}}</td>
+                {% endif %}
+
+
+                {% if value.5 == 0 %}
+                <td></td>
+                {% else %}
+                {% if value.5 < 0 %}
+                <td>(-){{ value.5|abs|floatformat:2 }}</td>
+                {% else %}
+                <td>{{ value.5|abs|floatformat:2 }}</td>
+                {% endif %}
+                {% endif %}
+              </tr>
+              {% endfor %}
+
+              <tr>
+                <th>
+                  <center>Grand Total</center>
+                </th>
+
+                <th>{{ total_purchase_quantity|abs }}</th>
+
+                <th>{{ total_purchase|abs|floatformat:2|intcomma }}</th>
+                <th>{{ total_sale_quantity|abs }}</th>
+                <th>{{ total_sale|abs|floatformat:2|intcomma }}</th>
+                {% if stockitem.Quantity == None %}
+                <th>{{ total_purchase_quantity|sub:total_sale_quantity|abs }}</th>
+                {% else %}
+                <th>{{ total_purchase_quantity|sub:total_sale_quantity|add:stockitem.Quantity|abs }}</th>
+                {% endif %}
+                <th>{{ Closing_balance|abs|floatformat:2|intcomma }}</th>
+              </tr>
+
+
+            </table>
+          </div>
+          <br>
+          <p><input class='btn btn-default' type="button" onclick="printDiv('printableArea')" value="Print" />
+
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content animated flipInY"></div>
+  </div>
+</div>
+
+
+{% endblock %}

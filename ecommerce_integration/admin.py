@@ -1,30 +1,42 @@
+"""
+Admin
+"""
 from django.contrib import admin
-from ecommerce_integration.models import coupon, Product, Product_review, Services, API, Role_based_product
-# Register your models here.
-
-class productreviewdebit(admin.TabularInline):
-	model = Product_review
-	fk_name = 'reviews'
+from ecommerce_integration.models import Coupon, Product, ProductReview, Services, API, RoleBasedProduct
 
 
-class productadmin(admin.ModelAdmin):
-	model = Product
-	list_display = ['id', 'title','price']
-	search_fields = ['title','price']
-	inlines = [
-           productreviewdebit,
-           ]
-
-class rolebasedproductadmin(admin.ModelAdmin):
-	model = Role_based_product
-	list_display = ['id', 'title','price']
-	search_fields = ['title','price']
+class ProductReviewAdmin(admin.TabularInline):
+    """
+    Tabular Inline admin class for product review model
+    """
+    model = ProductReview
+    fk_name = 'reviews'
 
 
+class ProductAdmin(admin.ModelAdmin):
+    """
+    Model Admin class for the product model
+    """
+    model = Product
+    list_display = ['id', 'title', 'price']
+    search_fields = ['title', 'price']
+    inlines = [
+        ProductReviewAdmin,
+    ]
 
-admin.site.register(coupon)
-admin.site.register(Product,productadmin)
-admin.site.register(Product_review)
+
+class RoleBasedProductAdmin(admin.ModelAdmin):
+    """
+    Model Admin Class for The RoleBasedProduct Model
+    """
+    model = RoleBasedProduct
+    list_display = ['id', 'title', 'price']
+    search_fields = ['title', 'price']
+
+
+admin.site.register(Coupon)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(ProductReview)
 admin.site.register(Services)
 admin.site.register(API)
-admin.site.register(Role_based_product,rolebasedproductadmin)
+admin.site.register(RoleBasedProduct, RoleBasedProductAdmin)

@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
 import os
+from django.contrib.messages import constants as messages
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -25,9 +26,9 @@ SECRET_KEY = 'jdc#ewbwngw0nbdxj6il05f2pdbr75fhjni@j_ut+o2ev8(fm$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["bracketline.com","www.bracketline.com","35.200.221.172"]
+ALLOWED_HOSTS = ["bracketline.com", "www.bracketline.com", "35.200.221.172"]
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY ='954744097986-2c65ubrgiggh2nbb532es23go3a30s8c.apps.googleusercontent.com'  #Paste CLient Key
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '954744097986-2c65ubrgiggh2nbb532es23go3a30s8c.apps.googleusercontent.com'  # Paste CLient Key
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'TBPj7U1_ieD5Ge8YKslwqeFj'
 
 SOCIAL_AUTH_FACEBOOK_KEY = '837109483127908'
@@ -35,26 +36,30 @@ SOCIAL_AUTH_FACEBOOK_SECRET = '82c10c3f0e510e88aa285bccb9f69b6a'
 
 CSRF_FAILURE_VIEW = 'ecommerce_integration.views.csrf_failure'
 
-
+AUTH_USER_MODEL = 'bracketline.BracketlineUser'
 # Application definition
 
 INSTALLED_APPS = [
-########## Third Party Apps ###########
+    ########## Third Party Apps ###########
 
-    'social_django',                            #pip install social-auth-app-django
-    'bootstrap3',                               #pip install django-bootstrap3
-    "sslserver",                                #pip install django-sslserver
-    'crispy_forms',                             #pip install --upgrade django-crispy-forms
-    'bootstrap_datepicker_plus',                #pip install django-bootstrap-datepicker-plus
-    'mathfilters',                              #pip install django-mathfilters
-    'pagedown',                                 #pip install django-pagedown                               
-    'ckeditor',                                 #pip install django-ckeditor
-    'ckeditor_uploader',                        #pip install django-ckeditor
-    'sorl.thumbnail',                           #pip install sorl-thumbnail
-    'import_export',                            #pip install django-import-export
-    'django_celery_beat',                       #pip install django-celery-beat
-    'django_celery_results',                    #pip install django-celery-results
-    'star_ratings',                             #pip install django-star-ratings
+    'social_django',  # pip install social-auth-app-django
+    'bootstrap3',  # pip install django-bootstrap3
+    "sslserver",  # pip install django-sslserver
+    'crispy_forms',  # pip install --upgrade django-crispy-forms
+    'bootstrap_datepicker_plus',  # pip install django-bootstrap-datepicker-plus
+    'mathfilters',  # pip install django-mathfilters
+    'pagedown',  # pip install django-pagedown
+    'ckeditor',  # pip install django-ckeditor
+    'ckeditor_uploader',  # pip install django-ckeditor
+    'sorl.thumbnail',  # pip install sorl-thumbnail
+    'import_export',  # pip install django-import-export
+    'django_celery_beat',  # pip install django-celery-beat
+    'django_celery_results',  # pip install django-celery-results
+    'star_ratings',  # pip install django-star-ratings
+    'phonenumber_field',  # pip install django-phonenumber-field
+    # 'django_countries',  # pip install django-countries
+    # pip install phonenumbers
+    # 'debug_toolbar',                            #pip install django-debug-toolbar
 
     # argon2 = pip install django[argon2]
     # bcrypt = pip install bcrypt
@@ -63,7 +68,7 @@ INSTALLED_APPS = [
 
 
 
-######### Django Inbuild Apps ########
+    ######### Django Inbuild Apps ########
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -71,28 +76,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize', 
+    'django.contrib.humanize',
 
-######### My Apps ##############  
-  
-    'accounts',
+    ######### My Apps ##############
+    'bracketline',
     'company',
-    'accounting_double_entry',
-    'todogst',
-    'userprofile',
+    'accounting_entry',
+    'user_profile',
     'blog',
     'consultancy',
-    'stockkeeping',
-    'pdf',
+    'stock_keeping',
+    'pdf_report',
     'ecommerce_integration',
     'ecommerce_cart',
     'messaging',
-    'Gst',
+    'gst_reports',
     'aggrement',
-    'company_accounts',
     'legal_database',
-    'helpandsupport',
-
+    'help_support',
+    'income_tax_compute',
+    'qr_code',
+    'job'
 ]
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
@@ -102,7 +106,7 @@ CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
     'special': {
         'toolbar': 'Special',
-        'width' : 'auto',
+        'width': 'auto',
         'toolbar_Special': [
             ['Styles', 'Format', 'Bold', 'Italic', 'Underline', 'Strike', 'SpellChecker', 'Undo'],
             ['Link', 'Unlink', 'Anchor'],
@@ -110,10 +114,9 @@ CKEDITOR_CONFIGS = {
             ['TextColor', 'BGColor'],
             ['Smiley', 'SpecialChar'], ['Source'],
         ],
-        
+
     }
 }
-
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
@@ -127,6 +130,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'src.urls'
@@ -134,7 +138,7 @@ ROOT_URLCONF = 'src.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR,],
+        'DIRS': [TEMPLATE_DIR, ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -148,19 +152,17 @@ TEMPLATES = [
 ]
 
 AUTHENTICATION_BACKENDS = (
- 'social_core.backends.open_id.OpenIdAuth',  # for Google authentication
- 'social_core.backends.google.GoogleOpenId',  # for Google authentication
- 'social_core.backends.google.GoogleOAuth2',  # for Google authentication
- 'social_core.backends.facebook.FacebookOAuth2',  # for Facebook authentication
- 
- 'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.open_id.OpenIdAuth',  # for Google authentication
+    'social_core.backends.google.GoogleOpenId',  # for Google authentication
+    'social_core.backends.google.GoogleOAuth2',  # for Google authentication
+    'social_core.backends.facebook.FacebookOAuth2',  # for Facebook authentication
+
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 
 WSGI_APPLICATION = 'src.wsgi.application'
 
-
-from django.contrib.messages import constants as messages
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',
@@ -176,8 +178,12 @@ MESSAGE_TAGS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'bracketline',
+        'USER': 'postgres',
+        'PASSWORD': 'qwerty123',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -213,7 +219,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en_IN'
 
 TIME_ZONE = 'Asia/Kolkata'
 
@@ -222,6 +228,10 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+USE_THOUSAND_SEPARATOR = True
+
+NUMBER_GROUPING = (3, 2, 0)
 
 
 # Static files (CSS, JavaScript, Images)
@@ -245,12 +255,17 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static-root")
 
 
-
 MEDIA_URL = '/media/'
 
-MEDIA_DIR = os.path.join(BASE_DIR,'media')
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# INTERNAL_IPS = [
+#     # ...
+#     '127.0.0.1',
+#     # ...
+# ]
 
 
 # MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media-root")

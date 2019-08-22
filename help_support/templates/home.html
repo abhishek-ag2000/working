@@ -1,0 +1,94 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+{% block title %}Help &amp; Support{% endblock %}
+
+{% block content %}
+
+ 
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2>Help and Support</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'help_support:CategoriesList' %}"><strong>Help &amp; Support</strong></a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Categories</strong>
+                    </li>
+                </ol>
+                <br>
+                <a href="{% url 'help_support:submit_request' %}"
+            class="btn btn-success" role="button">Submit Request</a> 
+
+            <a href="{% url 'help_support:submit_request_list' %}"
+            class="btn btn-primary" role="button">Your Request</a> 
+                       
+            </div>
+</div>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-12">
+                <h2>Search Articles</h2>
+             <form method='GET' class="form-horizontal" id="search-form" action="#">
+
+                <div class="input-group input-group-sm">
+                    <input  class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search Here">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-info pull-right">Go</button>
+                    </div>
+                </div>
+
+
+            </form>
+            </div>
+	</div>
+
+  <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+        {% for obj in categoriest %}
+            <div class="col-lg-4">
+                <div class="contact-box">
+                    <a class="row" href="{% url 'help_support:CategoriesDetail' slug=obj.slug %}">
+                
+                    <div class="col-4">
+                        <div class="text-center">
+                        {% if obj.image %}
+                            <img alt="image" class="m-t-xs img-fluid" src="{{ obj.image.url }}/">
+                           <!--  <div class="m-t-xs font-bold"></div> -->
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-8">
+                        <h3><strong></strong></h3>
+                        
+                        <address>
+                            <strong>{{obj.Title}}</strong><br>
+                            {{obj.desc}}<br>
+                            <br>
+                            
+                            <button type="button" class="btn btn-info btn-rounded" href="#">See Articles</button>
+                             <!-- url 'help_support:CategoriesDetail' pk=obj.pk  -->
+                        </address>
+                    </div>
+                        </a>
+                </div>
+            </div>
+            
+             {% endfor %}
+            
+            
+            
+            
+            
+            
+            
+            
+           
+            
+            
+        </div>
+        </div>
+
+
+{% endblock %}

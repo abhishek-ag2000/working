@@ -1,3 +1,6 @@
+"""
+URLs
+"""
 from django.conf.urls import url
 from legal_database import views
 
@@ -5,9 +8,12 @@ app_name = 'legal_database'
 
 urlpatterns = [
 
-	url(r'^$',views.Categories_List_View.as_view(),name='categorieslist'),  
-	url(r'^(?P<pk>\d+)/central/$',views.Central_bare_act_detail,name='central_act'),
-	url(r'^(?P<pk>\d+)/state/$',views.State_bare_act_detail,name='state_act'),  
-	url(r'^(?P<pk>\d+)/section/$',views.Section_detail,name='section_act'), 
+    url(r'^$', views.HelpCategoryListView.as_view(), name='categorieslist'),
+    url(r'^(?P<central_bare_act_pk>\d+)/central/$',
+        views.central_bare_act_detail, name='central_act'),
+    url(r'^(?P<state_bare_act_pk>\d+)/state/$',
+        views.state_bare_act_detail, name='state_act'),
+    url(r'^(?P<section_pk>\d+)/section/$',
+        views.section_detail, name='section_act'),
 
 ]

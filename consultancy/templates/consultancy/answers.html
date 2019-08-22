@@ -1,9 +1,9 @@
 {% load staticfiles %}
 {% for answer in comments %}
 <div class="feed-element">
-    {% if answer.User.profile.image %}
+    {% if answer.user.profile.image %}
         <a href="#" class="float-left">
-        <img alt="image" class="rounded-circle" src="{{ answer.User.profile.image.url }}/">
+        <img alt="image" class="rounded-circle" src="{{ answer.user.profile.image.url }}/">
         </a>
     {% else %}
         <a href="#" class="float-left">
@@ -11,23 +11,23 @@
         </a>
     {% endif %}
         <div class="media-body ">
-        <small class="float-right">{{ answer.Date|timesince }} ago</small>
-        <strong>{{ answer.User }}</strong> <br>
-        <small class="text-muted">Today {{ answer.Date|date:'h' }}:{{ answer.Date|date:'i' }} {{ answer.Date|date:'a' }} - {{ answer.Date|date }}</small>
+        <small class="float-right">{{ answer.date|timesince }} ago</small>
+        <strong>{{ answer.user }}</strong> <br>
+        <small class="text-muted">Today {{ answer.date|date:'h' }}:{{ answer.Date|date:'i' }} {{ answer.date|date:'a' }} - {{ answer.date|date }}</small>
         <div class="well">
             {{ answer.text }}
         </div>
         </div>
-            {% if consultancy_details.User == user or answer.User == user %}
+            {% if consultancy_details.user == user or answer.user == user %}
                           
-                <button class="show-form-delete pull-right" data-url="{% url 'consultancy:answersdelete' id=answer.id %}">
+                <button class="show-form-delete pull-right" data-url="{% url 'consultancy:answersdelete' answer_pk=answer.id %}">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
                           
             {% endif %}
 
-        {% if answer.User == user %}
-            <button class="show-form-update pull-right" data-url="{% url 'consultancy:answersupdate' id=answer.id %}">
+        {% if answer.user == user %}
+            <button class="show-form-update pull-right" data-url="{% url 'consultancy:answersupdate' answer_pk=answer.id %}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </button>
         {% endif %}

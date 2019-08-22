@@ -1,0 +1,94 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+
+{% block title %}GST Invoices{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h3>{{ gst_type_display }}</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a
+                    href="{% url 'gst_reports:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>GST Invoices</strong>
+            </li>
+        </ol>
+        <br>
+
+        <a href="{% url 'stock_keeping:sale_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}"
+            class="btn btn-primary" role="button">Sales Register</a>
+
+        {% if period_selected %}
+        <button class="btn btn-info show-form-update pull-right"
+            data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            Update Period
+        </button>
+
+        <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+            <strong>Selected Period: From</strong>
+            {{ period_selected.start_date|date }}
+            <strong>To</strong>
+            {{ period_selected.end_date|date }} &nbsp;
+
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight ecommerce">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        {% if gst_type == "b2b" %}
+                        {% include "gst_reports/gstr_include_b2b.html" %}
+                        {% elif gst_type == "b2cl" %}
+                        {% include "gst_reports/gstr_include_b2cl.html" %}
+                        {% elif gst_type == "b2cs" %}
+                        {% include "gst_reports/gstr_include_b2cs.html" %}
+                        {% elif gst_type == "noter" %}
+                        {% include "gst_reports/gstr_include_noter.html" %}
+                        {% elif gst_type == "noteu" %}
+                        {% include "gst_reports/gstr_include_noteu.html" %}
+                        {% elif gst_type == "expt" %}
+                        {% include "gst_reports/gstr_include_expt.html" %}
+                        {% elif gst_type == "nilr" %}
+                        {% include "gst_reports/gstr_include_nilr.html" %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+{% endblock script %}

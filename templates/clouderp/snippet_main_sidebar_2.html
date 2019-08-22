@@ -1,214 +1,129 @@
 {% load staticfiles %}
 
 
-{% if Products or Role_products %}
-    {% if user.is_authenticated %}
-        <div class="sidebar-collapse">
-            <ul class="nav metismenu" id="side-menu">
-                <li class="nav-header">
-                    <div class="dropdown profile-element">
-                    {% if user.profile.image %}
-                        <img alt="image" class="rounded-circle"  style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
-                    {% else %}
-                        <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}"/>
-                    {% endif %}
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
-                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
-                        </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a class="dropdown-item" href="{% url 'userprofile:profiledetail' %}">Profile</a></li>
-                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
-                        </ul>
-                    </div>
-                    <div class="logo-element">
-                        IN+
-                    </div>
-                </li>
-                <li class="active">
-                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
-                </li>
-                {% if Products_aggrement %}
-                  <li class="active">
-                      <a href="{% url 'aggrement:aggrementlist' %}"><i class="fa fa-money" aria-hidden="true"></i> <span class="nav-label">Select Agrement</span></a>
-                  </li>
+{% if user.is_authenticated %}
+<div class="sidebar-collapse">
+    <ul class="nav metismenu" id="side-menu">
+        <li class="nav-header">
+            <div class="dropdown profile-element">
+                {% if user.profile.image %}
+                <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;'
+                    src="{{ user.profile.image.url }}/" />
+                {% else %}
+                <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}" />
                 {% endif %}
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    <span class="block m-t-xs font-bold">{{ user.profile.full_name }}</span>
+                    <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                </a>
+                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                    <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                    <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                    <li class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                </ul>
+            </div>
+            <div class="logo-element">
+                IN+
+            </div>
+        </li>
+        <li class="active">
+            <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span
+                    class="nav-label">Select Company</span></a>
+        </li>
+        {% if product_aggrement %}
+        <li class="active">
+            <a href="{% url 'aggrement:aggrementlist' %}"><i class="fa fa-money" aria-hidden="true"></i> <span
+                    class="nav-label">Select Agrement</span></a>
+        </li>
+        {% endif %}
 
-                {% if Products_legal %}
-                  <li class="active">
-                      <a href="{% url 'legal:categorieslist' %}"><i class="fa fa-money" aria-hidden="true"></i> <span class="nav-label">Legal Database</span></a>
-                  </li>
-                {% endif %}
+        {% if product_legal %}
+        <li class="active">
+            <a href="{% url 'legal:categorieslist' %}"><i class="fa fa-money" aria-hidden="true"></i> <span
+                    class="nav-label">Legal Database</span></a>
+        </li>
+        {% endif %}
 
-                 <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+        <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase"
+                    aria-hidden="true"></i><span>My Subscriptions</span></a></li>
 
-                 <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+        <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social
+                    Wall</span></a></li>
 
-                <li>
-                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
-                </li>
+        <li>
+            <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox
+                </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+        </li>
 
-                  <li><a href="{% url 'userprofile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+        <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile
+                    Settings</span></a></li>
 
-                  <li class="header">MARKET PLACE</li>
-                  <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
-                  <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs & Articles</span></a></li>
+        <li class="header">MARKET PLACE</li>
+        <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a>
+        </li>
+        <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i>
+                <span>Services</span></a></li>
+        <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i>
+                <span>APIs</span></a></li>
+        <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &
+                    Articles</span></a></li>
 
-                  <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
-                    
-                  <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                  <li><a href="{% url 'helpandsupport:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
-                
-        </div>
+        <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy
+                    Forum</span></a></li>
 
-    {% else %}
+        <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find
+                    Professional</span></a></li>
+        <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i>
+                <span>Help & Support</span></a></li>
 
-        <div class="sidebar-collapse">
-            <ul class="nav metismenu" id="side-menu">
-                <li class="nav-header">
-                    <div class="dropdown profile-element">
-                    {% if user.profile.image %}
-                        <img alt="image" class="rounded-circle"  style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
-                    {% else %}
-                        <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}"/>
-                    {% endif %}
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
-                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
-                        </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a class="dropdown-item" href="{% url 'userprofile:profiledetail' %}">Profile</a></li>
-                            <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
-                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
-                        </ul>
-                    </div>
-                    <div class="logo-element">
-                        IN+
-                    </div>
-                </li>
-
-                  <li class="header">MARKET PLACE</li>
-                  <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
-                  <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs & Articles</span></a></li>
-
-                  <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
-                    
-                  <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                  <li><a href="#"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
-                
-        </div>
-    {% endif %}
+</div>
 
 {% else %}
 
-    {% if user.is_authenticated %}
-
-        <div class="sidebar-collapse">
-            <ul class="nav metismenu" id="side-menu">
-                <li class="nav-header">
-                    <div class="dropdown profile-element">
-                    {% if user.profile.image %}
-                        <img alt="image" class="rounded-circle"  style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
-                    {% else %}
-                        <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}"/>
-                    {% endif %}
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
-                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
-                        </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a class="dropdown-item" href="{% url 'userprofile:profiledetail' %}">Profile</a></li>
-                            <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
-                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
-                        </ul>
-                    </div>
-                    <div class="logo-element">
-                        IN+
-                    </div>
-                </li>
-                
-                {% if Products_aggrement %}
-                  <li class="active">
-                      <a href="{% url 'aggrement:aggrementlist' %}"><i class="fa fa-money" aria-hidden="true"></i> <span class="nav-label">Select Agrement</span></a>
-                  </li>
+<div class="sidebar-collapse">
+    <ul class="nav metismenu" id="side-menu">
+        <li class="nav-header">
+            <div class="dropdown profile-element">
+                {% if user.profile.image %}
+                <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;'
+                    src="{{ user.profile.image.url }}/" />
+                {% else %}
+                <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}" />
                 {% endif %}
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    <span class="block m-t-xs font-bold">{{ user.profile.full_name }}</span>
+                    <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                </a>
+                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                    <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                    <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
+                    <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                    <li class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                </ul>
+            </div>
+            <div class="logo-element">
+                IN+
+            </div>
+        </li>
 
+        <li class="header">MARKET PLACE</li>
+        <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a>
+        </li>
+        <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i>
+                <span>Services</span></a></li>
+        <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i>
+                <span>APIs</span></a></li>
+        <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &
+                    Articles</span></a></li>
 
-                 <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+        <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy
+                    Forum</span></a></li>
 
-                 <li><a href="{% url 'userprofile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+        <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find
+                    Professional</span></a></li>
+        <li><a href="#"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
 
-                <li>
-                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
-                </li>
-
-                  <li><a href="{% url 'userprofile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
-
-                  <li class="header">MARKET PLACE</li>
-                  <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
-                  <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs & Articles</span></a></li>
-
-                  <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
-                    
-                  <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                  <li><a href="#"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
-                
-        </div>
-
-    {% else %}
-
-        <div class="sidebar-collapse">
-            <ul class="nav metismenu" id="side-menu">
-                <li class="nav-header">
-                    <div class="dropdown profile-element">
-                    {% if user.profile.image %}
-                        <img alt="image" class="rounded-circle"  style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
-                    {% else %}
-                        <img alt="image" class="rounded-circle" src="{% static 'userprofile/download (1).jpg' %}"/>
-                    {% endif %}
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
-                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
-                        </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a class="dropdown-item" href="{% url 'userprofile:profiledetail' %}">Profile</a></li>
-                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
-                        </ul>
-                    </div>
-                    <div class="logo-element">
-                        IN+
-                    </div>
-                </li>
-
-
-                  <li><a href="{% url 'userprofile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
-
-                  <li class="header">MARKET PLACE</li>
-                  <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
-                  <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
-                  <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs & Articles</span></a></li>
-
-                  <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
-                    
-                  <li><a href="{% url 'userprofile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
-                  <li><a href="#"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
-                
-        </div>
-    {% endif %}    
-{% endif %}    
-
+</div>
+{% endif %}

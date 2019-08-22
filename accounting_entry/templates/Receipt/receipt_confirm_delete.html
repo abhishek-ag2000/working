@@ -1,0 +1,33 @@
+{% extends "clouderp/base.html" %}
+{% block title %}Delete Receipt{% endblock %}
+{% block content %}
+
+<div class="content-wrapper">
+    <div class="container">
+        <section class="content-header">
+            <div class="col-md-12">
+                <h1>
+                    <strong>Delete {{ receiptvoucher.account }}?</strong>
+                </h1>
+            </div>
+        </section>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-danger" value="Delete">
+            <a
+                href="{% url 'accounting_entry:receiptdetail' company_pk=company.pk receipt_voucher_pk=receiptvoucher.pk period_selected_pk=period_selected.pk %}">Cancel</a>
+            <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+
+
+        </form>
+    </div>
+</div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
+{% endblock %}

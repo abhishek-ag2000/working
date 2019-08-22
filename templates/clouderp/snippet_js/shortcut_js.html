@@ -1,9 +1,9 @@
-{% url 'accounting_double_entry:trialbalcond' pk=company_details.pk pk3=selectdatefield_details.pk  as trial_bl %}
-{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk  as pl %}
-{% url 'accounting_double_entry:blsht' pk=company_details.pk pk3=selectdatefield_details.pk  as bl_sht %}
-{% url 'stockkeeping:trialbal' pk=company_details.pk pk3=selectdatefield_details.pk  as trial_bl_exp %}
-{% url 'stockkeeping:profitloss' pk=company_details.pk pk3=selectdatefield_details.pk  as pl_exp %}
-{% url 'stockkeeping:balsht' pk=company_details.pk pk3=selectdatefield_details.pk  as bl_sht_exp %}
+{% url 'accounting_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk  as trial_bl %}
+{% url 'accounting_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk  as pl %}
+{% url 'accounting_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk  as bl_sht %}
+{% url 'stock_keeping:trialbal' company_pk=company.pk period_selected_pk=period_selected.pk  as trial_bl_exp %}
+{% url 'stock_keeping:profitloss' company_pk=company.pk period_selected_pk=period_selected.pk  as pl_exp %}
+{% url 'stock_keeping:balsht' company_pk=company.pk period_selected_pk=period_selected.pk  as bl_sht_exp %}
     <!-- c + g (group creation) -->
     <script>
         $(document).ready(function() {
@@ -12,7 +12,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[71]) {
-                        window.location = '{% url 'accounting_double_entry:groupcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:groupcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -27,7 +27,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[71]) {
-                        window.location = '{% url 'accounting_double_entry:grouplist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -42,7 +42,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[76]) {
-                        window.location = '{% url 'accounting_double_entry:ledgercreate' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -57,7 +57,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[76]) {
-                        window.location = '{% url 'accounting_double_entry:ledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -72,7 +72,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[74]) {
-                        window.location = '{% url 'accounting_double_entry:create' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -87,7 +87,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[74]) {
-                        window.location = '{% url 'accounting_double_entry:list' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -102,7 +102,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[65]) {
-                        window.location = '{% url 'accounting_double_entry:paymentcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -117,7 +117,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[65]) {
-                        window.location = '{% url 'accounting_double_entry:paymentlist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:paymentlist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -132,7 +132,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[82]) {
-                        window.location = '{% url 'accounting_double_entry:receiptcreate' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -147,7 +147,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[82]) {
-                        window.location = '{% url 'accounting_double_entry:receiptlist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -162,7 +162,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[79]) {
-                        window.location = '{% url 'accounting_double_entry:contracreate' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -177,14 +177,12 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[79]) {
-                        window.location = '{% url 'accounting_double_entry:contralist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
         });
     </script>
-
-    {% if company_details.maintain == 'Accounts with Inventory' %}
 
     <!-- c + s (create sales invoice) -->
     <script>
@@ -194,7 +192,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[83]) {
-                        window.location = '{% url 'stockkeeping:salescreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}';
+                        window.location = '{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -210,7 +208,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[83]) {
-                        window.location = '{% url 'stockkeeping:saleslist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -225,7 +223,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[80]) {
-                        window.location = '{% url 'stockkeeping:purchasecreate' pk=company_details.pk pk3=selectdatefield_details.pk  %}';
+                        window.location = '{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -240,77 +238,12 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[80]) {
-                        window.location = '{% url 'stockkeeping:purchaselist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
         });
     </script>
-
-    {% else %}
-
-    <!-- c + s (create sales invoice) -->
-    <script>
-        $(document).ready(function() {
-            var down = [];
-                $(document).keydown(function(e) {
-                    down[e.keyCode] = true;
-                }).keyup(function(e) {
-                    if (down[67] && down[83]) {
-                        window.location = '{% url 'company_accounts:salescreate_accounts' pk=company_details.pk pk3=selectdatefield_details.pk %}';
-                    }
-                    down[e.keyCode] = false;
-                });
-        });
-    </script>
-
-
-    <!-- v + s (sales list) -->
-    <script>
-        $(document).ready(function() {
-            var down = [];
-                $(document).keydown(function(e) {
-                    down[e.keyCode] = true;
-                }).keyup(function(e) {
-                    if (down[86] && down[83]) {
-                        window.location = '{% url 'company_accounts:saleslist_accounts' pk=company_details.pk pk3=selectdatefield_details.pk %}';
-                    }
-                    down[e.keyCode] = false;
-                });
-        });
-    </script>
-
-    <!-- c + p (create purchase invoice) -->
-    <script>
-        $(document).ready(function() {
-            var down = [];
-                $(document).keydown(function(e) {
-                    down[e.keyCode] = true;
-                }).keyup(function(e) {
-                    if (down[67] && down[80]) {
-                        window.location = '{% url 'company_accounts:purchasecreate_accounts' pk=company_details.pk pk3=selectdatefield_details.pk %}';
-                    }
-                    down[e.keyCode] = false;
-                });
-        });
-    </script>
-
-    <!-- v + p (purchase invoice list) -->
-    <script>
-        $(document).ready(function() {
-            var down = [];
-                $(document).keydown(function(e) {
-                    down[e.keyCode] = true;
-                }).keyup(function(e) {
-                    if (down[86] && down[80]) {
-                        window.location = '{% url 'company_accounts:purchaselist_accounts' pk=company_details.pk pk3=selectdatefield_details.pk %}';
-                    }
-                    down[e.keyCode] = false;
-                });
-        });
-    </script>
-
-   {% endif %}
 
     <!-- v + t(stock group list) -->
     <script>
@@ -320,7 +253,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[84]) {
-                        window.location = '{% url 'stockkeeping:stockgrouplist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -335,7 +268,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[84]) {
-                        window.location = '{% url 'stockkeeping:stockdatacreate' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -350,7 +283,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[86] && down[84]) {
-                        window.location = '{% url 'stockkeeping:stockdatalist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -365,7 +298,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[83] && down[84]) {
-                        window.location = '{% url 'stockkeeping:closingstock' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -380,7 +313,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[66] && down[83]) {
-                        window.location = '{% url 'accounting_double_entry:bankledgerlist' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -395,7 +328,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[80] && down[76]) {
-                        window.location = '{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -410,7 +343,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[66] && down[67]) {
-                        window.location = '{% url 'accounting_double_entry:blsht' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -426,7 +359,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[69] && down[88]) {
-                        window.location = '{% url 'stockkeeping:trialbal' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:trialbal' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -444,7 +377,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[78]) {
-                        window.location = '{% url 'accounting_double_entry:trialbalcond' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -462,7 +395,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[69] && down[88]) {
-                        window.location = '{% url 'stockkeeping:profitloss' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:profitloss' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -480,7 +413,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[78]) {
-                        window.location = '{% url 'accounting_double_entry:PandLcond' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -498,7 +431,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[69] && down[88]) {
-                        window.location = '{% url 'stockkeeping:balsht' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'stock_keeping:balsht' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -516,7 +449,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[78]) {
-                        window.location = '{% url 'accounting_double_entry:blsht' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -533,7 +466,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[84] && down[66]) {
-                        window.location = '{% url 'accounting_double_entry:trialbalcond' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -548,7 +481,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[68] && down[86]) {
-                        window.location = '{% url 'accounting_double_entry:daybook' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -563,7 +496,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[67] && down[86]) {
-                        window.location = '{% url 'accounting_double_entry:cash_and_bank' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -578,7 +511,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[71] && down[86]) {
-                        window.location = '{% url 'accounting_double_entry:groupsummary' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -593,7 +526,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[83] && down[82]) {
-                        window.location = '{% url 'stockkeeping:sale_register' pk=company_details.pk pk3=selectdatefield_details.pk  %}';
+                        window.location = '{% url 'stock_keeping:sale_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -609,7 +542,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[80] && down[82]) {
-                        window.location = '{% url 'stockkeeping:purchase_register' pk=company_details.pk pk3=selectdatefield_details.pk  %}';
+                        window.location = '{% url 'stock_keeping:purchase_register' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -625,7 +558,7 @@
                     down[e.keyCode] = true;
                 }).keyup(function(e) {
                     if (down[74] && down[82]) {
-                        window.location = '{% url 'accounting_double_entry:journalregister' pk=company_details.pk pk3=selectdatefield_details.pk %}';
+                        window.location = '{% url 'accounting_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}';
                     }
                     down[e.keyCode] = false;
                 });
@@ -633,16 +566,23 @@
     </script>
 
     <!-- escape (go back) -->
-    <script>
+    <!-- <script>
         $(document).ready(function() {
             var down = [];
+            var isNoModalVisible = true;
+
                 $(document).keydown(function(e) {
+                    alert($('.modal.show').length)
+
                     down[e.keyCode] = true;
+                    if (e.keyCode==27){
+                        isNoModalVisible=$('.modal.show').length==0;
+                    }
                 }).keyup(function(e) {
-                    if (down[27]) {
+                    if (down[27] && isNoModalVisible) {
                         window.history.back();
                     }
                     down[e.keyCode] = false;
                 });
         });
-    </script>
+    </script> -->

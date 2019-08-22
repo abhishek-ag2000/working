@@ -5,44 +5,7 @@
 
 {% block content %}
 
-<div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-12">
-                <h2>My Blogs</h2>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>My Blogs</strong>
-                    </li>
-                </ol>
-                <br>
-                        <div class="btn-group">
-                            <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">View Posts By</button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'blog:latestbloglist' %}">Most Recent</a></li>
-                                <li><a class="dropdown-item" href="{% url 'blog:viewbloglist' %}">Most Popular</a></li>
-                                <li><a class="dropdown-item" href="{% url 'blog:likebloglist' %}">Most Helpful</a></li>     
-                            </ul>
-                            
-
-                        </div>
-                        <div class="btn-group">
-                            <button data-toggle="dropdown" class="btn btn-success dropdown-toggle pull-right">Categories</button>
-                            <ul class="dropdown-menu">
-                            {% for categories in categories_list %}
-                                <li><a class="dropdown-item" href="{% url 'blog:categoryDetail' pk=categories.pk  %}"><strong>{{ categories.Title }}</strong>
-                                <span class="label label-success pull-right">
-                                  {{ categories.blogs.count }}</span></a></li>
-                            {% endfor %}    
-                            </ul>
-                        </div>
-                        <div class='pull-right'>
-                            <a href="{% url 'blog:bloglist' %}" class="btn btn-info" role="button">Show my Posts</a>
-                            <a href="{% url 'blog:blogcreate' %}" class="btn btn-warning" role="button">Create Post</a>
-                        </div>
-            </div>
-</div>
+{% include "blog/heading_snippet.html" %}
 
 <div class="row wrapper border-bottom white-bg page-heading">
             <div class="col-lg-12">
@@ -80,29 +43,29 @@
 
                             <div>
 
-                            {% if blog.Blog_image %}
-                               <img class="product_img" src="{{ blog.Blog_image.url }}/" alt="product picture" height="200" width="100">
+                            {% if blog.blog_image %}
+                               <img class="product_img" src="{{ blog.blog_image.url }}/" alt="product picture" height="200" width="100">
                             {% endif %}
 
                             </div>
                             <div class="product-desc">
                                 
-                                <a href="{% url 'blog:blogdetail' pk=blog.pk %}" class="product-name">{{ blog.Blog_title|safe|truncatewords:"3" }}</a>
+                                <a href="{% url 'blog:blogdetail' blog_pk=blog.pk %}" class="product-name">{{ blog.blog_title|safe|truncatewords:"3" }}</a>
 
 
 
                                 <div class="small m-t-xs">
-                                    {{ blog.Description|safe|truncatewords:"9"}}
+                                    {{ blog.description|safe|truncatewords:"9"}}
                                 </div>
                                 <div class="ratings">
-                                <p>Posted  {{ blog.Date|timesince}} ago by
-                                  <a href="{% url 'userprofile:specific_profile' pk=blog.User.profile.pk %}">{{ blog.User }}</a>  
+                                <p>Posted  {{ blog.date|timesince}} ago by
+                                  <a href="{% url 'user_profile:specific_profile' profile_pk=blog.user.profile.pk %}">{{ blog.user }}</a>  
                                 </p>
 
                             </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'blog:blogdetail' pk=blog.pk %}" class="btn btn-xs btn-outline btn-primary">Read More <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'blog:blogdetail' blog_pk=blog.pk %}" class="btn btn-xs btn-outline btn-primary">Read More <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>
@@ -119,29 +82,29 @@
 
                             <div>
 
-                            {% if blog.Blog_image %}
-                               <img class="product_img" src="{{ blog.Blog_image.url }}/" alt="product picture" height="200" width="100">
+                            {% if blog.blog_image %}
+                               <img class="product_img" src="{{ blog.blog_image.url }}/" alt="product picture" height="200" width="100">
                             {% endif %}
 
                             </div>
                             <div class="product-desc">
                                 
-                                <a href="{% url 'blog:blogdetail' pk=blog.pk %}" class="product-name">{{ blog.Blog_title|safe|truncatewords:"3" }}</a>
+                                <a href="{% url 'blog:blogdetail' blog_pk=blog.pk %}" class="product-name">{{ blog.blog_title|safe|truncatewords:"3" }}</a>
 
 
 
                                 <div class="small m-t-xs">
-                                    {{ blog.Description|safe|truncatewords:"9"}}
+                                    {{ blog.description|safe|truncatewords:"9"}}
                                 </div>
                                 <div class="ratings">
-                                <p>Posted  {{ blog.Date|timesince}} ago by
-                                  <a href="{% url 'userprofile:specific_profile' pk=blog.User.profile.pk %}">{{ blog.User }}</a>  
+                                <p>Posted  {{ blog.date|timesince}} ago by
+                                  <a href="{% url 'user_profile:specific_profile' profile_pk=blog.user.profile.pk %}">{{ blog.user }}</a>  
                                 </p>
 
                             </div>
                                 <div class="m-t text-righ">
 
-                                    <a href="{% url 'blog:blogdetail' pk=blog.pk %}" class="btn btn-xs btn-outline btn-primary">Read More <i class="fa fa-long-arrow-right"></i> </a>
+                                    <a href="{% url 'blog:blogdetail' blog_pk=blog.pk %}" class="btn btn-xs btn-outline btn-primary">Read More <i class="fa fa-long-arrow-right"></i> </a>
 
 
                                 </div>

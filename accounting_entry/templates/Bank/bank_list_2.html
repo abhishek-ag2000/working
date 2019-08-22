@@ -1,0 +1,104 @@
+{% if n %}
+{% for i in n %}
+{% for j in i|slice:"0:1" %}
+{% if j != None %}
+<tr>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{ j.voucher_date }}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_type}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.transaction_type}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.instrument_no}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{ j.voucher_date }}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{ j.bank_date }}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}"></a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=j.pk period_selected_pk=period_selected.pk %}">{{ j.amount }}</a>
+  </td>
+  <td>
+    <button class="show-form-update btn btn-warning btn-xs" data-url="{% url 'accounting_entry:bankupdate' bank_reconciliation_pk=j.id %}">
+      Update
+    </button>
+  </td>
+</tr>
+{% endif %}
+{% endfor %}
+
+{% for k in i|slice:"1:2" %}
+
+{% if k != None %}
+<tr>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{ k.voucher_date }}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.cr_ledger}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.voucher_type}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.transaction_type}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.instrument_no}}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{ k.voucher_date }}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{ k.bank_date }}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}">{{ k.amount }}</a>
+  </td>
+
+  <td><a
+      href="{% url 'accounting_entry:bankdetail' company_pk=company.pk bank_reconciliation_pk=k.pk period_selected_pk=period_selected.pk %}"></a>
+  </td>
+
+  <td>
+    <button class="show-form-update btn btn-warning btn-xs"
+      data-url="{% url 'accounting_entry:bankupdate' bank_reconciliation_pk=k.id %}">
+      Update
+    </button>
+  </td>
+
+</tr>
+{% endif %}
+{% endfor %}
+
+{% endfor %}
+{% endif %}

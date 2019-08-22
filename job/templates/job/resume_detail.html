@@ -1,0 +1,118 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+
+
+
+{% block title %}Jobs{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content animated fadeIn">
+	<div class="ibox-content m-b-sm border-bottom">
+		<div class="col-lg-12 row">
+			<div class="col-lg-12 row">
+				<div class="col-lg-2">
+					<div class=" ">
+						<div class="social-avatar">
+							{% if resume.image %}
+							<img alt="image" class="rounded-circle" style="width: 100px;height: 97px;"
+								src="{{ resume.image.url }}/">
+							{% else %}
+							<img alt="image" class="rounded-circle" style="width: 100px;height: 97px;"
+								src="{% static 'userprofile/download (1).jpg' %}">
+							{% endif %}
+
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-7 p-4">
+					<h2 class="">{{resume.first_name }} {{resume.last_name }}</h2>
+					<span>{{resume.desired_job_title }}.</span>
+				</div>
+				<div class="col-lg-3 p-4">
+					<samll><i class="fa fa-envelope"></i> {{resume.email}}</samll><br>
+					<samll><i class="fa fa-phone"></i> {{resume.mobile_no}}</samll><br>
+					<samll><i class="fa fa-map-marker"></i> {{resume.state}}</samll>
+
+				</div>
+
+
+			</div>
+
+
+
+		</div>
+		<hr>
+		<div class="col-lg-12 row">
+
+			<div class="col-lg-4">
+				<h3>Educational info </h3>
+			</div>
+			<div class="col-lg-8">
+
+				<div class="">
+
+				</div>
+				<a href="forum_post.html" class="forum-item-title">{{resume.college}}</a>
+
+				<div class="forum-sub-title">{{resume.degree}}, {{resume.time_period_from}} -
+					{{resume.time_period_from}}</div>
+				<div class="forum-sub-title">Field of study {{resume.field_of_study}},</div>
+				<div class="forum-sub-title"> {{resume.marks}}.%</div>
+			</div>
+		</div>
+		<hr>
+		<div class="col-lg-12 row">
+
+			<div class="col-lg-4">
+				<h3>Working Experience </h3>
+			</div>
+			{% if resume.working_experince == True %}
+			<div class="col-lg-8">
+
+				<div class="">
+
+				</div>
+				<a href="forum_post.html" class="forum-item-title">{{resume.job_title}} at {{resume.company}}</a>
+				<div class="forum-sub-title">{{resume.experience_from}} - {{resume.experience_to}} </div>
+				<div class="forum-sub-title">{{resume.desc}} </div>
+				<samll><i class="fa fa-map-marker"></i> {{resume.company_city}}</samll>
+			</div>
+			{% else %}
+			<div class="col-lg-8">
+
+				<div class="">
+
+				</div>
+				<a href="#" class="forum-item-title">NILL</a>
+				<div class="forum-sub-title">Freshers</div>
+			</div>
+			{% endif %}
+		</div>
+		<hr>
+		<div class="col-lg-12 row">
+
+			<div class="col-lg-4">
+				<h3>Desired Job Preference </h3>
+			</div>
+			<div class="col-lg-8">
+
+				<div class="">
+
+				</div>
+				<a href="forum_post.html" class="forum-item-title">{{resume.desired_job_title}}</a>
+				<div class="forum-sub-title">Job Type {{resume.desired_job_type}},</div>
+				<div class="forum-sub-title"> Desired Salary: {{resume.desired_salary}} /months</div>
+
+			</div>
+		</div>
+		<hr>
+
+
+
+	</div>
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,17 @@
+/*
+* Bracketline CSS
+* v.1.0.0
+*/
+
+.link_add_btn
+{
+    background-color: #388a26;
+    border-color: #388a26;
+}
+
+.link_remove_btn
+{
+    top: 5px;
+    background-color: #0db2f3;
+    border-color: #0db2f3;
+}

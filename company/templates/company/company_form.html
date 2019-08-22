@@ -2,28 +2,22 @@
 {% load staticfiles %}
 {% load mathfilters %}
 {% block title %}
-    {% if not form.instance.pk %}
-      Create Company
-    {% else %}
-      Update Company
-  {% endif %}
+{% if not form.instance.pk %}
+Update Extra Details
+{% else %}
+Update Company
+{% endif %}
 {% endblock %}
-
-{% block javascript %}
-
-
-
-{% endblock %}  
 
 {% block content %}
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>    {% if not form.instance.pk %}
-                  Create Company
-                {% else %}
-                  Update Company
-              {% endif %}
+        <h2> {% if not form.instance.pk %}
+            Update Extra Details
+            {% else %}
+            Update Company
+            {% endif %}
 
         </h2>
         <ol class="breadcrumb">
@@ -31,28 +25,30 @@
                 <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
             </li>
             <li class="breadcrumb-item">
-                
+
                 <a href="{% url 'company:list' %}">Company list</a>
             </li>
             <li class="breadcrumb-item active">
-            {% if not form.instance.pk %}
-                <strong> Create Company</strong>
-            {% else %}
+                {% if not form.instance.pk %}
+                <strong>Update Extra Details</strong>
+                {% else %}
                 <strong> Update Company</strong>
-            {% endif %}
+                {% endif %}
             </li>
         </ol>
-    </div>         
+    </div>
 </div>
 <br>
+
+
 <div class="col-lg-12">
     <div class="ibox ">
         <div class="ibox-title">
-        {% if not form.instance.pk %}
-            <h5>Create Company</h5>
-        {% else %}
+            {% if not form.instance.pk %}
+            <h5>Update Extra Details</h5>
+            {% else %}
             <h5>Update Company</h5>
-        {% endif %}
+            {% endif %}
 
             <div class="ibox-tools">
                 <a class="collapse-link">
@@ -65,151 +61,89 @@
         </div>
         <div class="ibox-content">
             <form method="POST" data-validate-gst-billing-url="{% url 'company:validate_gst_billing' %}">
-            {% csrf_token %}
+                {% csrf_token %}
 
-            <style type="text/css">
-                .errorlist {
-                    color: red;
-                }
-            </style>
+                <style type="text/css">
+                    .errorlist {
+                        color: red;
+                    }
+                </style>
 
                 <div class="form-group row">
 
-                <label class="col-lg-2 col-form-label">Company Name<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                    <label class="col-lg-2 col-form-label">Company Name</label>
 
                     <div class="col-lg-10">
-                    {{ form.Name.errors }} 
-                    {{ form.Name }} 
+                        {% if not form.instance.pk %}
+                        {{organisation.name}}
+                        {% else %}
+                        {{ form.instance.organisation.name }}
+                        {% endif %}
                     </div>
                 </div>
                 <div class="form-group row">
 
-                <label class="col-lg-2 col-form-label">Type_of_company<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                    <label class="col-lg-2 col-form-label">Business Type<i class="material-icons"
+                            style="font-size:16px;color:red">*</i></label>
 
                     <div class="col-lg-10">
 
-                    {{ form.Type_of_company.errors }} 
-                    {{ form.Type_of_company }}
+                        {{ form.type_of_company.errors }}
+                        {{ form.type_of_company }}
 
                     </div>
                 </div>
 
                 <div class="form-group row">
 
-                <label class="col-lg-2 col-form-label">Bussiness nature<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                    <label class="col-lg-2 col-form-label">Bussiness nature<i class="material-icons"
+                            style="font-size:16px;color:red">*</i></label>
 
                     <div class="col-lg-10">
 
-                    {{ form.bussiness_nature.errors }}
-                    {{ form.bussiness_nature }}
+                        {{ form.bussiness_nature.errors }}
+                        {{ form.bussiness_nature }}
 
                     </div>
                 </div>
 
                 {% if not form.instance.pk %}
-                    <div class="form-group row">
+                <div class="form-group row">
 
-                    <label class="col-lg-2 col-form-label">Maintain<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                    <label class="col-lg-2 col-form-label">Maintain<i class="material-icons"
+                            style="font-size:16px;color:red">*</i></label>
 
-                        <div class="col-lg-10">
+                    <div class="col-lg-10">
 
                         {{ form.maintain.errors }}
                         {{ form.maintain }}
 
-                        </div>
                     </div>
+                </div>
                 {% else %}
-                    <div class="form-group row">
+                <div class="form-group row">
 
-                    <label class="col-lg-2 col-form-label">Maintain<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                    <label class="col-lg-2 col-form-label">Maintain<i class="material-icons"
+                            style="font-size:16px;color:red">*</i></label>
 
-                        <div class="col-lg-10">
+                    <div class="col-lg-10">
 
                         {{ form.instance.maintain }}
 
-                        </div>
                     </div>
+                </div>
                 {% endif %}
-                <div class="form-group row">
 
-                <label class="col-lg-2 col-form-label">Company Address<i class="material-icons" style="font-size:16px;color:red">*</i></label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.Address.errors }}
-                    {{ form.Address }}
-
-                    </div>
-                </div>
 
                 <div class="form-group row">
 
-                <label class="col-lg-2 col-form-label">Country<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                    <label class="col-lg-2 col-form-label">Financial Year From<i class="material-icons"
+                            style="font-size:16px;color:red">*</i></label>
 
                     <div class="col-lg-10">
 
-                    {{ form.Country.errors }}
-                    {{ form.Country }}
-
-                    </div>
-                </div>
-
-                <div class="form-group row">
-
-                <label class="col-lg-2 col-form-label">State<i class="material-icons" style="font-size:16px;color:red">*</i></label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.State.errors }}
-                    {{ form.State }}
-
-                    </div>
-                </div>
-
-                <div class="form-group row">
-
-                <label class="col-lg-2 col-form-label">Pincode</label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.Pincode.errors }}
-                    {{ form.Pincode }}
-
-                    </div>
-                </div>
-
-                <div class="form-group row">
-
-                <label class="col-lg-2 col-form-label">Telephone No</label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.Telephone_No.errors }}
-                    {{ form.Telephone_No }}
-
-                    </div>
-                </div>
-
-                <div class="form-group row">
-
-                <label class="col-lg-2 col-form-label">Mobile No</label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.Mobile_No.errors }}
-                    {{ form.Mobile_No }}
-
-                    </div>
-                </div>
-
-                <div class="form-group row">
-
-                <label class="col-lg-2 col-form-label">Financial Year From<i class="material-icons" style="font-size:16px;color:red">*</i></label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.Financial_Year_From.errors }}
-                    {{ form.Financial_Year_From }}
+                        {{ form.financial_year_from.errors }}
+                        {{ form.financial_year_from }}
 
                     </div>
                 </div>
@@ -217,113 +151,560 @@
 
                 <div class="form-group row">
 
-                <label class="col-lg-2 col-form-label">Books Begining From<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                    <label class="col-lg-2 col-form-label">Books Begining From<i class="material-icons"
+                            style="font-size:16px;color:red">*</i></label>
 
                     <div class="col-lg-10">
-                    {{ form.Books_Begining_From.errors }}
-                    {{ form.Books_Begining_From }}
+                        {{ form.books_begining_from.errors }}
+                        {{ form.books_begining_from }}
 
                     </div>
                 </div>
 
-                <div class="form-group row">
-
-                <label class="col-lg-2 col-form-label">GSTIN</label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.gst.errors }}
-                    {{ form.gst }}
-
-                    </div>
-                </div>
 
                 <div class="form-group row">
-
-                    <label class="col-lg-2 col-form-label">Enable Purchase Billing Mode</label>
-
-                        <div class="col-lg-10">
-
-                        {{ form.enable_purchase.errors }}
-                        {{ form.enable_purchase }}
-
-                        </div>
-                    </div>
-
-                <div class="form-group row">
-
-                    <label class="col-lg-2 col-form-label">Enable Sales Billing Mode</label>
-
-                        <div class="col-lg-10">
-
-                        {{ form.enable_sales.errors }}
-                        {{ form.enable_sales }}
-
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
 
                     <label class="col-lg-2 col-form-label">Enable GST</label>
 
-                        <div class="col-lg-10">
+                    <div class="col-lg-10">
 
                         {{ form.gst_enabled.errors }}
                         {{ form.gst_enabled }}
 
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-
-                    <label class="col-lg-2 col-form-label">Enable Composite Billing</label>
-
-                        <div class="col-lg-10">
-
-                        {{ form.composite_enable.errors }}
-                        {{ form.composite_enable }}
-
-                        </div>
-                    </div>
-
-                <div class="form-group row">
-
-                <label class="col-lg-2 col-form-label">PAN Details</label>
-
-                    <div class="col-lg-10">
-
-                    {{ form.pan.errors }}
-                    {{ form.pan }}
-
                     </div>
                 </div>
+
+
                 <div class="form-group row">
 
-                
+                    <label class="col-lg-2 col-form-label">PAN</label>
 
                     <div class="col-lg-10">
 
-                    {{ form.non_field_errors }}
+                        {{ form.pan_no.errors }}
+                        {{ form.pan_no }}
 
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <div class="col-lg-offset-2 col-lg-10">
-                        {% if not form.instance.pk %}
-                        <button type="submit" class="btn btn-info pull-right" value="Submit">Create Company</button>
-                        {% else %}
-                        <button type="submit" class="btn btn-info pull-right" value="Submit">Update Company</button>
+                <hr>
+
+                {% if form.instance.gst_enabled == 'Yes' %}
+                <div id="primary_info" style="display: block;">
+                    {% else %}
+                    <div id="primary_info" style="display: none;">
                         {% endif %}
-                    </div>
-                </div>
+                        <p>
+                            <h3>GST Details</h3>
+                        </p>
+
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Assessee of Other Territory</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.is_other_territory.errors }}
+                                {{ form.is_other_territory }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Registration Type</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.gst_registration_type.errors }}
+                                {{ form.gst_registration_type }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">GSTIN/UIN</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.gst.errors }}
+                                {{ form.gst }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Applicable from</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.gst_applicable.errors }}
+                                {{ form.gst_applicable }}
+
+                            </div>
+                        </div>
+                        {% if form.instance.gst_enabled == 'Yes' and form.instance.gst_registration_type == 'Composition' %}
+                        <div id="registration_parameter" style="display: block;">
+                            {% else %}
+                            <div id="registration_parameter" style="display: none;">
+                                {% endif %}
+
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label">Tax rate from taxable turnover</label>
+                                    <div class="col-lg-10">
+                                        {{ form.tax_rate.errors }}
+                                        {{ form.tax_rate }}
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label">Enable tax rate for purchase<br>(Includes
+                                        purchases under reverse charge)</label>
+                                    <div class="col-lg-10">
+                                        {{ form.purchase_tax.errors }}
+                                        {{ form.purchase_tax }}
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group row">
+
+                                <label class="col-lg-2 col-form-label">Is E-Way bill applicable?</label>
+
+                                <div class="col-lg-10">
+
+                                    {{ form.way_bill.errors }}
+                                    {{ form.way_bill }}
+
+                                </div>
+                            </div>
+
+                            {% if form.instance.gst_enabled == 'Yes' and form.instance.way_bill == 'Yes' %}
+                            <div id="way_bill_parameter" style="display:block;">
+                                {% else %}
+                                <div id="way_bill_parameter" style="display:none;">
+                                    {% endif %}
+
+                                    <div class="form-group row">
+
+                                        <label class="col-lg-2 col-form-label">Threshold Limit includes</label>
+
+                                        <div class="col-lg-10">
+
+                                            {{ form.threshold_limit_inc.errors }}
+                                            {{ form.threshold_limit_inc }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+
+                                        <label class="col-lg-2 col-form-label">E-Way Bill Applicable for
+                                            Interstate</label>
+
+                                        <div class="col-lg-10">
+
+                                            {{ form.interstate_apl.errors }}
+                                            {{ form.interstate_apl }}
+
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="form-group row">
+
+                                        <label class="col-lg-2 col-form-label">Threshold Limit</label>
+
+                                        <div class="col-lg-10">
+
+                                            {{ form.threshold_limit.errors }}
+                                            {{ form.threshold_limit }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+
+                                        <label class="col-lg-2 col-form-label">E-Way Bill Applicable for
+                                            intrastate</label>
+
+                                        <div class="col-lg-10">
+
+                                            {{ form.intrastate_apl.errors }}
+                                            {{ form.intrastate_apl }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+
+                                        <label class="col-lg-2 col-form-label">Threshold Limit</label>
+
+                                        <div class="col-lg-10">
+
+                                            {{ form.threshold_limit_intra.errors }}
+                                            {{ form.threshold_limit_intra }}
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if form.instance.gst_enabled == 'Yes' and form.instance.gst_registration_type == 'Composition' %}
+                                <div id="registration_secondary_parameter" style="display: none;">
+                                    {% else %}
+                                    <div id="registration_secondary_parameter" style="display: block;">
+                                        {% endif %}
+                                        <div class="form-group row">
+
+                                            <label class="col-lg-2 col-form-label">Enable tax liability on advance
+                                                receipts?</label>
+
+                                            <div class="col-lg-10">
+
+                                                {{ form.adv_receipt_tax.errors }}
+                                                {{ form.adv_receipt_tax }}
+
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+
+                                            <label class="col-lg-2 col-form-label">Enable tax liability on reverse
+                                                charge<br>(Purchase from unregistered dealer)</label>
+
+                                            <div class="col-lg-10">
+
+                                                {{ form.tax_liability.errors }}
+                                                {{ form.tax_liability }}
+
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+
+                                            <label class="col-lg-2 col-form-label">Set/Alter GST</label>
+
+                                            <div class="col-lg-10">
+
+                                                {{ form.set_or_alter_gst.errors }}
+                                                {{ form.set_or_alter_gst }}
+
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+
+                                            <label class="col-lg-2 col-form-label">Provide LUT/Bond details</label>
+
+                                            <div class="col-lg-10">
+                                                {{ form.provide_lut.errors }}
+                                                {{ form.provide_lut }}
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% if form.instance.gst_enabled == 'Yes' and form.instance.provide_lut == 'Yes' %}
+                                    <div id="lut_details" style="display:block;">
+                                        {% else %}
+                                        <div id="lut_details" style="display:none;">
+                                            {% endif %}
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">LUT/Bond No</label>
+
+                                                <div class="col-lg-10">
+                                                    {{ form.lut_bond_no.errors }}
+                                                    {{ form.lut_bond_no }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Applicable From</label>
+
+                                                <div class="col-lg-10">
+                                                    {{ form.applicable_from.errors }}
+                                                    {{ form.applicable_from }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Applicable To</label>
+
+                                                <div class="col-lg-10">
+                                                    {{ form.applicable_to.errors }}
+                                                    {{ form.applicable_to }}
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <hr>
+                                    </div>
+
+
+                                    {% if form.instance.gst_enabled == 'Yes' and form.instance.set_or_alter_gst == 'Yes' %}
+                                    <div id="secondary_info" style="display:block;">
+                                        {% else %}
+                                        <div id="secondary_info" style="display:none;">
+                                            {% endif %}
+                                            <p>
+                                                <h3>GST Details For Company</h3>
+                                            </p>
+
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">HSN/SAC</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.hsn.errors }}
+                                                    {{ form.hsn }}
+
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Taxability</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.taxability.errors }}
+                                                    {{ form.taxability }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Is reverse charge
+                                                    applicable?</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.reverse_charge.errors }}
+                                                    {{ form.reverse_charge }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Is ineligible for input
+                                                    credit?</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.input_credit.errors }}
+                                                    {{ form.input_credit }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Integrated Tax</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.integrated_tax.errors }}
+                                                    {{ form.integrated_tax }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Central Tax</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.central_tax.errors }}
+                                                    {{ form.central_tax }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">State Tax</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.state_tax.errors }}
+                                                    {{ form.state_tax }}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <label class="col-lg-2 col-form-label">Cess</label>
+
+                                                <div class="col-lg-10">
+
+                                                    {{ form.cess.errors }}
+                                                    {{ form.cess }}
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-lg-10">
+
+                                                {{ form.non_field_errors }}
+
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <div class="col-lg-offset-2 col-lg-10">
+                                                <button type="submit" class="btn btn-info pull-right"
+                                                    value="Submit">Update Details</button>
+                                            </div>
+                                        </div>
             </form>
         </div>
     </div>
 </div>
-
 <br>
-  
-
-
 {% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+
+
+    function GST_No_Changed(txt) {
+        var gstin = txt.value.trim()
+
+        if (gstin.length == 0) {
+            return
+        }
+
+        var dict_data = {
+            "gstin": gstin
+        }
+
+        $.ajax({
+            url: "{% url 'bracketline:validate_gstin_ajax' %}",
+            data: $.param(dict_data),
+            dataType: 'json',
+            success: function (data) {
+                if (!data.valid) {
+                    swal({
+                        title: "Warning!",
+                        text: "Verify the party GSTIN (" + data.msg + ")",
+                        type: "warning"
+                    });
+                }
+            }
+        });
+    }
+
+    function gst_change_enability(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Yes") {
+            document.getElementById("primary_info").style = "display:block;";
+        } else {
+            document.getElementById("primary_info").style = "display:none;";
+            document.getElementById("secondary_info").style = "display:none;";
+            document.getElementById("way_bill_parameter").style = "display:none;";
+            document.getElementById("lut_details").style = "display:none;";
+            document.getElementById("registration_parameter").style = "display:none;";
+            document.getElementById("registration_secondary_parameter").style = "display:none;";
+
+        }
+    }
+
+    function gst_change_setalter_enability(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Yes") {
+            document.getElementById("secondary_info").style = "display:block;";
+        } else {
+            document.getElementById("secondary_info").style = "display:none;";
+
+        }
+    }
+
+    function waybill_change_enability(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Yes") {
+            document.getElementById("way_bill_parameter").style = "display:block;";
+        } else {
+            document.getElementById("way_bill_parameter").style = "display:none;";
+        }
+    }
+
+    function lut_details_enability(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Yes") {
+            document.getElementById("lut_details").style = "display:block;";
+        } else {
+            document.getElementById("lut_details").style = "display:none;";
+        }
+    }
+
+    function registration_effects(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Composition") {
+            document.getElementById("registration_parameter").style = "display:block;";
+            document.getElementById("registration_secondary_parameter").style = "display:none;";
+        } else {
+            document.getElementById("registration_parameter").style = "display:none;";
+            document.getElementById("registration_secondary_parameter").style = "display:block;";
+        }
+    }
+
+    function change_taxability_stock(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Taxable") {
+            document.getElementById("id_integrated_tax").disabled = false;
+            document.getElementById("id_central_tax").disabled = false;
+            document.getElementById("id_state_tax").disabled = false;
+            document.getElementById("id_cess").disabled = false;
+            document.getElementById("id_reverse_charge").disabled = false;
+            document.getElementById("id_input_credit").disabled = false;
+        } else {
+            document.getElementById("id_integrated_tax").disabled = true;
+            document.getElementById("id_reverse_charge").disabled = true;
+            document.getElementById("id_reverse_charge").selectedIndex = 2;
+            document.getElementById("id_input_credit").disabled = true;
+            document.getElementById("id_input_credit").selectedIndex = 2;
+            document.getElementById("id_integrated_tax").value = 0;
+            document.getElementById("id_central_tax").disabled = true;
+            document.getElementById("id_central_tax").value = 0;
+            document.getElementById("id_state_tax").disabled = true;
+            document.getElementById("id_state_tax").value = 0;
+            document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_cess").value = 0;
+        }
+    }
+</script>
+{% endblock script %}

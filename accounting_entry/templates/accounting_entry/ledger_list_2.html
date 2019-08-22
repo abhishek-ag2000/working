@@ -1,0 +1,45 @@
+{% load mathfilters %}
+{% load humanize %}
+{% for ledger in ledgermaster_list %}
+<tr>
+
+    <td><a
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ forloop.counter }}</a>
+    </td>
+
+    <td><a
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.ledger_name}}</a>
+    </td>
+
+    <td><a
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.ledger_group}}</a>
+    </td>
+
+    {% if ledger.balance_opening < 0 %}
+    <td><a
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.balance_opening|abs}})</a>
+    </td>
+    {% else %}
+    <td><a
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.balance_opening|abs}}</a>
+    </td>
+    {% endif %}
+
+    {% if ledger.closing_balance < 0 %}
+    <td><a
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.closing_balance|abs}})</a>
+    </td>
+    {% else %}
+    <td><a
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.closing_balance|abs}}</a>
+    </td>
+    {% endif %}
+
+    <td>
+        <button class="btn btn-danger show-form-delete"
+            data-url="{% url 'accounting_entry:ledgerdelete' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>
+    </td>
+</tr> 
+{% endfor %}

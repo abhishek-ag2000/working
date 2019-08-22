@@ -1,0 +1,264 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% block title %}Jobs{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content animated fadeIn">
+        <div class="col-lg-12">
+                <div class="ibox ">
+                        <div class="ibox-title">
+                                {% if not form.instance.pk %}
+                                <h5>Build resume</h5>
+
+                                {% endif %}
+
+                                <div class="ibox-tools">
+                                        <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                        </a>
+                                        <a class="close-link">
+                                                <i class="fa fa-times"></i>
+                                        </a>
+                                </div>
+
+                        </div>
+                        <div class="ibox-content">
+                                <form method="POST" action="" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="col-lg-12 ">
+                                                <p>
+                                                        <h3 class="bg_title ">Profile Details</h3>
+                                                </p>
+
+                                        </div>
+                                        <div class="col-lg-12 row form-group">
+
+                                                <div class="col-lg-2">
+                                                        <label>First name</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.first_name.error}}
+                                                        {{form.first_name}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>Last Name</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.last_name}}
+                                                </div>
+
+                                        </div>
+
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>State</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.state}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>Email</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.email}}
+                                                </div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Mobile No</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.mobile_no}}
+                                                </div>
+                                                <div class="col-lg-2">
+
+                                                </div>
+                                                <!-- <div class="col-lg-4 custom-file">
+                                                        <div class="custom-file">
+                                                                <label class="custom-file-label" for="id_image">Choose...</label>
+                                                                {{form.image.errors}}
+                                                                {{form.image}}
+                                                        </div>  
+                                                </div> -->
+
+                                        </div>
+                                        <hr>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 ">
+                                                <p>
+                                                        <h3 class="bg_title ">Educational Info</h3>
+                                                </p>
+
+                                        </div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Degree</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.degree}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>College</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.college}}
+                                                </div>
+
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Field of Study</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.field_of_study}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>City</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.city}}
+                                                </div>
+
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Time Period</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.time_period_from}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>To</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.time_period_to}}
+                                                </div>
+
+
+                                        </div>
+                                        <hr>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 ">
+                                                <p>
+                                                        <h3 class="bg_title ">Working Experience</h3>
+                                                </p>
+
+                                        </div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Job Title</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.job_title}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>Company</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.company}}
+                                                </div>
+                                                <div class="clearfix"></div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Time period</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.experience_from}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>To</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.experience_to}}
+                                                </div>
+                                                <div class="clearfix"></div>
+
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>City</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.company_city}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>Desc</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.desc}}
+                                                </div>
+                                                <div class="clearfix"></div>
+
+                                        </div>
+                                        <hr>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 ">
+                                                <p>
+                                                        <h3 class="bg_title ">Additional Info</h3>
+                                                </p>
+
+                                        </div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Desired Job Title</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.desired_job_title}}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                        <label>Desired Job Type</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.desired_job_type}}
+                                                </div>
+                                                <div class="clearfix"></div>
+                                        </div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Desired Salary</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.desired_salary}}
+                                                </div>
+                                                <div class="col-lg-2">
+
+                                                </div>
+                                                <div class="col-lg-4">
+
+                                                </div>
+                                                <div class="clearfix"></div>
+                                        </div>
+                                        <hr>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-12 row form-group">
+                                                <div class="col-lg-2">
+                                                        <label>Upload a Photo</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                        {{form.image}}
+                                                </div>
+                                               
+                                                <div class="clearfix"></div>
+                                        </div>
+                                        <div class=" col-lg-12 form-group">
+                                                <button class="btn btn-info pull-right" type="submit">Submit</button>
+                                        </div>
+
+                                </form>
+                        </div>
+                </div>
+        </div>
+</div>
+
+
+
+
+{% endblock %}

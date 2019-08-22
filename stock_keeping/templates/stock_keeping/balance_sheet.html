@@ -1,0 +1,415 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block title %}Balance Sheet Overview{% endblock %}
+
+{% block content %}
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h3>Balance Sheet Overview</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Balance Sheet Overview</strong>
+                    </li>
+                </ol>
+           <br>
+                <a href="{% url 'accounting_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}" class="btn btn-success" role="button">Profit & Loss OverView</a>
+          
+                <a href="{% url 'accounting_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}" class="btn btn-warning" role="button">Balance Sheet Condensed View</a>
+
+                <a href="{% url 'accounting_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}" class="btn btn-warning" role="button">Trial Balance</a>
+
+                              <button  class="btn btn-info show-form-update pull-right" data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                              Update Period 
+                            </button>
+
+                      <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+                      <strong>Selected Period: From</strong>
+                       {{ period_selected.start_date|date }}
+                        <strong>To</strong>
+                         {{ period_selected.end_date|date }}  &nbsp;
+
+                      </a>
+           
+                </div>
+            </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+            
+            
+                <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                    <div id="printableArea">
+                      <div class="ibox-title">
+                            <h2><center><strong>Balance Sheet Overview</strong></center></h2>
+                        </div>
+                        <div class="ibox-content">
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover" data-page-size="15" id="book-table">
+                                <thead>
+
+                                  <tr>
+                                    <th>Liabilities</th>
+                                    <th>Amount(&#8377)</th>
+                                    <th>Total Amount(&#8377)</th>
+                                    <th>Assets</th>
+                                    <th>Amount(&#8377)</th>
+                                    <th>Total Amount(&#8377)</th>
+                                  </tr>
+
+                                </thead>
+                               
+
+                                <tbody>
+
+                                  {% for j in lia_particular %}
+                                    {% if j.difference != 0 %}
+
+                                      <tr>
+                                          {% if j.difference >= 0 %}
+                                              <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=j.pk period_selected_pk=period_selected.pk %}">{{j.group_Name}}</a></th>
+                                              <th></th>
+                                              <th>{{ j.difference|abs|floatformat:2|intcomma }}</th>
+                                              <th></th>
+                                              <th></th>
+                                              <th></th>
+                                          {% else %}
+                                              <th></th>
+                                              <th></th>
+                                              <th></th>
+                                              <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=j.pk period_selected_pk=period_selected.pk %}">{{j.group_Name}}</a></th>
+                                              <th></th>
+                                              <th>{{ j.difference|abs|floatformat:2|intcomma }}</th>
+                                          {% endif %} 
+                                      </tr>
+                                      {% for grp in j.master_group.all %}
+                                        <tr>
+                                          {% if j.difference >= 0 %}
+                                              {% if grp.negative_closing|sub:grp.positive_closing != 0 %}
+                                                <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=grp.pk period_selected_pk=period_selected.pk %}">{{grp.group_Name}}</a></td>
+                                                <td>{{ grp.negative_closing|sub:grp.positive_closing|abs|floatformat:2|intcomma }}</td>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                              {% endif %}
+                                            {% else %}
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=grp.pk period_selected_pk=period_selected.pk %}">{{grp.group_Name}}</a></th>
+                                                <td>{{ grp.negative_closing|sub:grp.positive_closing|abs|floatformat:2|intcomma }}</td>
+                                                <th></th>
+                                            {% endif %} 
+                                        </tr>
+                                      {% endfor %}
+                                      {% for ledger in j.ledgergroups.all %}
+                                        <tr>
+                                          {% if j.difference >= 0 %}
+                                              {% if ledger.Closing_balance != 0 %}
+                                                <td><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=ledger.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger.ledger_name }}</em></a></td>
+                                                <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                              {% endif %}
+                                            {% else %}
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <td><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=ledger.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger.ledger_name }}</em></a></td>
+                                                <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                <th></th>
+                                            {% endif %} 
+                                        </tr>
+                                      {% endfor %}
+                                    {% endif %}
+                                  {% endfor %}
+
+                                  {% for j in ast_particular %}
+                                      {% if j.group_Name == 'Current Assets' %}
+                                        {% if j.difference != 0 or closing_stock != 0 %}
+                                        <tr>
+                                            {% if j.difference >= 0 %}
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=j.pk period_selected_pk=period_selected.pk %}">{{j.group_Name}}</a></th>
+                                                <th></th>
+                                                <th>{{ total_ca|abs|floatformat:2|intcomma }}</th>
+                                            {% else %}
+                                                <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=j.pk period_selected_pk=period_selected.pk %}">{{j.group_Name}}</a></th>
+                                                <th></th>
+                                                <th>{{ total_ca|abs|floatformat:2|intcomma }}</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            {% endif %} 
+                                        </tr>
+                                        <tr>
+                                          {% if j.difference >= 0 %}
+                                            <td></td>
+                                            <td></td>
+                                            <th></th>
+                                            <td><a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}">Closing Stock</a></td>
+                                            <td>{{ closing_stock|abs|floatformat:2|intcomma }}</td>
+                                            <th></th>
+                                          {% else %}
+                                            <td><a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}">Closing Stock</a></td>
+                                            <td>{{ closing_stock|abs|floatformat:2|intcomma }}</td>
+                                            <th></th>
+                                            <td></td>
+                                            <td></td>
+                                            <th></th>
+                                          {% endif %}
+                                        </tr>
+                                        {% for grp in j.master_group.all %}
+                                          <tr>
+                                            {% if j.difference >= 0 %}
+                                                {% if grp.negative_closing|sub:grp.positive_closing != 0 %}
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th></th>
+                                                  <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=grp.pk period_selected_pk=period_selected.pk %}">{{grp.group_Name}}</a></td>
+                                                  <td>{{ grp.negative_closing|sub:grp.positive_closing|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                {% endif %}
+                                              {% else %}
+                                                  <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=grp.pk period_selected_pk=period_selected.pk %}">{{grp.group_Name}}</a></th>
+                                                  <td>{{ grp.negative_closing|sub:grp.positive_closing|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                  <th></th>
+                                                  <td></td>
+                                                  <th></th>
+                                              {% endif %} 
+                                          </tr>
+                                        {% endfor %}
+                                        {% for ledger in j.ledgergroups.all %}
+                                          <tr>
+                                            {% if j.difference >= 0 %}
+                                                {% if ledger.Closing_balance != 0 %}
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th></th>
+                                                  <td><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=ledger.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger.ledger_name }}</em></a></td>
+                                                  <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                {% endif %}
+                                              {% else %}
+                                                  <td><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=ledger.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger.ledger_name }}</em></a></td>
+                                                  <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                  <th></th>
+                                                  <td></td>
+                                                  <th></th>
+                                              {% endif %} 
+                                          </tr>
+                                        {% endfor %}
+                                        {% endif %}
+                                      {% else %}
+                                        {% if j.difference != 0 %}
+                                        <tr>
+                                            {% if j.difference >= 0 %}
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=j.pk period_selected_pk=period_selected.pk %}">{{j.group_Name}}</a></th>
+                                                <th></th>
+                                                <th>{{ j.difference|abs|floatformat:2|intcomma }}</th>
+                                            {% else %}
+                                                <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=j.pk period_selected_pk=period_selected.pk %}">{{j.group_Name}}</a></th>
+                                                <th></th>
+                                                <th>{{ j.difference|abs|floatformat:2|intcomma }}</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            {% endif %} 
+                                        </tr>
+                                        {% for grp in j.master_group.all %}
+                                          <tr>
+                                            {% if j.difference >= 0 %}
+                                                {% if grp.negative_closing|sub:grp.positive_closing != 0 %}
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th></th>
+                                                  <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=grp.pk period_selected_pk=period_selected.pk %}">{{grp.group_Name}}</a></td>
+                                                  <td>{{ grp.negative_closing|sub:grp.positive_closing|abs|floatformat:2 }}</td>
+                                                  <th></th>
+                                                {% endif %}
+                                              {% else %}
+                                                  <th><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=grp.pk period_selected_pk=period_selected.pk %}">{{grp.group_Name}}</a></th>
+                                                  <td>{{ grp.negative_closing|sub:grp.positive_closing|abs|floatformat:2 }}</td>
+                                                  <th></th>
+                                                  <th></th>
+                                                  <td></td>
+                                                  <th></th>
+                                              {% endif %} 
+                                          </tr>
+                                        {% endfor %}
+                                        {% for ledger in j.ledgergroups.all %}
+                                          <tr>
+                                            {% if j.difference >= 0 %}
+                                                {% if ledger.Closing_balance != 0 %}
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th></th>
+                                                  <td><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=ledger.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger.ledger_name }}</em></a></td>
+                                                  <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                {% endif %}
+                                              {% else %}
+                                                  <td><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=ledger.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger.ledger_name }}</em></a></td>
+                                                  <td>{{ ledger.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                  <th></th>
+                                                  <td></td>
+                                                  <th></th>
+                                              {% endif %} 
+                                          </tr>
+                                        {% endfor %}
+                                        {% endif %}
+                                    {% endif %}
+                                  {% endfor %}
+
+                                        <tr>
+                                            {% if total_pl >= 0 %}
+                                                  <th><a href="{% url 'accounting_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ ledger_pl.ledger_name }}</a></th>
+                                                  <td></td>
+                                                  <th>{{ total_pl|abs|floatformat:2|intcomma }}</th>
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th></th>
+                                              {% else %}
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th><a href="{% url 'accounting_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ ledger_pl.ledger_name }}</a></th>
+                                                  <th></th>
+                                                  <td></td>
+                                                  <th>{{ total_pl|abs|floatformat:2|intcomma }}</th>
+                                              {% endif %} 
+                                          </tr>
+                                          <tr>
+                                              {% if total_pl >= 0 %}
+                                                  <td>Opening Balance</td>
+                                                  <td>{{ ledger_pl.Balance_opening|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th></th>
+                                              {% else %}
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th>Opening Balance</th>
+                                                  <th></th>
+                                                  <td>{{ ledger_pl.Balance_opening|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                              {% endif %} 
+                                          </tr>
+                                          <tr>
+                                              {% if total_pl >= 0 %}
+                                                  <td>Current Period</td>
+                                                  <td>{{ np|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th></th>
+                                              {% else %}
+                                                  <td></td>
+                                                  <td></td>
+                                                  <th>Current Period</th>
+                                                  <th></th>
+                                                  <td>{{ np|abs|floatformat:2|intcomma }}</td>
+                                                  <th></th>
+                                              {% endif %} 
+                                          </tr>
+
+                                          <tr>
+                                              {% if gs_debit_opening > gs_credit_opening %}
+                                                <th>Difference in Opening Balance</th>
+                                                <td></td>
+                                                <th>{{ dif_ob|abs|floatformat:2|intcomma }}</th>
+                                                <td></td>
+                                                <td></td>
+                                                <th></th>
+                                              {% else %}
+                                                <th></th>
+                                                <td></td>
+                                                <th></th>
+                                                <th>Difference in Opening Balance</th>
+                                                <td></td>
+                                                <th>{{ dif_ob|abs|floatformat:2|intcomma }}</th>
+                                              {% endif %}
+                                          </tr>
+
+                                        <tr>
+                                            <th>Grand Total</th>
+                                            <td></td>
+                                            <th>{{ total_liabilities|abs|floatformat:2|intcomma }}</th>
+                                            <th>Grand Total</th>
+                                            <td></td>
+                                            <th>{{ total_asset|abs|floatformat:2|intcomma }}</th>
+                                              
+                                        </tr>
+                        
+
+                                </tbody>
+
+                            </table>
+                            
+
+                        </div>
+
+                        </div>
+                        </div>
+                        <div class="ibox-content">
+                          <input class='btn btn-info' type="button" onclick="printDiv('printableArea')" value="Print" />
+                        </div>
+                    
+                </div>
+            </div>
+            </div>
+
+        </div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
+</div>
+
+<script type="text/javascript">
+  
+  function printDiv(divName) {
+     var printContents = document.getElementById(divName).innerHTML;
+     var originalContents = document.body.innerHTML;
+
+     document.body.innerHTML = printContents;
+
+     window.print();
+
+     document.body.innerHTML = originalContents;
+  }
+</script> 
+{% endblock %}
