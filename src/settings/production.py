@@ -179,7 +179,7 @@ MESSAGE_TAGS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bracketline',
+        'NAME': 'bracketline_git',
         'USER': 'postgres',
         'PASSWORD': 'qwerty123',
         'HOST': '127.0.0.1',

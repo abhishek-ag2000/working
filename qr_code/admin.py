@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import EmployeeMasterQR, StockMasterQR
 # Register your models here.
 
-# comment here
+
 class EmployeeAdmin(admin.ModelAdmin):
     """
     Model Admin class for EmployeeMasterQR model

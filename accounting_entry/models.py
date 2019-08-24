@@ -115,7 +115,7 @@ class LedgerMaster(models.Model):
         ('Others', 'Others'),
         ('GST', 'GST'),
     )
-    duty_tax_type = models.CharField(max_length=10, choices=taxes, default='Others')
+    duty_tax_type = models.CharField(max_length=10, choices=taxes, default='Others', blank=True)
     types = (
         ('Central Tax', 'Central Tax'),
         ('Cess', 'Cess'),
@@ -129,40 +129,40 @@ class LedgerMaster(models.Model):
         ('Not Applicable', 'Not Applicable'),
         ('GST', 'GST'),
     )
-    assessable_value = models.CharField(max_length=20, choices=values, default='Not Applicable')
+    assessable_value = models.CharField(max_length=20, choices=values, default='Not Applicable', blank=True)
 
     appropiate = (
         ('Both', 'Both'),
         ('Goods', 'Goods'),
         ('Services', 'Services'),
     )
-    appropiate_to = models.CharField(max_length=20, choices=appropiate, default='Both')
+    appropiate_to = models.CharField(max_length=20, choices=appropiate, default='Both', blank=True)
 
     calculation = (
         ('Based on Quantity', 'Based on Quantity'),
         ('Based on Value', 'Based on Value'),
     )
-    calculation_method = models.CharField(max_length=20, choices=calculation, default='Based on Value')
+    calculation_method = models.CharField(max_length=20, choices=calculation, default='Based on Value', blank=True)
 
     for_gst = (
         ('Applicable', 'Applicable'),
         ('Not Applicable', 'Not Applicable'),
         ('Undefined', 'Undefined'),
     )
-    gst_applicable = models.CharField(max_length=20, choices=for_gst, default='Not Applicable')
+    gst_applicable = models.CharField(max_length=20, choices=for_gst, default='Not Applicable', blank=True)
 
     yes_no_choice = (
         ('Yes', 'Yes'),
         ('No', 'No'),
     )
-    set_or_alter_gst = models.CharField(max_length=3, choices=yes_no_choice, default='No')
-    set_or_alter_gst_tax = models.CharField(max_length=3, choices=yes_no_choice, default='No')
+    set_or_alter_gst = models.CharField(max_length=3, choices=yes_no_choice, default='No', blank=True)
+    set_or_alter_gst_tax = models.CharField(max_length=3, choices=yes_no_choice, default='No', blank=True)
 
     supplies = (
         ('Goods', 'Goods'),
         ('Services', 'Services'),
     )
-    supply_type = models.CharField(max_length=10, choices=supplies, default='Goods')
+    supply_type = models.CharField(max_length=10, choices=supplies, default='Goods', blank=True)
 
     registration = (
         ('Unknown', 'Unknown'),
@@ -171,10 +171,10 @@ class LedgerMaster(models.Model):
         ('Regular', 'Regular'),
         ('Unregistered', 'Unregistered'),
     )
-    registration_type = models.CharField(max_length=20, choices=registration, default='Unregistered')
+    registration_type = models.CharField(max_length=20, choices=registration, default='Unregistered', blank=True)
 
-    is_eoperator = models.CharField(max_length=3, choices=yes_no_choice, default='No')
-    deemed_expoter = models.CharField(max_length=3, choices=yes_no_choice, default='No')
+    is_eoperator = models.CharField(max_length=3, choices=yes_no_choice, default='No', blank=True)
+    deemed_expoter = models.CharField(max_length=3, choices=yes_no_choice, default='No', blank=True)
 
     parties = (
         ('Not Applicable', 'Not Applicable'),
@@ -182,14 +182,14 @@ class LedgerMaster(models.Model):
         ('Embassy/UN Body', 'Embassy/UN Body'),
         ('SEZ', 'SEZ'),
     )
-    party_type = models.CharField(max_length=100, choices=parties, default='Not Applicable')
+    party_type = models.CharField(max_length=100, choices=parties, default='Not Applicable', blank=True)
 
-    is_transporter = models.CharField(max_length=3, choices=yes_no_choice, default='No')
+    is_transporter = models.CharField(max_length=3, choices=yes_no_choice, default='No', blank=True)
     transporter_id = models.CharField(max_length=50, blank=True)
     hsn_desc = models.CharField(max_length=255, blank=True)
     hsn_no = models.CharField(max_length=20, blank=True)
 
-    is_non_gst = models.CharField(max_length=3, choices=yes_no_choice, default='No')
+    is_non_gst = models.CharField(max_length=3, choices=yes_no_choice, default='No', blank=True)
 
     transaction_types_purchase = (
         ('Not Applicable', 'Not Applicable'),
@@ -243,7 +243,7 @@ class LedgerMaster(models.Model):
         ('Purchase Nil Rated', 'Purchase Nil Rated'),
         ('Intrastate Purchase Taxable', 'Intrastate Purchase Taxable'),
     )
-    nature_transactions_purchase = models.CharField(max_length=100, choices=transaction_types_purchase, default='Not Applicable')
+    nature_transactions_purchase = models.CharField(max_length=100, choices=transaction_types_purchase, default='Not Applicable', blank=True)
 
     transaction_types_sales = (
         ('Not Applicable', 'Not Applicable'),
@@ -281,13 +281,13 @@ class LedgerMaster(models.Model):
         ('Sales to SEZ - Nil Rated', 'Sales to SEZ - Nil Rated'),
         ('Sales to SEZ - Taxable', 'Sales to SEZ - Taxable'),
     )
-    nature_transactions_sales = models.CharField(max_length=100, choices=transaction_types_sales, default='Not Applicable')
+    nature_transactions_sales = models.CharField(max_length=100, choices=transaction_types_sales, default='Not Applicable', blank=True)
 
     gd_nature = (
         ('Not Applicable', 'Not Applicable'),
         ('Capital Goods', 'Capital Goods'),
     )
-    goods_nature = models.CharField(max_length=20, choices=gd_nature, default='Not Applicable')
+    goods_nature = models.CharField(max_length=20, choices=gd_nature, default='Not Applicable', blank=True)
 
     tax_category = (
         ('Unknown', 'Unknown'),
@@ -295,12 +295,12 @@ class LedgerMaster(models.Model):
         ('Nil Rated', 'Nil Rated'),
         ('Taxable', 'Taxable'),
     )
-    taxability = models.CharField(max_length=20, choices=tax_category, default='Unknown')
+    taxability = models.CharField(max_length=20, choices=tax_category, default='Unknown', blank=True)
 
-    integrated_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2)
-    central_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2)
-    state_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2)
-    cess = models.DecimalField(default=0.00, max_digits=20, decimal_places=2)
+    integrated_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2, blank=True)
+    central_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2, blank=True)
+    state_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2, blank=True)
+    cess = models.DecimalField(default=0.00, max_digits=20, decimal_places=2, blank=True)
 
     def __str__(self):
         return self.ledger_name
@@ -324,6 +324,8 @@ class LedgerMaster(models.Model):
         return reverse("accounting_entry:ledgerdetail", kwargs={'ledger_master_pk': self.pk, 'company_pk': company.pk, 'period_pk': period_selected.pk})
 
     def save(self, *args, **kwargs):
+        if self.country != 'India':
+            self.state.state_name = "Other Territory"
         if not self.url_hash:
             if self.user.profile.user_type == 'Bussiness User':
                 self.url_hash = 'BU' + '-' + str(self.user.id) + '-' + 'P' + '-' + '1' + '-' + 'C' + str(

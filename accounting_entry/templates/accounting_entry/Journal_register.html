@@ -100,7 +100,7 @@
               <tr>
                 <td>
                   <center><a
-                      href="{% url 'accounting_entry:journal_datewise' company_pk=company.pk month=key period_selected_pk=period_selected.pk %}">{{ key|month_name }}</a>
+                      href="{% url 'accounting_entry:journal_datewise' company_pk=company.pk month=key.0 period_selected_pk=period_selected.pk %}">{{ key.0|month_name }}, {{ key.1 }}</a>
                   </center>
                 </td>
                 {% if value == 0 %}

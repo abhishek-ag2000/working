@@ -298,33 +298,7 @@ Update Ledger
 
                                         </div>
 
-
-                                        {% if form.instance.ledger_group.group_base.name == 'Current Assets' or form.instance.ledger_group.group_base.name == 'Unsecured Loans' or form.instance.ledger_group.group_base.name == 'Loans (Liability)' or form.instance.ledger_group.group_base.name == 'Secured Loans' or form.instance.ledger_group.group_base.name == 'Sundry Creditors' or form.instance.ledger_group.group_base.name == 'Sundry Debtors' %}
-                                        <div id="div_tax" style="display:unset">
-                                            {% else %}
-                                            <div id="div_tax" style="display:none">
-                                                {% endif %}
-                                                <p>
-                                                    <h3>Tax Details</h3>
-                                                </p>
-
-                                                <div class="form-group row">
-
-                                                    <label class="col-lg-2 col-form-label">Set/alter GST
-                                                        details?</label>
-
-                                                    <div class="col-lg-10">
-
-                                                        {{ form.set_or_alter_gst_tax.errors }}
-                                                        {{ form.set_or_alter_gst_tax }}
-
-                                                    </div>
-                                                </div>
-                                                <hr>
-
-                                            </div>
-
-                                            {% if form.instance.ledger_group.group_base.name == 'Direct Expenses' or form.instance.ledger_group.group_base.name == 'Indirect Expenses' or form.instance.ledger_group.group_base.name == 'Direct Incomes' or form.instance.ledger_group.group_base.name == 'Indirect Incomes' or form.instance.ledger_group.group_base.name == 'Purchase Accounts' or form.instance.ledger_group.group_base.name == 'Sales Account' or form.instance.ledger_group.group_base.name == 'Fixed Assets' %}
+                                        {% if form.instance.ledger_group.group_base.name == 'Direct Expenses' or form.instance.ledger_group.group_base.name == 'Indirect Expenses' or form.instance.ledger_group.group_base.name == 'Direct Incomes' or form.instance.ledger_group.group_base.name == 'Indirect Incomes' or form.instance.ledger_group.group_base.name == 'Purchase Accounts' or form.instance.ledger_group.group_base.name == 'Sales Account' or form.instance.ledger_group.group_base.name == 'Fixed Assets' %}
                                             <div id="div_stat_pro" style="display:unset">
                                                 {% else %}
                                                 <div id="div_stat_pro" style="display:none">
@@ -382,100 +356,6 @@ Update Ledger
 
                                                     </div>
 
-
-
-                                                    {% if form.instance.set_or_alter_gst_tax == 'Yes' %}
-                                                    <div id="div_norm_gst" style="display:unset">
-                                                        {% else %}
-                                                        <div id="div_norm_gst" style="display:none">
-                                                            {% endif %}
-                                                            <p>
-                                                                <h3>GST Details</h3>
-                                                            </p>
-
-                                                            <div class="form-group row">
-
-                                                                <label class="col-lg-2 col-form-label">Registration
-                                                                    Type</label>
-
-                                                                <div class="col-lg-10">
-
-                                                                    {{ form.registration_type.errors }}
-                                                                    {{ form.registration_type }}
-
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group row">
-
-                                                                <label class="col-lg-2 col-form-label">Is e-commerce
-                                                                    operator?</label>
-
-                                                                <div class="col-lg-10">
-
-                                                                    {{ form.is_eoperator.errors }}
-                                                                    {{ form.is_eoperator }}
-
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group row">
-
-                                                                <label class="col-lg-2 col-form-label">Consider Party as
-                                                                    deemed exporter for Purchase?</label>
-
-                                                                <div class="col-lg-10">
-
-                                                                    {{ form.deemed_expoter.errors }}
-                                                                    {{ form.deemed_expoter }}
-
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group row">
-
-                                                                <label class="col-lg-2 col-form-label">Party
-                                                                    Type</label>
-
-                                                                <div class="col-lg-10">
-
-                                                                    {{ form.party_type.errors }}
-                                                                    {{ form.party_type }}
-
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="form-group row">
-
-                                                                <label class="col-lg-2 col-form-label">Is a
-                                                                    transporter?</label>
-
-                                                                <div class="col-lg-10">
-
-                                                                    {{ form.is_transporter.errors }}
-                                                                    {{ form.is_transporter }}
-
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group row">
-
-                                                                <label class="col-lg-2 col-form-label">Transporter
-                                                                    ID</label>
-
-                                                                <div class="col-lg-10">
-
-                                                                    {{ form.transporter_id.errors }}
-                                                                    {{ form.transporter_id }}
-
-                                                                </div>
-                                                            </div>
-
-
-                                                            <hr>
-
-                                                        </div>
 
                                                         {% if form.instance.set_or_alter_gst == 'Yes' %}
                                                         <div id="div_gst_rate" style="display:unset">
@@ -622,7 +502,7 @@ Update Ledger
 
                                                                         <div class="form-group row">
 
-                                                                            <label class="col-lg-2 col-form-label">State
+                                                                            <label class="col-lg-2 col-form-label" id="state_label">State
                                                                                 Tax</label>
 
                                                                             <div class="col-lg-10">
@@ -648,7 +528,8 @@ Update Ledger
                                                                         <hr>
                                                                     </div>
 
-                                                                    <div id="div_mail">
+
+                                        <div id="div_mail">
                                                                         <p>
                                                                             <h3>Mailing Details</h3>
                                                                         </p>
@@ -681,12 +562,23 @@ Update Ledger
 
                                                                         <div class="form-group row">
 
-                                                                            <label
-                                                                                class="col-lg-2 col-form-label">State
-                                                                                <i id="state_comp_indicator" class="material-icons required-style" style="font-size:16px;color:red; display: none">*</i>
-                                                                            </label>
+                                                                            <label class="col-lg-2 col-form-label">Country</label>
 
                                                                             <div class="col-lg-10">
+
+                                                                                {{ form.country.errors }}
+                                                                                {{ form.country }}
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="form-group row">
+
+                                                                            <label
+                                                                                class="col-lg-2 col-form-label">State
+                                                                            </label>
+
+                                                                            <div class="col-lg-10" id="state_field">
 
                                                                                 {{ form.state.errors }}
                                                                                 {{ form.state }}
@@ -707,7 +599,50 @@ Update Ledger
                                                                             </div>
                                                                         </div>
 
-                                                                        <div class="form-group row">
+
+                                                                        
+
+                                                                    </div>
+                                                                    <hr>
+
+                                        {% if form.instance.country.country_name == 'India' or form.instance.ledger_group.group_base.name == 'Current Assets' or form.instance.ledger_group.group_base.name == 'Unsecured Loans' or form.instance.ledger_group.group_base.name == 'Loans (Liability)' or form.instance.ledger_group.group_base.name == 'Secured Loans' or form.instance.ledger_group.group_base.name == 'Sundry Creditors' or form.instance.ledger_group.group_base.name == 'Sundry Debtors' %}
+                                        <div id="div_tax" style="display:unset">
+                                            {% else %}
+                                            <div id="div_tax" style="display:none">
+                                                {% endif %}
+                                                <p>
+                                                    <h3>Tax Details</h3>
+                                                </p>
+
+                                                <div class="form-group row">
+
+                                                    <label class="col-lg-2 col-form-label">Set/alter GST
+                                                        details?</label>
+
+                                                    <div class="col-lg-10">
+
+                                                        {{ form.set_or_alter_gst_tax.errors }}
+                                                        {{ form.set_or_alter_gst_tax }}
+
+                                                    </div>
+                                                </div>
+                                                <hr>
+
+                                            </div>
+
+                                            
+
+
+                                                    {% if form.instance.set_or_alter_gst_tax == 'Yes' %}
+                                                    <div id="div_norm_gst" style="display:unset">
+                                                        {% else %}
+                                                        <div id="div_norm_gst" style="display:none">
+                                                            {% endif %}
+                                                            <p>
+                                                                <h3>GST Details</h3>
+                                                            </p>
+
+                                                            <div class="form-group row">
 
                                                                             <label class="col-lg-2 col-form-label">Pan
                                                                                 No</label>
@@ -720,8 +655,20 @@ Update Ledger
                                                                             </div>
                                                                         </div>
 
+                                                            <div class="form-group row">
 
-                                                                        <div class="form-group row">
+                                                                <label class="col-lg-2 col-form-label">Registration
+                                                                    Type</label>
+
+                                                                <div class="col-lg-10">
+
+                                                                    {{ form.registration_type.errors }}
+                                                                    {{ form.registration_type }}
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
 
                                                                             <label class="col-lg-2 col-form-label">GST
                                                                                 No</label>
@@ -734,7 +681,79 @@ Update Ledger
                                                                             </div>
                                                                         </div>
 
-                                                                    </div>
+                                                            <div class="form-group row">
+
+                                                                <label class="col-lg-2 col-form-label">Is e-commerce
+                                                                    operator?</label>
+
+                                                                <div class="col-lg-10">
+
+                                                                    {{ form.is_eoperator.errors }}
+                                                                    {{ form.is_eoperator }}
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
+
+                                                                <label class="col-lg-2 col-form-label">Consider Party as
+                                                                    deemed exporter for Purchase?</label>
+
+                                                                <div class="col-lg-10">
+
+                                                                    {{ form.deemed_expoter.errors }}
+                                                                    {{ form.deemed_expoter }}
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
+
+                                                                <label class="col-lg-2 col-form-label">Party
+                                                                    Type</label>
+
+                                                                <div class="col-lg-10">
+
+                                                                    {{ form.party_type.errors }}
+                                                                    {{ form.party_type }}
+
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="form-group row">
+
+                                                                <label class="col-lg-2 col-form-label">Is a
+                                                                    transporter?</label>
+
+                                                                <div class="col-lg-10">
+
+                                                                    {{ form.is_transporter.errors }}
+                                                                    {{ form.is_transporter }}
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
+
+                                                                <label class="col-lg-2 col-form-label">Transporter
+                                                                    ID</label>
+
+                                                                <div class="col-lg-10">
+
+                                                                    {{ form.transporter_id.errors }}
+                                                                    {{ form.transporter_id }}
+
+                                                                </div>
+                                                            </div>
+
+
+                                                            <hr>
+
+                                                        </div>
+
+
+                                                                    
 
                                                                     <div class="form-group row">
                                                                         <div class="col-lg-offset-2 col-lg-10">
@@ -924,6 +943,27 @@ Update Ledger
         }
     }
 
+    function country_change(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "India") {
+            document.getElementById("state_label").style = "display:unset";
+            document.getElementById("state_field").style = "display:unset";
+            document.getElementById("div_tax").style = "display:unset";
+            var element = document.getElementById("id_state");
+            element.className = element.className.replace('form-control', "select2_demo_2 form-control select2-hidden-accessible");
+            document.getElementById("id_state").text = "Other Territory";
+
+        } else {
+            document.getElementById("state_field").style = "display:none";
+            document.getElementById("state_label").style = "display:none";
+            document.getElementById("div_tax").style = "display:none";
+            document.getElementById("div_norm_gst").style = "display:none";
+        }
+    }
+
+
     function access_change(sel) {
         //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
         var txt = sel.options[sel.selectedIndex].text;
@@ -1004,6 +1044,10 @@ Update Ledger
             document.getElementById("id_central_tax").disabled = true;
             document.getElementById("id_state_tax").disabled = true;
             document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_integrated_tax").value = 0
+            document.getElementById("id_central_tax").value = 0
+            document.getElementById("id_state_tax").value = 0
+            document.getElementById("id_cess").value = 0
         } else if (txt.indexOf("Nil Rated") >= 0) {
             document.getElementById("id_taxability").disabled = true;
             document.getElementById("id_taxability").selectedIndex = 3;
@@ -1011,6 +1055,10 @@ Update Ledger
             document.getElementById("id_central_tax").disabled = true;
             document.getElementById("id_state_tax").disabled = true;
             document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_integrated_tax").value = 0
+            document.getElementById("id_central_tax").value = 0
+            document.getElementById("id_state_tax").value = 0
+            document.getElementById("id_cess").value = 0
         } else if (txt.indexOf("Taxable") >= 0) {
             document.getElementById("id_taxability").disabled = true;
             document.getElementById("id_taxability").selectedIndex = 4;
@@ -1033,6 +1081,10 @@ Update Ledger
             document.getElementById("id_central_tax").disabled = true;
             document.getElementById("id_state_tax").disabled = true;
             document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_integrated_tax").value = 0
+            document.getElementById("id_central_tax").value = 0
+            document.getElementById("id_state_tax").value = 0
+            document.getElementById("id_cess").value = 0
         } else if (txt.indexOf("Nil Rated") >= 0) {
             document.getElementById("id_taxability").disabled = true;
             document.getElementById("id_taxability").selectedIndex = 2;
@@ -1040,6 +1092,10 @@ Update Ledger
             document.getElementById("id_central_tax").disabled = true;
             document.getElementById("id_state_tax").disabled = true;
             document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_integrated_tax").value = 0
+            document.getElementById("id_central_tax").value = 0
+            document.getElementById("id_state_tax").value = 0
+            document.getElementById("id_cess").value = 0
         } else if (txt.indexOf("Taxable") >= 0) {
             document.getElementById("id_taxability").disabled = true;
             document.getElementById("id_taxability").selectedIndex = 3;
@@ -1070,6 +1126,10 @@ Update Ledger
             document.getElementById("id_central_tax").disabled = true;
             document.getElementById("id_state_tax").disabled = true;
             document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_integrated_tax").value = 0
+            document.getElementById("id_central_tax").value = 0
+            document.getElementById("id_state_tax").value = 0
+            document.getElementById("id_cess").value = 0
         } else {
             document.getElementById("id_nature_transactions_purchase").disabled = false;
             document.getElementById("id_nature_transactions_sales").disabled = false;

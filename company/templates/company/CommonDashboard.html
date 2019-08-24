@@ -27,7 +27,7 @@
                 </ol>
                 <br>
             <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Select Company </a>
-              <a href="{% url 'company:update' company_pk=organisation.pk %}" class="btn btn-warning" role="button">Update Company details</a>
+              <a href="{% url 'company:update_organisation' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}" class="btn btn-warning" role="button">Update Company details</a>
             
               
               

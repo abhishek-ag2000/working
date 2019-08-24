@@ -181,13 +181,13 @@ class JournalRegisterView(ProductExistsRequiredMixin, LoginRequiredMixin, ListVi
         date_cursor = period_selected.start_date
 
         while date_cursor <= period_selected.end_date:
-            month_partial_total = result.filter(voucher_date__month=date_cursor.month).aggregate(
+            month_partial_total = result.filter(voucher_date__month=date_cursor.month, voucher_date__year=date_cursor.year).aggregate(
                 partial_total=Count('real_total'))['partial_total']
 
             if month_partial_total is None:
                 month_partial_total = 0
 
-            results[date_cursor.month] = month_partial_total
+            results[(date_cursor.month, date_cursor.year)] = month_partial_total
             date_cursor += dateutil.relativedelta.relativedelta(months=1)
 
         total_voucher = result.aggregate(the_sum=Coalesce(Count('real_total'), Value(0)))['the_sum']

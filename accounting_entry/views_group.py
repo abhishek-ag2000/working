@@ -20,8 +20,8 @@ class LedgerGroupSummaryListView(ProductExistsRequiredMixin, UserPassesTestMixin
     """
     Ledger Group Summary List View
     """
+    context_object_name = 'LedgerGroup_list'
     model = LedgerGroup
-    paginate_by = 15
 
     def get_template_names(self):
         return ['Group_Summary/group_summary.html']

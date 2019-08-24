@@ -62,10 +62,14 @@
                                     {% for LedgerGroup in LedgerGroup_list %}
 
                                     <tr>
-                                      <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{forloop.counter}}</a></td>
-                                      <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.group_name}}</a></td>
-                                      <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.Master}}</a></td>
-                                      <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.balance_nature}}</a></td>
+                                      <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{forloop.counter}}</a></td>
+                                      <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.group_name}}</a></td>
+                                      <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.self_group}}</a></td>
+                                    {% if LedgerGroup.group_base.is_debit == True %}
+                                        <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=LedgerGroup.pk period_selected_pk=period_selected.pk %}">Debit</a></td>
+                                    {% else %}
+                                        <td><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=LedgerGroup.pk period_selected_pk=period_selected.pk %}">Credit</a></td>
+                                    {% endif %}
                                     </tr>
 
                                     {% endfor %}

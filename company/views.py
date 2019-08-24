@@ -417,7 +417,8 @@ class OrganisationUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationUpdateView, self).get_context_data(**kwargs)
-
+        period_selected = get_object_or_404(PeriodSelected, user=self.request.user)
+        context['period_selected'] = period_selected
         context['products_aggrement'] = ProductActivated.objects.filter(user=self.request.user, product__id=9, is_active=True)
         context['active_product_1'] = ProductActivated.objects.filter(user=self.request.user, product__id=1, is_active=True)
         context['role_product_1'] = RoleBasedProductActivated.objects.filter(user=self.request.user, product__id=1, is_active=True)

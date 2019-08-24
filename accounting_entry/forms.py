@@ -73,7 +73,7 @@ class LedgerMasterForm(forms.ModelForm):
     class Meta:
         model = LedgerMaster
         fields = ('ledger_name', 'ledger_group', 'opening_balance', 'party_name', 'address', 'set_or_alter_gst_tax', 'city',
-                  'state', 'pin_code', 'pan_no', 'gst_no', 'account_holder_name', 'account_no', 'ifsc_code', 'bank_name', 'branch',
+                  'state', 'country', 'pin_code', 'pan_no', 'gst_no', 'account_holder_name', 'account_no', 'ifsc_code', 'bank_name', 'branch',
                   'duty_tax_type', 'tax_type', 'assessable_value', 'appropiate_to', 'calculation_method', 'gst_applicable', 'set_or_alter_gst',
                   'supply_type', 'registration_type', 'is_eoperator', 'deemed_expoter', 'party_type', 'is_transporter', 'transporter_id',
                   'hsn_desc', 'hsn_no', 'is_non_gst', 'nature_transactions_purchase', 'nature_transactions_sales', 'goods_nature',
@@ -86,7 +86,7 @@ class LedgerMasterForm(forms.ModelForm):
 
         super(LedgerMasterForm, self).__init__(*args, **kwargs)
 
-        self.fields['ledger_name'].widget.attrs = {'class': 'form-control', }
+        self.fields['ledger_name'].widget.attrs = {'class': 'form-control',}
         self.fields['ledger_group'].queryset = LedgerGroup.objects.filter(
             company=self.company)
         self.fields['ledger_group'].widget.attrs = {
@@ -97,6 +97,8 @@ class LedgerMasterForm(forms.ModelForm):
         self.fields['address'].widget.attrs = {'class': 'form-control', }
         self.fields['state'].widget.attrs = {
             'class': 'select2_demo_2 form-control', }
+        self.fields['country'].widget.attrs = {
+            'class': 'select2_demo_2 form-control', 'onchange': 'country_change(this)',}
         self.fields['pin_code'].widget.attrs = {'class': 'form-control', }
         self.fields['pan_no'].widget.attrs = {'class': 'form-control', }
         self.fields['gst_no'].widget.attrs = {
@@ -130,6 +132,7 @@ class LedgerMasterForm(forms.ModelForm):
             'class': 'select2_demo_2 form-control', 'onchange': 'change_gst_regtype(this)', }
         self.fields['is_eoperator'].widget.attrs = {
             'class': 'select2_demo_2 form-control', 'onchange': 'change_is_ecommerce(this)', }
+        self.fields['is_eoperator'].initial = 'No'
         self.fields['deemed_expoter'].widget.attrs = {
             'class': 'select2_demo_2 form-control', }
         self.fields['party_type'].widget.attrs = {
@@ -204,7 +207,7 @@ class LedgerMasterFormAdmin(forms.ModelForm):
         #instance = getattr(self, 'instance', None)
         super(LedgerMasterFormAdmin, self).__init__(*args, **kwargs)
 
-        self.fields['ledger_name'].widget.attrs = {'class': 'form-control', }
+        self.fields['ledger_name'].widget.attrs = {'class': 'form-control',}
         self.fields['ledger_group'].queryset = LedgerGroup.objects.filter(
             company=self.company)
         self.fields['ledger_group'].widget.attrs = {
@@ -247,6 +250,7 @@ class LedgerMasterFormAdmin(forms.ModelForm):
             'class': 'select2_demo_2 form-control', }
         self.fields['is_eoperator'].widget.attrs = {
             'class': 'select2_demo_2 form-control', 'onchange': 'change_is_ecommerce(this)', }
+        self.fields['is_eoperator'].initial = 'No'
         self.fields['deemed_expoter'].widget.attrs = {
             'class': 'select2_demo_2 form-control', }
         self.fields['party_type'].widget.attrs = {

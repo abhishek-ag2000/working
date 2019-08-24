@@ -188,18 +188,19 @@ class LedgerMasterUpdateView(ProductExistsRequiredMixin, UserPassesTestMixin, Lo
     Ledger Master Update View
     '''
     model = LedgerMaster
-    form_class = LedgerMasterFormAdmin
+    form_class = LedgerMasterForm
     template_name = "accounting_entry/ledger1_form.html"
-
-    def get_success_url(self, **kwargs):
-        company = get_object_or_404(Company, pk=self.kwargs['company_pk'])
-        ledger_master = get_object_or_404(LedgerMaster, pk=kwargs['ledger_master_pk'])
-        period_selected = get_object_or_404(PeriodSelected, pk=self.kwargs['period_selected_pk'])
-        return reverse('accounting_entry:ledgerdetail',
-                       kwargs={'company_pk': company.pk, 'ledger_master_pk': ledger_master.pk, 'period_selected_pk': period_selected.pk})
 
     def get_object(self):
         return get_object_or_404(LedgerMaster, pk=self.kwargs['ledger_master_pk'])
+
+    def get_success_url(self, **kwargs):
+        company = get_object_or_404(Company, pk=self.kwargs['company_pk'])
+        period_selected = get_object_or_404(PeriodSelected, pk=self.kwargs['period_selected_pk'])
+        ledger_master = self.get_object()
+        return reverse('accounting_entry:ledgerdetail',
+                        kwargs={'company_pk': company.pk, 'ledger_master_pk': ledger_master.pk, 'period_selected_pk': period_selected.pk})
+
 
     def get_form_kwargs(self):
         data = super(LedgerMasterUpdateView, self).get_form_kwargs()
@@ -221,6 +222,8 @@ class LedgerMasterUpdateView(ProductExistsRequiredMixin, UserPassesTestMixin, Lo
         period_selected = get_object_or_404(
             PeriodSelected, pk=self.kwargs['period_selected_pk'])
         context['period_selected'] = period_selected
+        ledger_master = self.get_object()
+        context['ledger_master'] = ledger_master
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']

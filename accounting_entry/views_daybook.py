@@ -20,6 +20,7 @@ class DayBookListView(ProductExistsRequiredMixin, LoginRequiredMixin, ListView):
     """
     Day Book List View
     """
+    context_object_name = 'journal_list'
     model = JournalVoucher
     paginate_by = 15
 

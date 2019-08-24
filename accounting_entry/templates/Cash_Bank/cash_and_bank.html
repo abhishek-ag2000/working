@@ -89,15 +89,13 @@
                           <tr>
                            <th><center>Particulars</center></th>
                             <th>Debit</th>
-                            <th>Credit</th>
-                            
-                              
+                            <th>Credit</th> 
                           </tr>
 
                         {% for LedgerGroup in cash_group %}
                           <tr>
 
-                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.group_name}}</a></center></th>
+                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.group_name}}</a></center></th>
                               {% if LedgerGroup.positive_closing == 0 %}
                               <th></th>
                             {% else %}
@@ -114,7 +112,7 @@
                             {% if group.positive_closing != 0 or group.negative_closing != 0 %}
                               {% if group.positive_closing != None or group.negative_closing != None %}
                                 <tr>
-                                  <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                  <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                     {% if group.positive_closing == 0 %}
                                       <th></th>
                                     {% else %}
@@ -134,13 +132,13 @@
                           {% for LedgerMaster in LedgerGroup.ledgergroups.all %}
                               <tr>
 
-                                <td><center><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></td>
-                                {% if LedgerMaster.Closing_balance > 0 %}
-                                  <td>{{ LedgerMaster.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                <td><center><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk ledger_group_pk=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></td>
+                                {% if LedgerMaster.closing_balance > 0 %}
+                                  <td>{{ LedgerMaster.closing_balance|abs|floatformat:2|intcomma }}</td>
                                   <td></td>
                                 {% else %}
                                   <td></td>
-                                  <td>(-){{ LedgerMaster.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                  <td>(-){{ LedgerMaster.closing_balance|abs|floatformat:2|intcomma }}</td>
                                 {% endif %}
                               </tr>
 
@@ -151,7 +149,7 @@
                         {% for LedgerGroup in bank_group %}
                           <tr>
 
-                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.group_name}}</a></center></th>
+                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=LedgerGroup.pk period_selected_pk=period_selected.pk %}">{{LedgerGroup.group_name}}</a></center></th>
                             {% if LedgerGroup.positive_closing == 0 %}
                               <th></th>
                             {% else %}
@@ -168,7 +166,7 @@
                             {% if group.positive_closing != 0 or group.negative_closing != 0 %}
                               {% if group.positive_closing != None or group.negative_closing != None %}
                                 <tr>
-                                  <td><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></td>
+                                  <td><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></td>
                                     {% if group.positive_closing == 0 %}
                                       <th></th>
                                     {% else %}
@@ -187,13 +185,13 @@
                           {% for LedgerMaster in LedgerGroup.ledgergroups.all %}
                               <tr>
 
-                                <td><center><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk pk2=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></td>
-                                {% if LedgerMaster.Closing_balance > 0 %}
-                                  <td>{{ LedgerMaster.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                <td><center><a href="{% url 'accounting_entry:ledgerdetailmonthly' company_pk=company.pk ledger_group_pk=LedgerMaster.pk period_selected_pk=period_selected.pk %}"><em>{{LedgerMaster.ledger_name}}</em></a></center></td>
+                                {% if LedgerMaster.closing_balance > 0 %}
+                                  <td>{{ LedgerMaster.closing_balance|abs|floatformat:2|intcomma }}</td>
                                   <td></td>
                                 {% else %}
                                   <td></td>
-                                  <td>(-){{ LedgerMaster.Closing_balance|abs|floatformat:2|intcomma }}</td>
+                                  <td>(-){{ LedgerMaster.closing_balance|abs|floatformat:2|intcomma }}</td>
                                 {% endif %}
                                
                               </tr>

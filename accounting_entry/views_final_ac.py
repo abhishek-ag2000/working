@@ -262,28 +262,30 @@ def trial_balance_condensed_view(request, company_pk, period_selected_pk):
         Sum('opening_stock'), Value(0)))['the_sum']
 
     grp_debit = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Debit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = True )
     grp_credit = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Credit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = False )
 
     grp_debit_co = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Debit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = True )
     grp_credit_co = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Credit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = False )
 
-    gs_debit_open = grp_debit.aggregate(the_sum=Coalesce(
-        Sum('positive_opening'), Value(0)))['the_sum']
-    gs_credit_op = grp_credit.aggregate(the_sum=Coalesce(
-        Sum('negative_opening'), Value(0)))['the_sum']
+    # gs_debit_open = grp_debit.aggregate(the_sum=Coalesce(
+    #     Sum('positive_opening'), Value(0)))['the_sum']
+    # gs_credit_op = grp_credit.aggregate(the_sum=Coalesce(
+    #     Sum('negative_opening'), Value(0)))['the_sum']
+
+    gs_debit_open = 0
+    gs_credit_op = 0
 
     # Net profit/loss opening balance
     ledger_pl = LedgerMaster.objects.get(
         company=company, ledger_name__iexact="Profit & Loss A/c")
-    ledger_pl_closing = ledger_pl.Balance_opening
+    ledger_pl_closing = ledger_pl.balance_opening
 
     gs_credit_open = gs_credit_op + ledger_pl_closing
 
-    print(gs_credit_open)
 
     if qo2 > 0:
         gs_debit_opening = gs_debit_open + qo2
@@ -292,19 +294,25 @@ def trial_balance_condensed_view(request, company_pk, period_selected_pk):
         gs_debit_opening = gs_debit_open
         gs_credit_opening = gs_credit_open + qo2
 
-    gs_debit_opening_co = grp_debit_co.aggregate(
-        the_sum=Coalesce(Sum('positive_opening'), Value(0)))['the_sum']
-    gs_credit_opening_co = grp_credit_co.aggregate(
-        the_sum=Coalesce(Sum('negative_opening'), Value(0)))['the_sum']
-    print(gs_credit_opening_co)
+    # gs_debit_opening_co = grp_debit_co.aggregate(
+    #     the_sum=Coalesce(Sum('positive_opening'), Value(0)))['the_sum']
+    # gs_credit_opening_co = grp_credit_co.aggregate(
+    #     the_sum=Coalesce(Sum('negative_opening'), Value(0)))['the_sum']
+
+    gs_debit_opening_co = 0
+    gs_credit_opening_co = 0
+
 
     gs_opening = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary')
+        company=company, self_group__group_name__iexact='Primary')
 
-    gs_deb_opening = gs_opening.aggregate(the_sum=Coalesce(
-        Sum('positive_opening'), Value(0)))['the_sum']
-    gs_cre_opening = gs_opening.aggregate(the_sum=Coalesce(
-        Sum('negative_opening'), Value(0)))['the_sum']
+    # gs_deb_opening = gs_opening.aggregate(the_sum=Coalesce(
+    #     Sum('positive_opening'), Value(0)))['the_sum']
+    # gs_cre_opening = gs_opening.aggregate(the_sum=Coalesce(
+    #     Sum('negative_opening'), Value(0)))['the_sum']
+
+    gs_deb_opening = 0
+    gs_cre_opening = 0
 
     if gs_debit_opening > gs_credit_opening:
         dif_ob = gs_debit_opening - gs_credit_opening
@@ -319,13 +327,16 @@ def trial_balance_condensed_view(request, company_pk, period_selected_pk):
     print(gs_credit_opening)
     print(dif_ob)
 
-    gs = LedgerGroup.objects.filter(company=company, Master__group_Name__iexact='Primary').exclude(Q(group_Name__iexact="Stock-in-hand") | Q(group_Name__iexact="Sales Accounts") | Q(
-        group_base__name__exact="Purchase Accounts") | Q(group_Name__iexact="Indirect Expenses") | Q(group_Name__iexact="Indirect Incomes") | Q(group_Name__iexact="Direct Incomes") | Q(group_Name__iexact="Direct Expenses"))
+    gs = LedgerGroup.objects.filter(company=company, self_group__group_name__iexact='Primary').exclude(Q(group_name__iexact="Stock-in-hand") | Q(group_name__iexact="Sales Accounts") | Q(
+        group_base__name__exact="Purchase Accounts") | Q(group_name__iexact="Indirect Expenses") | Q(group_name__iexact="Indirect Incomes") | Q(group_name__iexact="Direct Incomes") | Q(group_name__iexact="Direct Expenses"))
 
-    gs_deb_notstock = gs.aggregate(the_sum=Coalesce(
-        Sum('positive_closing'), Value(0)))['the_sum']
-    gs_cre_notstock = gs.aggregate(the_sum=Coalesce(
-        Sum('negative_closing'), Value(0)))['the_sum']
+    # gs_deb_notstock = gs.aggregate(the_sum=Coalesce(
+    #     Sum('positive_closing'), Value(0)))['the_sum']
+    # gs_cre_notstock = gs.aggregate(the_sum=Coalesce(
+    #     Sum('negative_closing'), Value(0)))['the_sum']
+
+    gs_deb_notstock = 0
+    gs_cre_notstock = 0
 
     if qo2 > 0:
         gs_deb = gs_deb_notstock + qo2
@@ -361,10 +372,14 @@ def trial_balance_condensed_view(request, company_pk, period_selected_pk):
     # Indirect Expense
     gs_indirectexp = LedgerGroup.objects.filter(
         company=company, group_base__name__exact="Indirect Expenses")
-    gs_indirectexp_total = gs_indirectexp.aggregate(
-        the_sum=Coalesce(Sum('positive_closing'), Value(0)))['the_sum']
-    gs_indirectexp_total_neg = gs_indirectexp.aggregate(
-        the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
+
+    # gs_indirectexp_total = gs_indirectexp.aggregate(
+    #     the_sum=Coalesce(Sum('positive_closing'), Value(0)))['the_sum']
+    # gs_indirectexp_total_neg = gs_indirectexp.aggregate(
+    #     the_sum=Coalesce(Sum('negative_closing'), Value(0)))['the_sum']
+
+    gs_indirectexp_total = 0
+    gs_indirectexp_total_neg = 0
 
     # Indirect Income
     gs_indirectinc = LedgerGroup.objects.filter(
@@ -375,7 +390,7 @@ def trial_balance_condensed_view(request, company_pk, period_selected_pk):
     # Net profit/loss
     ledger_pl = LedgerMaster.objects.get(
         company=company, ledger_name__iexact="Profit & Loss A/c")
-    ledger_pl_closing = ledger_pl.Balance_opening
+    ledger_pl_closing = ledger_pl.balance_opening
 
     if ledger_pl_closing <= 0:
         gs_debit = gs_deb + abs(ledger_pl_closing) + gs_purchase_total + \
@@ -401,6 +416,9 @@ def trial_balance_condensed_view(request, company_pk, period_selected_pk):
         the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
     send_count = Message.objects.filter(sender=request.user).aggregate(
         the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
+
+    group_final = LedgerGroup.objects.filter(company=company)
+
 
     context = {
         'company': company,
@@ -448,7 +466,7 @@ def balance_sheet_condensed_view(request, pk, pk3):
     # All primary groups with nature of group is 'Liabilities'
     group_lia = LedgerGroup.objects.filter(
         company=company,
-        # Master__group_Name__iexact='Primary', Nature_of_LedgerGroup__iexact='Liabilities'
+        # self_group__group_name__iexact='Primary', Nature_of_LedgerGroup__iexact='Liabilities'
         base__is_revenue__exact='No',
         base__is_debit__exact='No')
 
@@ -480,7 +498,7 @@ def balance_sheet_condensed_view(request, pk, pk3):
     # All primary groups with nature of group is 'Assets'
     group_ast = LedgerGroup.objects.filter(
         company=company,
-        # , Master__group_Name__iexact='Primary', Nature_of_LedgerGroup__iexact='Assets')
+        # , self_group__group_name__iexact='Primary', Nature_of_LedgerGroup__iexact='Assets')
         base__is_revenue__exact='No',
         base__is_debit__exact='Yes')
 
@@ -612,14 +630,14 @@ def balance_sheet_condensed_view(request, pk, pk3):
     #################################################
 
     grp_debit = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Debit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = True )
     grp_credit = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Credit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = False )
 
     grp_debit_co = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Debit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = True )
     grp_credit_co = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary', balance_nature__iexact='Credit')
+        company=company, self_group__group_name__iexact='Primary', group_base__is_debit = False )
 
     gs_debit_open = grp_debit.aggregate(the_sum=Coalesce(
         Sum('positive_opening'), Value(0)))['the_sum']
@@ -644,7 +662,7 @@ def balance_sheet_condensed_view(request, pk, pk3):
         the_sum=Coalesce(Sum('negative_opening'), Value(0)))['the_sum']
 
     gs_opening = LedgerGroup.objects.filter(
-        company=company, Master__group_Name__iexact='Primary')
+        company=company, self_group__group_name__iexact='Primary')
 
     gs_deb_opening = gs_opening.aggregate(the_sum=Coalesce(
         Sum('positive_opening'), Value(0)))['the_sum']

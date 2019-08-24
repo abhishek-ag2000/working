@@ -91,28 +91,25 @@
 
                             <tbody>
 
-                                {% for i in new %}
 
-                                {% for j in i|slice:"0:1" %}
-                                {% if j != None %}
-
+                            {% for j in journal_list %}
                                 <tr>
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_date}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_date}}</a>
                                         </center>
                                     </td>
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
                                         </center>
                                     </td>
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.cr_ledger}}</a>
                                         </center>
                                     </td>
 
@@ -120,14 +117,14 @@
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.id}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.id}}</a>
                                         </center>
                                     </td>
                                     {% else %}
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_id}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_id}}</a>
                                         </center>
                                     </td>
 
@@ -138,7 +135,7 @@
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">Journal</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">Journal</a>
                                         </center>
                                     </td>
 
@@ -147,7 +144,7 @@
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_type}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.voucher_type}}</a>
                                         </center>
                                     </td>
 
@@ -155,7 +152,7 @@
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.Debit}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.amount }}</a>
                                         </center>
                                     </td>
 
@@ -163,7 +160,7 @@
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.narration|safe|truncatewords:"8"}}</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">{{j.narration|safe|truncatewords:"8"}}</a>
                                         </center>
                                     </td>
 
@@ -171,8 +168,8 @@
 
                                     <td>
                                         <center><a
-                                                href="{% url 'accounting_entry:pl_detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">being
-                                                {{j.cr_ledger}} debited by {{j.cr_ledger}} for {{j.Credit}}.</a>
+                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=j.pk period_selected_pk=period_selected.pk %}">being
+                                                {{j.dr_ledger}} debited by {{j.cr_ledger}} for {{j.amount}}.</a>
                                         </center>
                                     </td>
 
@@ -180,98 +177,10 @@
 
 
                                 </tr>
-                                {% endif %}
                                 {% endfor %}
 
-                                {% for k in i|slice:"1:2" %}
-                                {% if k != None %}
-
-                                <tr>
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.voucher_date}}</a>
-                                        </center>
-                                    </td>
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.cr_ledger}}</a>
-                                        </center>
-                                    </td>
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.cr_ledger}}</a>
-                                        </center>
-                                    </td>
-
-                                    {% if k.voucher_id == None %}
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.id}}</a>
-                                        </center>
-                                    </td>
-                                    {% else %}
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.voucher_id}}</a>
-                                        </center>
-                                    </td>
-
-                                    {% endif %}
 
 
-                                    {% if k.voucher_type == '' %}
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">Journal</a>
-                                        </center>
-                                    </td>
-
-                                    {% else %}
-
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.voucher_type}}</a>
-                                        </center>
-                                    </td>
-
-                                    {% endif %}
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.Debit}}</a>
-                                        </center>
-                                    </td>
-
-                                    {% if k.narration %}
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">{{k.narration|safe|truncatewords:"8"}}</a>
-                                        </center>
-                                    </td>
-
-                                    {% else %}
-
-                                    <td>
-                                        <center><a
-                                                href="{% url 'accounting_entry:detail' company_pk=company.pk journal_voucher_pk=k.pk period_selected_pk=period_selected.pk %}">being
-                                                {{k.cr_ledger}} debited by {{k.cr_ledger}} for {{k.Credit}}.</a>
-                                        </center>
-                                    </td>
-
-                                    {% endif %}
-
-                                </tr>
-                                {% endif %}
-                                {% endfor %}
-                                {% endfor %}
 
 
                             </tbody>

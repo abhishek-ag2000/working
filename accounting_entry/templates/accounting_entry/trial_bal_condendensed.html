@@ -96,7 +96,7 @@
                                           {% if group.positive_closing != None or group.negative_closing != None %}
                                             
                                               <tr>
-                                                <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                                <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                                 {% if group.positive_opening == 0 %}
                                                   {% if qo2 >= 0 %}
                                                   <th>{{ qo2|abs|floatformat:2|intcomma }}</th>
@@ -161,7 +161,7 @@
                                           {% if group.positive_closing != None or group.negative_closing != None %}
                                             
                                               <tr>
-                                                <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                                <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                                 {% if group.positive_opening == 0 %}
                                                   <th></th>
                                                 {% else %}
@@ -196,7 +196,7 @@
                                       {% if gs_purchase_total != 0 %}
                                         {% for group in gs_purchase %}
                                           <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                             {% if group.positive_opening == 0 %}
                                               <th></th>
                                             {% else %}
@@ -217,7 +217,7 @@
                                       {% if gs_sales_total != 0 %}
                                         {% for group in gs_sales %}
                                           <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                             {% if group.positive_opening == 0 %}
                                               <th></th>
                                             {% else %}
@@ -239,7 +239,7 @@
                                       {% if gs_directexp_total != 0 %}
                                         {% for group in gs_directexp %}
                                           <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                             {% if group.positive_opening == 0 %}
                                               <th></th>
                                             {% else %}
@@ -262,7 +262,7 @@
                                       {% if gs_directinc_total != 0 %}
                                         {% for group in gs_directinc %}
                                           <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                             {% if group.positive_opening == 0 %}
                                               <th></th>
                                             {% else %}
@@ -283,7 +283,7 @@
                                       {% if gs_indirectexp_total != 0 %}
                                         {% for group in gs_indirectexp %}
                                           <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                             {% if group.positive_opening == 0 %}
                                               <th></th>
                                             {% else %}
@@ -304,7 +304,7 @@
                                       {% if gs_indirectinc_total != 0 %}
                                         {% for group in gs_indirectinc %}
                                           <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
+                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
                                              {% if group.positive_opening == 0 %}
                                               <th></th>
                                             {% else %}
@@ -325,7 +325,7 @@
 
                                           {% if ledger_pl_closing != 0 %}
                                             <tr>
-                                              <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk pk2=ledger_pl.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger_pl.name }}</em></a></center></th>
+                                              <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk ledger_master_pk=ledger_pl.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger_pl.name }}</em></a></center></th>
                                               {% if ledger_pl_closing < 0 %}
                                                 <td>{{ ledger_pl_closing|abs|floatformat:2|intcomma }}</td>
                                                 <td></td>
