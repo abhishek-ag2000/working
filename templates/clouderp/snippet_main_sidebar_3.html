@@ -1,0 +1,2942 @@
+{% load staticfiles %}        
+
+{% if user in company_details.auditor.all and company_details.accountant.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'user_profile/download.jpg' %}" />
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:groupcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournalcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Journal</a></li>
+                        <li><a href="{% url 'company_accounts:salescreate_accounts_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                        <li><a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Balance Sheet<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Cash Flow Statement
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-2A</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-3B</a>
+                                </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">Income Tax Reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:income_tax' company_pk=company.pk period_selected_pk=period_selected.pk %}">Computation</a>
+                                </li>
+                        </ul>
+                    </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.auditor.all and company_details.purchase_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                               
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+               
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-2A</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-3B</a>
+                                </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">Income Tax Reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:income_tax' company_pk=company.pk period_selected_pk=period_selected.pk %}">Computation</a>
+                                </li>
+                        </ul>
+                    </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                   
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.auditor.all and company_details.sales_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Create</a></li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-2A</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-3B</a>
+                                </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">Income Tax Reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:income_tax' company_pk=company.pk period_selected_pk=period_selected.pk %}">Computation</a>
+                                </li>
+                        </ul>
+                    </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.auditor.all and company_details.cb_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                   
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Balance Sheet<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Cash Flow Statement
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-2A</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-3B</a>
+                                </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">Income Tax Reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:income_tax' company_pk=company.pk period_selected_pk=period_selected.pk %}">Computation</a>
+                                </li>
+                        </ul>
+                    </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.accountant.all and company_details.purchase_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:groupcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournalcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Journal</a></li>
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.accountant.all and company_details.sales_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:groupcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournalcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Journal</a></li>
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.accountant.all and company_details.cb_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:groupcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournalcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Journal</a></li>
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.purchase_personal.all and company_details.sales_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                   </li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+
+{% elif user in company_details.purchase_personal.all and company_details.cb_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+               
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                        
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.sales_personal.all and company_details.cb_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.auditor.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Balance Sheet<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Cash Flow Statement
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-2A</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-3B</a>
+                                </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">Income Tax Reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:income_tax' company_pk=company.pk period_selected_pk=period_selected.pk %}">Computation</a>
+                                </li>
+                        </ul>
+                    </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+
+{% elif user in company_details.accountant.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:groupcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournalcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Journal</a></li>
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                   
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.purchase_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                   
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+        </div>
+
+
+{% elif user in company_details.sales_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                    
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% elif user in company_details.cb_personal.all %}
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                
+                
+
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                   
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                       
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp;amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                   <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+
+{% else %}
+
+ <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                    {% if user.profile.image %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{{ user.profile.image.url }}/"/>
+                    {% else %}
+                        <img alt="image" class="rounded-circle" style='height: 33%; width: 33%;' src="{% static 'userprofile/download (1).jpg' %}"/>
+                    {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.profile.Full_Name }}</span>
+                            <span class="text-muted text-xs block">{{ user.profile.user_type }}<b class="caret"></b></span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="{% url 'user_profile:profiledetail' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:messageinbox' %}">Mailbox</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'bracketline:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+
+                 <li class="active">
+                    <a href="{% url 'company:list' %}"><i class="fa fa-industry" aria-hidden="true"></i> <span class="nav-label">Select Company</span></a>
+                </li>
+                
+                <li><a href="{% url 'ecommerce_integration:subscribedproductlist' %}"><i class="fa fa-briefcase" aria-hidden="true"></i><span>My Subscriptions</span></a></li>
+
+                 <li><a href="{% url 'user_profile:social' %}"><i class="fa fa-dashboard" aria-hidden="true"></i><span>Social Wall</span></a></li>
+
+                 
+                <li class="active">
+                    <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Accounting- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Groups<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:groupcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:grouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ledgers<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgercreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:ledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:list' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Multi Journal<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournalcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:multijournallist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'accounting_double_entry:create' company_pk=company.pk period_selected_pk=period_selected.pk %}">Journal</a></li>
+                        <li><a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales Invoice</a></li>
+                        <li><a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase Invoice</a></li>
+                        <li>
+                            <a href="#">Payment<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:paymentcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="#">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="#">Receipts<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:receiptlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Contra<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contracreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:contralist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:salescreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:saleslist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'company_accounts:purchasecreate_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'company_accounts:purchaselist_accounts' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'accounting_double_entry:bankledgerlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-bank"></i> <span class="nav-label">Banking</span>  </a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Financial Reports</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li>
+                            <a href="#">Profit &amp; Loss<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}">Profit &amp; Loss Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Balance Sheet<span class="fa arrow"></span></a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'accounting_double_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}">Balance Sheet Schedule III</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                         <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Trial Balance
+
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounting_double_entry:trialbalcond' company_pk=company.pk period_selected_pk=period_selected.pk %}"> Cash Flow Statement
+
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST Overview</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-2A</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'gst:gstr_3B' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-3B</a>
+                                </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="pages/tables/Purchase_Invoice.html">Income Tax Reports<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                                <li>
+                                    <a href="{% url 'gst:income_tax' company_pk=company.pk period_selected_pk=period_selected.pk %}">Computation</a>
+                                </li>
+                        </ul>
+                    </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Display</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="{% url 'accounting_double_entry:daybook' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Day Book</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounting_double_entry:cash_and_bank' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Cash/Bank Book(s)</a>
+                    </li>
+                         <li><a href="{% url 'accounting_double_entry:groupsummary' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i>Group Summary</a></li>
+                        <li><a href="{% url 'company_accounts:sale_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Sales Register</a></li>
+                        <li><a href="{% url 'company_accounts:purchase_register_accounts' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i class="fa fa-circle-o"></i> Purchase Register</a></li>
+                        <li><a href="{% url 'accounting_double_entry:journalregister' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i class="fa fa-circle-o"></i> Journal Register</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="{% url 'messaging:messageinbox' %}"><i class="fa fa-envelope"></i> <span class="nav-label">Mailbox </span><span class="label label-warning float-right">{{ inbox_count }}/{{ send_count }}</span></a>
+                </li>
+
+                <li><a href="{% url 'user_profile:profiledetail' %}"><i class="fa fa-user" aria-hidden="true"></i><span>Profile Settings</span></a></li>
+
+                 <li class="header">MARKET PLACE</li>
+                    <li><a href="{% url 'products:productlist' %}"><i class="fa fa-circle-o text-red"></i> <span>Products</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:servicelist' %}"><i class="fa fa-circle-o text-red"></i> <span>Services</span></a></li>
+                    <li><a href="{% url 'ecommerce_integration:apilist' %}"><i class="fa fa-circle-o text-red"></i> <span>APIs</span></a></li>
+                    <li><a href="{% url 'blog:allbloglist' %}"><i class="fa fa-circle-o text-red"></i> <span>Read Blogs &amp; Articles</span></a></li>
+                    <li><a href="{% url 'consultancy:consultancylist' %}"><i class="fa fa-circle-o text-red"></i> <span>Consultancy Forum</span></a></li>
+                    <li><a href="{% url 'user_profile:search' %}"><i class="fa fa-circle-o text-aqua"></i> <span>Find Professional</span></a></li>
+                    <li><a href="{% url 'help_support:CategoriesList' %}"><i class="fa fa-question-circle" style="color:blue"></i> <span>Help & Support</span></a></li>
+
+               
+
+        </div>
+{% endif %}

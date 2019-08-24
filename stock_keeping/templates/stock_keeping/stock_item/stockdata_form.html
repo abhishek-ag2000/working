@@ -1,0 +1,598 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+{% if not form.instance.pk %}
+Create Stock Item
+{% else %}
+Update Stock Item
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        {% if not form.instance.pk %}
+        <h3>Create Stock Item</h3>
+        {% else %}
+        <h3>Update Stock Item</h3>
+        {% endif %}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+
+                <a href="{% url 'company:list' %}">Company list</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a
+                    href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">
+                {% if not form.instance.pk %}
+                <strong>Create Stock Item</strong>
+                {% else %}
+                <strong>Update Stock Item</strong>
+                {% endif %}
+            </li>
+        </ol>
+        <br>
+        <a href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk%}"
+            class="btn btn-success" role="button">Select Stock Item</a>
+
+        <a href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-warning" role="button">Create Stock Item</a>
+
+    </div>
+</div>
+
+<br>
+<form method="POST" id="stock-form"
+    data-validate-username-url="{% url 'stock_keeping:is_stock_name_taken_json' company_pk=company.pk %}">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="ibox ">
+                <div class="ibox-title">
+                    {% if not form.instance.pk %}
+                    <h5>Create Stock Item</h5>
+                    {% else %}
+                    <h5>Update Stock Item</h5>
+                    {% endif %}
+
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div id="gst">
+
+                    </div>
+
+
+                    {% csrf_token %}
+
+                    <style type="text/css">
+                        .errorlist {
+                            color: red;
+                        }
+                    </style>
+
+                    {{ form.non_field_errors }}
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Stock name<i class="material-icons"
+                                style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10">
+
+                            {{ form.stock_name.errors }}
+                            {{ form.stock_name }}
+
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Under<i class="material-icons"
+                                style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10">
+
+                            {{ form.stock_group.errors }}
+                            {{ form.stock_group }}
+
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Simple Unit<i class="material-icons"
+                                style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10">
+                            {{ form.simple_unit.errors }}
+                            {{ form.simple_unit }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Compound Unit<i class="material-icons"
+                                style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10">
+                            {{ form.compound_unit.errors }}
+                            {{ form.compound_unit }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Quantity</label>
+
+                        <div class="col-lg-10">
+                            {{ form.quantity.errors }}
+                            {{ form.quantity }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Rate</label>
+
+                        <div class="col-lg-10">
+                            {{ form.rate.errors }}
+                            {{ form.rate }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Opening Balance</label>
+
+                        <div class="col-lg-10">
+                            {{ form.opening.errors }}
+                            {{ form.opening }}
+
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">GST Applicable<i class="material-icons"
+                                style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10">
+                            {{ form.is_gst.errors }}
+                            {{ form.is_gst }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        {% if form.instance.is_gst == 'Yes' %}
+                        <label class="col-lg-2 col-form-label" id="set_gst" style="display: block;">Set/Alter GST<i
+                                class="material-icons" style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10" id="set_gst_field" style="display: block;">
+                            {{ form.set_or_alter_gst.errors }}
+                            {{ form.set_or_alter_gst }}
+                        </div>
+                        {% else %}
+                        <label class="col-lg-2 col-form-label" id="set_gst" style="display: none;">Set/Alter GST<i
+                                class="material-icons" style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10" id="set_gst_field" style="display: none;">
+                            {{ form.set_or_alter_gst.errors }}
+                            {{ form.set_or_alter_gst }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+
+
+
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Batch No</label>
+
+                        <div class="col-lg-10">
+                            {{ form.batch_no.errors }}
+                            {{ form.batch_no }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Manufacturing Date</label>
+
+                        <div class="col-lg-10">
+                            {{ form.mfd_date.errors }}
+                            {{ form.mfd_date }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Expiry Date</label>
+
+                        <div class="col-lg-10">
+                            {{ form.exp_date.errors }}
+                            {{ form.exp_date }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Bar Code</label>
+
+                        <div class="col-lg-10">
+                            {{ form.barcode_image.errors }}
+                            {{ form.barcode_image }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Bar Code Text</label>
+
+                        <div class="col-lg-10">
+                            {{ form.barcode_text.errors }}
+                            {{ form.barcode_text }}
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    {% if form.instance.set_or_alter_gst == 'Yes' %}
+    <div class="row" id="gst_dtls" style="display: block;">
+        {% else %}
+        <div class="row" id="gst_dtls" style="display: none;">
+            {% endif %}
+            <div class="col-md-12">
+
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>GST Details</h5>
+
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div id="gst">
+
+                        </div>
+
+
+
+                        <style type="text/css">
+                            .errorlist {
+                                color: red;
+                            }
+                        </style>
+
+
+
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">HSN/SAC<i class="material-icons"
+                                    style="font-size:16px;color:red">*</i></label>
+
+                            <div class="col-lg-10">
+                                {{ form.hsn.errors }}
+                                {{ form.hsn }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Is non-GST goods?</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.is_non_gst.errors }}
+                                {{ form.is_non_gst }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Taxability</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.taxability.errors }}
+                                {{ form.taxability }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Is reverse charge applicable?</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.reverse_charge.errors }}
+                                {{ form.reverse_charge }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Is ineligible for input credit?</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.input_credit.errors }}
+                                {{ form.input_credit }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Integrated Tax&nbsp;(%)</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.integrated_tax.errors }}
+                                {{ form.integrated_tax }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Central Tax&nbsp;(%)</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.central_tax.errors }}
+                                {{ form.central_tax }}
+
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">State Tax&nbsp;(%)</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.state_tax.errors }}
+                                {{ form.state_tax }}
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                            <label class="col-lg-2 col-form-label">Cess&nbsp;(%)</label>
+
+                            <div class="col-lg-10">
+
+                                {{ form.cess.errors }}
+                                {{ form.cess }}
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="ibox ">
+                    <div class="ibox-content">
+
+                        <div class="form-group row">
+                            <div class="col-lg-offset-2 col-lg-10">
+                                {% if not form.instance.pk %}
+                                <button type="submit" class="btn btn-info pull-right" value="Submit">Create
+                                    Stock</button>
+                                {% else %}
+                                <button type="submit" class="btn btn-info pull-right" value="Submit">Update
+                                    Stock</button>
+                                {% endif %}
+                                <button type="button" class='btn btn-default pull-right' onclick="goBack()">Go
+                                    Back</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+</form>
+
+{% block script %}
+
+<script type="text/javascript">
+    $("#id_stock_group").change(function () {
+        var stockgroupID = $(this).val();
+        if (stockgroupID == "")
+            return
+
+        $.ajax({
+            url: '{% url "stock_keeping:get_stock_gst_set_json" %}',
+            data: {
+                'stock_group__id': stockgroupID
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.is_registered == true) {
+                    $('#gst_dtls').hide();
+                    $('#set_gst_field').hide();
+                    $('#set_gst').hide();
+                    $('#id_is_gst').prop('disabled', true);
+                }
+                else {
+                    $('#id_is_gst').prop('disabled', false);
+                }
+            }
+        });
+    });
+</script>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    function change_isgst_applicable_option(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Yes") {
+            document.getElementById("set_gst").style = "display:block";
+            document.getElementById("set_gst_field").style = "display:block";
+        } else {
+            document.getElementById("set_gst").style = "display:none";
+            document.getElementById("set_gst_field").style = "display:none";
+            document.getElementById("gst_dtls").style = "display:none";
+        }
+
+    }
+
+    function change_setgst_option(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Yes") {
+            document.getElementById("gst_dtls").style = "display:block";
+        } else {
+            document.getElementById("gst_dtls").style = "display:none";
+        }
+
+    }
+
+    function change_taxability_stock(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Taxable") {
+            document.getElementById("id_integrated_tax").disabled = false;
+            document.getElementById("id_central_tax").disabled = false;
+            document.getElementById("id_state_tax").disabled = false;
+            document.getElementById("id_cess").disabled = false;
+            document.getElementById("id_reverse_charge").disabled = false;
+            document.getElementById("id_input_credit").disabled = false;
+        } else {
+            document.getElementById("id_integrated_tax").disabled = true;
+            document.getElementById("id_integrated_tax").value = 0;
+            document.getElementById("id_central_tax").disabled = true;
+            document.getElementById("id_central_tax").value = 0;
+            document.getElementById("id_state_tax").disabled = true;
+            document.getElementById("id_state_tax").value = 0;
+            document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_cess").value = 0;
+            document.getElementById("id_reverse_charge").disabled = true;
+            document.getElementById("id_reverse_charge").value = '';
+            document.getElementById("id_input_credit").disabled = true;
+            document.getElementById("id_input_credit").value = '';
+        }
+
+    }
+
+    function change_non_gst(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "No") {
+            document.getElementById("id_taxability").disabled = false;
+            document.getElementById("id_integrated_tax").disabled = false;
+            document.getElementById("id_central_tax").disabled = false;
+            document.getElementById("id_state_tax").disabled = false;
+            document.getElementById("id_cess").disabled = false;
+            document.getElementById("id_reverse_charge").disabled = false;
+            document.getElementById("id_input_credit").disabled = false;
+        } else {
+            document.getElementById("id_taxability").disabled = true;
+            document.getElementById("id_taxability").value = '';
+            document.getElementById("id_reverse_charge").disabled = true;
+            document.getElementById("id_reverse_charge").value = '';
+            document.getElementById("id_input_credit").disabled = true;
+            document.getElementById("id_input_credit").value = '';
+            document.getElementById("id_integrated_tax").disabled = true;
+            document.getElementById("id_integrated_tax").value = 0;
+            document.getElementById("id_central_tax").disabled = true;
+            document.getElementById("id_central_tax").value = 0;
+            document.getElementById("id_state_tax").disabled = true;
+            document.getElementById("id_state_tax").value = 0;
+            document.getElementById("id_cess").disabled = true;
+            document.getElementById("id_cess").value = 0;
+        }
+
+    }
+
+    $(document).ready(function () {
+        $('#id_rate, #id_quantity').on('change', function () {
+            $('#id_opening').val($('#id_quantity').val() * $('#id_rate').val());
+        });
+    });
+
+</script>
+
+<script type="text/javascript">
+    $("#id_stock_name").change(function () {
+        var form = $(this).closest("form");
+        $.ajax({
+            url: form.attr("data-validate-username-url"),
+            data: form.serialize(),
+            dataType: 'json',
+            success: function (data) {
+                if (data.is_taken) {
+                    console.log("Error")
+                    $('input[name=stock_name]').val('')
+                    swal({
+                        title: "Error!",
+                        text: data.error_message,
+                        type: "warning"
+                    });
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock script %}
+
+
+
+{% endblock %}

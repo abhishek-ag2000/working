@@ -1,0 +1,968 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+{% if not form.instance.pk %}
+Create Debit Note
+{% else %}
+Update Debit Note
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-12">
+    {% if not form.instance.pk %}
+    <h3><b>Create Debit Note</b></h3>
+    {% else %}
+    <h3><b>Update Debit Note</b></h3>
+    {% endif %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+      </li>
+      <li class="breadcrumb-item">
+
+        <a href="{% url 'company:list' %}">Company list</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a
+          href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">
+        {% if not form.instance.pk %}
+        <strong>Create Debit Note</strong>
+        {% else %}
+        <strong>Update Debit Note</strong>
+        {% endif %}
+      </li>
+    </ol>
+    <br>
+
+    <a href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+      class="btn btn-success" role="button">Select Debit Note</a>
+
+
+    <button class="btn btn-info show-form-update pull-right"
+      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      Update Period
+    </button>
+
+    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+      <strong>Selected Period: From</strong>
+      {{ period_selected.start_date|date }}
+      <strong>To</strong>
+      {{ period_selected.end_date|date }} &nbsp;
+
+    </a>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+  <form method="POST" class="form-horizontal">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-lg-12">
+
+        {% for field in form %}
+        {% if field.errors %}
+
+
+
+        <style type="text/css">
+          div.field_error input {
+            color: red
+          }
+        </style>
+
+
+
+        <div class="alert alert-danger">
+          {% if form.ref_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Invoice No</label>
+            <div class="col-lg-5">
+              {{ form.ref_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.voucher_date.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Invoice Date</label>
+            <div class="col-lg-5">
+              {{ form.voucher_date.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.doc_ledger.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Sales Ledger</label>
+            <div class="col-lg-5">
+              {{ form.doc_ledger.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.supply_place.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Nature of Transaction</label>
+            <div class="col-lg-5">
+              {{ form.supply_place.errors }}
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Place of Supply</label>
+            <div class="col-lg-5">
+              {{ form.supply_place.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.nature_transactions_purchase.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Nature of Transaction</label>
+            <div class="col-lg-5">
+              {{ form.nature_transactions_purchase.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.party_ac.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Buyer's Name</label>
+            <div class="col-lg-5">
+              {{ form.party_ac.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.gst_details.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Provide GST Details</label>
+            <div class="col-lg-5">
+              {{ form.gst_details.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.bill_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Shipping Bill no</label>
+            <div class="col-lg-5">
+              {{ form.bill_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.bill_date.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Shipping Bill Date</label>
+            <div class="col-lg-5">
+              {{ form.bill_date.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.port_code.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Port Code</label>
+            <div class="col-lg-5">
+              {{ form.port_code.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+
+          {% if form.supplier_ref.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Supplier's Ref</label>
+            <div class="col-lg-5">
+              {{ form.supplier_ref.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.despatch_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Despatch Document No</label>
+            <div class="col-lg-5">
+              {{ form.despatch_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.despatch_info.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Despatch Through</label>
+            <div class="col-lg-5">
+              {{ form.despatch_info.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.destination.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Destination</label>
+            <div class="col-lg-5">
+              {{ form.destination.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+
+          {% if form.mode.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Terms of Delivery</label>
+            <div class="col-lg-5">
+              {{ form.mode.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.vechicle_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Terms of Delivery</label>
+            <div class="col-lg-5">
+              {{ form.vechicle_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.shipper_place.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Place of receipt by shipper</label>
+            <div class="col-lg-5">
+              {{ form.shipper_place.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.flight_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Vessel/Flight No</label>
+            <div class="col-lg-5">
+              {{ form.flight_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.loading_port.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Port of Loading</label>
+            <div class="col-lg-5">
+              {{ form.loading_port.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.discharge_port.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Port of Discharge</label>
+            <div class="col-lg-5">
+              {{ form.discharge_port.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.supply_country.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Country</label>
+            <div class="col-lg-5">
+              {{ form.supply_country.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+
+        {% endif %}
+        {% endfor %}
+
+        <div class="ibox ">
+          <div class="ibox-title">
+            <h5><strong>Primary info</strong></h5>
+            <div class="ibox-tools">
+              <a class="collapse-link">
+                <i class="fa fa-chevron-up"></i>
+              </a>
+            </div>
+          </div>
+          <div class="ibox-content">
+
+            <style type="text/css">
+              .errorlist {
+                color: red;
+              }
+            </style>
+
+            <div class="col-sm-9 m-b-xs">
+              <div data-toggle="buttons" class="btn-group btn-group-toggle">
+                <label class="btn btn-sm btn-white"><a href="#invoice_details" data-toggle="collapse">Basic
+                    Details</a></label>
+                <label class="btn btn-sm btn-white"><a href="#despatch" data-toggle="collapse">Receipt
+                    Details</a></label>
+                <label class="btn btn-sm btn-white" id="export_details" style="display: none"><a href="#export"
+                    data-toggle="collapse">Import
+                    Details</a></label>
+
+              </div>
+            </div>
+
+
+            <br>
+            <div class="hidden-md" id="sales-info">
+              <div class="panel-collapse collapse show active" id="invoice_details" data-parent="#sales-info">
+                <h3>Basic Details</h3>
+                <hr>
+
+                <div class="form-group row">
+                  <label for="Invoice1" class="col-lg-2 control-label">Invoice No<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+                    {{ form.ref_no.errors }}
+                    {{form.ref_no}}
+                  </div>
+
+                  <label for="Date3" class="col-lg-2 control-label">Invoice Date<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+                    {{ form.voucher_date.errors }}
+                    {{form.voucher_date }}
+                  </div>
+
+
+                </div>
+
+                <div class="form-group row">
+                  <label for="Seller2" class="col-lg-2 control-label">Party Name<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+                    {{ form.party_ac.errors }}
+                    {{form.party_ac }}
+                  </div>
+
+                  <label for="Seller2" class="col-lg-2 control-label">Purchase Ledger<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+                    {{ form.doc_ledger.errors }}
+                    {{form.doc_ledger }}
+                  </div>
+                </div>
+
+
+                <div class="form-group row">
+                  <label for="Seller2" class="col-lg-2 control-label">Nature of Transaction<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+
+                    {{ form.nature_transactions_purchase.errors }}
+                    {{ form.nature_transactions_purchase }}
+                    {{ form.supply_place.errors }}
+                  </div>
+
+                  {% if form.instance.nature_transactions_purchase == 'Imports Exempt' or form.instance.nature_transactions_purchase == 'Imports Nil Rated' or form.instance.nature_transactions_purchase == 'Imports Taxable' %}
+                  <label for="State1" id="supply_state" class="col-lg-2 control-label" style="display: none;">Place of
+                    Supply<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                  {% else %}
+                  <label for="State1" id="supply_state" class="col-lg-2 control-label">Place of
+                    Supply<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                  {% endif %}
+
+                  {% if form.instance.nature_transactions_purchase == 'Imports Exempt' or form.instance.nature_transactions_purchase == 'Imports Nil Rated' or form.instance.nature_transactions_purchase == 'Imports Taxable' %}
+                  <div class="col-lg-4" id="supply_place_field" style="display: none">
+                    {% else %}
+                    <div class="col-lg-4" id="supply_place_field">
+                      {% endif %}
+
+                      {{ form.supply_place }}
+                      {{ form.supply_place.errors }}
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="PAN1" class="col-lg-2 control-label">Manual Invoice Reference</label>
+                    <div class="col-lg-4">
+                      {{ form.manual.errors }}
+                      {{ form.manual }}
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="Mode3" class="col-lg-2 control-label" id="purchase_from" style="display:none;">Aganist
+                      Purchase</label>
+                    <div class="col-lg-4" id="purchase_from_fields" style="display:none;">
+                      {{ form.purchase_voucher.errors }}
+                      {{ form.purchase_voucher }}
+                    </div>
+                  </div>
+
+                  <div id="purchase_data" style="display:none;">
+                    <div class="form-group row">
+                      <label for="Mode3" class="col-lg-2 control-label">Purchase Invoice no</label>
+                      <div class="col-lg-4">
+                        {{ form.purchase_invno.errors }}
+                        {{ form.purchase_invno }}
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="Mode3" class="col-lg-2 control-label">Invoice Date</label>
+                      <div class="col-lg-4">
+                        {{ form.purchase_date.errors }}
+                        {{form.purchase_date }}
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="Mode3" class="col-lg-2 control-label">Invoice Total</label>
+                      <div class="col-lg-4">
+                        {{ form.purchase_amount.errors }}
+                        {{ form.purchase_amount }}
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+                    <label for="PAN1" class="col-lg-2 control-label">Provide GST Details</label>
+                    <div class="col-lg-4">
+                      {{ form.gst_details.errors }}
+                      {{ form.gst_details }}
+                    </div>
+                  </div>
+
+                  <div id="div_gst" style="display:none;">
+                    <div class="form-group row">
+                      <label for="PAN1" class="col-lg-2 control-label">Reason for issuing note</label>
+                      <div class="col-lg-4">
+                        {{ form.issue_reason.errors }}
+                        {{ form.issue_reason }}
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="PAN1" class="col-lg-1 control-label">Supplier's Debit/Credit Note No</label>
+                      <div class="col-lg-3">
+                        {{ form.note_no.errors }}
+                        {{ form.note_no }}
+                      </div>
+                      <label for="PAN1" class="col-lg-1 control-label">Date</label>
+                      <div class="col-lg-3">
+                        {{ form.date_after_no.errors }}
+                        {{ form.date_after_no }}
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="PAN1" class="col-lg-1 control-label">Bill of entry no</label>
+                      <div class="col-lg-3">
+                        {{ form.bill_no.errors }}
+                        {{ form.bill_no }}
+                      </div>
+                      <label for="PAN1" class="col-lg-1 control-label">Bill of entry Date</label>
+                      <div class="col-lg-3">
+                        {{ form.bill_date.errors }}
+                        {{ form.bill_date }}
+                      </div>
+                      <label for="PAN1" class="col-lg-1 control-label">Port Code</label>
+                      <div class="col-lg-3">
+                        {{ form.port_code.errors }}
+                        {{ form.port_code }}
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="panel-collapse collapse" id="despatch" data-parent="#sales-info">
+                  <h3>Despatch Details</h3>
+                  <hr>
+
+                  <div class="form-group row">
+                    <label for="Supp3" class="col-lg-2 control-label">Supplier's Ref</label>
+                    <div class="col-lg-4">
+                      {{ form.supplier_ref.errors }}
+                      {{ form.supplier_ref }}
+                    </div>
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Despatch Documents No:
+                    </label>
+                    <div class="col-lg-4">
+                      {{ form.despatch_no.errors }}
+                      {{form.despatch_no }}
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Despatch Through</label>
+                    <div class="col-lg-4">
+                      {{ form.despatch_info.errors }}
+                      {{form.despatch_info }}
+                    </div>
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Destination</label>
+                    <div class="col-lg-4">
+                      {{ form.destination.errors }}
+                      {{form.destination }}
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Bill of Lading/LR-RR No</label>
+                    <div class="col-lg-4">
+                      {{ form.landing_bill.errors }}
+                      {{form.landing_bill }}
+                    </div>
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Date </label>
+                    <div class="col-lg-4">
+                      {{ form.landing_date.errors }}
+                      {{form.landing_date }}
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-2 control-label">Vehicle no</label>
+                    <div class="col-lg-4">
+
+                      {{ form.vechicle_no.errors }}
+                      {{form.vechicle_no }}
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-2 control-label">Terms of Delivery</label>
+                    <div class="col-lg-4">
+
+                      {{ form.mode.errors }}
+                      {{form.mode }}
+                    </div>
+                  </div>
+
+                </div>
+
+
+                <div class="panel-collapse collapse" id="export" data-parent="#sales-info">
+                  <h3>Import Details</h3>
+                  <hr>
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-2 control-label">Place of receipt by
+                      shipper</label>
+                    <div class="col-lg-4">
+
+                      {{ form.shipper_place.errors }}
+                      {{form.shipper_place }}
+                    </div>
+                    <label for="Seller2" class="col-lg-2 control-label">Vehicle/Vessel/Flight
+                      No</label>
+                    <div class="col-lg-4">
+
+                      {{ form.flight_no.errors }}
+                      {{form.flight_no }}
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-1 control-label">Port of Loading</label>
+                    <div class="col-lg-3">
+
+                      {{ form.loading_port.errors }}
+                      {{form.loading_port }}
+                    </div>
+                    <label for="Seller2" class="col-lg-1 control-label">Port of Discharge</label>
+                    <div class="col-lg-3">
+
+                      {{ form.discharge_port.errors }}
+                      {{form.discharge_port }}
+                    </div>
+                    <label for="Seller2" class="col-lg-1 control-label">Country</label>
+                    <div class="col-lg-3">
+
+                      {{ form.supply_country.errors }}
+                      {{form.supply_country }}
+                    </div>
+                  </div>
+
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="ibox ">
+            <div class="ibox-title">
+              <h5>Provide Details</h5>
+              <div class="ibox-tools">
+                <a class="collapse-link">
+                  <i class="fa fa-chevron-up"></i>
+                </a>
+                <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  <i class="fa fa-wrench"></i>
+              </a> -->
+                <!-- <ul class="dropdown-menu dropdown-user">
+                  <li><a href="#" class="dropdown-item">Config option 1</a>
+                  </li>
+                  <li><a href="#" class="dropdown-item">Config option 2</a>
+                  </li>
+              </ul> -->
+                <!-- <a class="close-link">
+                  <i class="fa fa-times"></i>
+              </a> -->
+              </div>
+            </div>
+            <div class="ibox-content">
+              <div class="row">
+                <div class="col-sm-9 m-b-xs">
+                  <div data-toggle="buttons" class="btn-group btn-group-toggle">
+                    <label class="btn btn-sm btn-white"><a href="#stock_details" data-toggle="collapse">Stock
+                        Details</a></label>
+                    <label class="btn btn-sm btn-white"><a href="#add_ledgers" data-toggle="collapse">Additional
+                        Ledgers</a></label>
+                    <label class="btn btn-sm btn-white"><a href="#gst_details" data-toggle="collapse">GST
+                        Details</a></label>
+
+                  </div>
+                </div>
+
+              </div>
+              <div class="row">
+
+                <div class="col">
+                  <div class="hidden-md" id="mobile-info">
+                    <div class="panel-collapse collapse show active" id="stock_details" data-parent="#mobile-info"> <br>
+                      <h3>Stock Details</h3>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+                          {{ stockdebit.management_form }}
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                              <th>Quantity</th>
+                              <th>Rate</th>
+                              <th>Discount(%)</th>
+                              <th>Sub Total(&#8377;)</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for form in stockdebit %}
+
+                            <tr class='{% cycle "row1" "row2" %}  formset_row'>
+                              <td style="text-align: center ; width: 40%; height: 20%;">
+                                {{ form.id }} {{ form.stock_item}}</td>
+                              <td>{{ form.quantity}}</td>
+                              <td>{{ form.rate}}</td>
+                              <td>{{ form.disc}}</td>
+                              <td id="stock_total" style="text-align: center ; width: 20%; height: 20%;">
+                                {{ form.total}}</td>
+                              <td></td>
+                            </tr>
+                            {% endfor %}
+
+                          </tbody>
+
+                        </table>
+
+                        <div>
+                          <!-- <p class="text-right">
+                          <span class="alert alert-primary">
+                           <b class="text-success" style="font-size: 14px;">Goods Total:</b> &nbsp;<b id="goods_total"></b>
+                          </span>
+                          
+                        </p> -->
+
+                        </div>
+                        <br>
+
+                      </div>
+                    </div>
+
+                    <div class="panel-collapse collapse" id="add_ledgers" data-parent="#mobile-info">
+                      <br>
+                      <h3>Additional Ledgers</h3>
+                      <hr>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+                          {{ extra_charges.management_form }}
+
+                          <thead>
+                            <tr>
+                              <th>Ledgers</th>
+                              <th>Rate</th>
+                              <th>Sub Total(&#8377;)</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {% for form in extra_charges %}
+
+                            <tr class='{% cycle "row1" "row2" %}  formset_row_1'>
+                              <td style="text-align: center ; width: 40%; height: 20%;">
+                                {{ form.id }} {{ form.ledger}}</td>
+                              <td style="text-align: center ; width: 20%; height: 20%;">
+                                {{ form.rate}}</td>
+                              <td style="text-align: center ; width: 40%; height: 20%;">
+                                {{ form.total}}</td>
+                              <td></td>
+                            </tr>
+
+                            {% endfor %}
+
+                          </tbody>
+                        </table>
+                      </div>
+
+                    </div>
+
+                    <div class="panel-collapse collapse" id="gst_details" data-parent="#mobile-info">
+                      <br>
+                      <h3>GST Details</h3>
+                      <hr>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+
+                          {{ extra_gst.management_form }}
+
+                          <thead>
+
+                            <tr>
+
+                              <th>Ledgers</th>
+                              <th>Sub Total(&#8377;)</th>
+                              <th></th>
+                            </tr>
+
+                          </thead>
+                          <tbody>
+
+                            {% for form in extra_gst %}
+                            <tr class='{% cycle "row1" "row2" %}  formset_row_2'>
+                              <td style="text-align: center ; width: 50%; height: 20%;">
+                                {{ form.id }} {{ form.ledger}}</td>
+                              <td>{{ form.total}}</td>
+                              <td></td>
+                            </tr>
+                            {% endfor %}
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <a href="{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+                      class="btn btn-default" role="button">Cancel </a>
+                    {% if not form.instance.pk %}
+                    <button type="submit" class="btn btn-info pull-right" value="Submit">Create</button>
+                    {% else %}
+                    <button type="submit" class="btn btn-info pull-right" value="Submit">Update</button>
+                    {% endif %}
+
+                  </div>
+
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+  </form>
+</div>
+<br>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="{% static 'formset/jquery.formset.js' %}"></script>
+
+<script type="text/javascript">
+  $('.formset_row').formset({
+    addText: 'add stock',
+    deleteText: 'remove',
+    prefix: 'debittotal'
+  });
+</script>
+
+<script type="text/javascript">
+  $('.formset_row_1').formset({
+    addText: 'add charges',
+    deleteText: 'remove',
+    prefix: 'debitextra'
+  });
+</script>
+
+<script type="text/javascript">
+  $('.formset_row_2').formset({
+    addText: 'add charges',
+    deleteText: 'remove',
+    prefix: 'debitgst'
+  });
+</script>
+
+<script>
+  function gst_change(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "Yes") {
+      document.getElementById("div_gst").style = "display:block;";
+
+    } else {
+      document.getElementById("div_gst").style = "display:none;";
+      document.getElementById("id_issue_reason").selectedIndex = 0;
+    }
+  }
+
+  function import_change(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "Imports Exempt" || txt == "Imports Nil Rated" || txt == "Imports Taxable") {
+      document.getElementById("id_port_code").disabled = false;
+      document.getElementById("id_bill_no").disabled = false;
+      document.getElementById("id_bill_date").disabled = false;
+      document.getElementById("export_details").style = "display:block;";
+      document.getElementById("supply_place_field").style = "display:none;";
+      document.getElementById("supply_state").style = "display:none;";
+      var element = document.getElementById("id_supply_place");
+      element.className = element.className.replace('select2_demo_2 form-control select2-hidden-accessible', "form-control");
+      document.getElementById("id_supply_place").selectedIndex = 0;
+
+    } else {
+      document.getElementById("id_port_code").disabled = true;
+      document.getElementById("id_bill_no").disabled = true;
+      document.getElementById("id_bill_date").disabled = true;
+      document.getElementById("export_details").style = "display:none;";
+      document.getElementById("supply_place_field").style = "display:block;";
+      document.getElementById("supply_state").style = "display:block;";
+      var element = document.getElementById("id_supply_place");
+      element.className = element.className.replace('form-control', "select2_demo_2 form-control select2-hidden-accessible");
+
+    }
+  }
+
+  function purchase_change(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "Yes") {
+      document.getElementById("purchase_from").style = "display:none;";
+      document.getElementById("purchase_data").style = "display:block;";
+      document.getElementById("purchase_from_fields").style = "display:none;";
+    } else {
+      document.getElementById("purchase_data").style = "display:none;";
+      document.getElementById("purchase_from").style = "display:block;";
+      document.getElementById("purchase_from_fields").style = "display:block;";
+    }
+  }
+
+  function calcProductTotal(ctrl) {
+    //id_saletotal-0-Quantity
+    //id_saletotal-0-rate
+    //id_saletotal-0-Disc
+    //id_saletotal-0-Total
+    ctrlIndex = ctrl.id.replace("id_debit_note_voucher-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
+
+    qtyCtrlID = "id_debit_note_voucher-" + ctrlIndex + "-quantity"
+    var qty = document.getElementById(qtyCtrlID).value
+    if ($.isNumeric(qty) == false)
+      return
+
+    rateCtrlID = "id_debit_note_voucher-" + ctrlIndex + "-rate"
+    var rate = document.getElementById(rateCtrlID).value
+    if ($.isNumeric(rate) == false)
+      return
+
+    discPerCtrlID = "id_debit_note_voucher-" + ctrlIndex + "-disc"
+    var discPer = document.getElementById(discPerCtrlID).value
+    if ($.isNumeric(discPer) == false)
+      discPer = 0.0
+
+    var prodVal = qty * rate
+    var taxableVal = prodVal
+
+    if (discPer > 0.0)
+      taxableVal = taxableVal - taxableVal * discPer / 100
+
+    totalCtrlID = "id_debit_note_voucher-" + ctrlIndex + "-total"
+    document.getElementById(totalCtrlID).value = taxableVal.toFixed(2)
+  }
+
+  function calcProductRate(ctrl) {
+    //id_saletotal-0-Quantity
+    //id_saletotal-0-rate
+    //id_saletotal-0-Disc
+    //id_saletotal-0-Total
+    ctrlIndex = ctrl.id.replace("id_debit_note_voucher-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
+
+    qtyCtrlID = "id_debit_note_voucher-" + ctrlIndex + "-quantity"
+    var qty = document.getElementById(qtyCtrlID).value
+    if ($.isNumeric(qty) == false)
+      return
+
+    totalCtrlID = "id_debit_note_voucher-" + ctrlIndex + "-total"
+    var total = document.getElementById(totalCtrlID).value
+    if ($.isNumeric(total) == false)
+      return
+
+    discPerCtrlID = "id_debit_note_voucher-" + ctrlIndex + "-disc"
+    var discPer = document.getElementById(discPerCtrlID).value
+    if ($.isNumeric(discPer) == false)
+      discPer = 0.0
+
+
+    var prodVal = qty * (1 - (discPer / 100))
+
+    var final_rate = total / prodVal
+
+    rateID = "id_debit_note_voucher-" + ctrlIndex + "-rate"
+    document.getElementById(rateID).value = final_rate.toFixed(2)
+  }
+
+
+
+</script>
+
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content animated flipInY"></div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}
