@@ -1,0 +1,1 @@
+default_app_config = 'accounts_mode_voucher.apps.AccountsModeVoucherConfig'

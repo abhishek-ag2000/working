@@ -428,12 +428,12 @@ Update Sales Invoice
                     {{form.party_ac}}
                   </div>
 
-                  <label for="Seller2" class="col-lg-2 control-label">Sales Ledger<i class="material-icons"
-                      style="font-size:16px;color:red">*</i></label>
-                  <div class="col-lg-4">
-                    {{ form.doc_ledger.errors }}
-                    {{form.doc_ledger }}
-                  </div>
+                    <label for="Seller2" class="col-lg-2 control-label">Sales Ledger<i class="material-icons"
+                        style="font-size:16px;color:red">*</i></label>
+                    <div class="col-lg-4">
+                      {{ form.doc_ledger.errors }}
+                      {{form.doc_ledger }}
+                    </div>
                 </div>
 
 
@@ -793,7 +793,7 @@ Update Sales Invoice
                       </div>
                     </div>
 
-                    <div class="panel-collapse collapse" id="add_ledgers" data-parent="#mobile-info">
+                      <div class="panel-collapse collapse" id="add_ledgers" data-parent="#mobile-info">
                       <br>
                       <h3>Additional Ledgers</h3>
                       <hr>
@@ -804,7 +804,7 @@ Update Sales Invoice
                           <thead>
                             <tr>
                               <th>Ledgers</th>
-                              <th>Rate</th>
+                                <th>Rate</th>
                               <th>Sub Total(&#8377;)</th>
                               <th></th>
                             </tr>
@@ -816,7 +816,7 @@ Update Sales Invoice
                             <tr class='{% cycle "row1" "row2" %}  formset_row_1'>
                               <td style="text-align: center ; width: 40%; height: 20%;">{{ form.id }} {{ form.ledger}}
                               </td>
-                              <td style="text-align: center ; width: 20%; height: 20%;">{{ form.rate}}</td>
+                                <td style="text-align: center ; width: 20%; height: 20%;">{{ form.rate}}</td>
                               <td style="text-align: center ; width: 40%; height: 20%;">{{ form.total }}</td>
                               <td></td>
                             </tr>

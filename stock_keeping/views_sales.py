@@ -226,11 +226,12 @@ class SalesDetailsView(ProductExistsRequiredMixin, UserPassesTestMixin, LoginReq
             if g.ledger != None:
                 g.save()
                 g.ledger.save()
-        # saving the sale_voucher ledger
-        sale_voucher.doc_ledger.save()
-        # saving the sale_voucher ledger group
-        sale_voucher.doc_ledger.ledger_group.save()
-        # saving the party ledger
+        if sale_voucher.doc_ledger:
+            # saving the sale_voucher ledger
+            sale_voucher.doc_ledger.save()
+            # saving the sale_voucher ledger group
+            sale_voucher.doc_ledger.ledger_group.save()
+            # saving the party ledger
         sale_voucher.party_ac.save()
         # saving the party ledger group
         sale_voucher.party_ac.ledger_group.save()
@@ -280,8 +281,8 @@ class SalesCreateView(ProductExistsRequiredMixin, LoginRequiredMixin, CreateView
         form.instance.company = company
         counter = SaleVoucher.objects.filter(user=self.request.user, company=company).count() + 1
         form.instance.counter = counter
-
         context = self.get_context_data()
+
         stocksales = context['stocksales']
 
         if not stocksales.is_valid():
@@ -296,6 +297,7 @@ class SalesCreateView(ProductExistsRequiredMixin, LoginRequiredMixin, CreateView
             extra_charges = context['extra_charges'] # TODO: this formset should be validated as stocksales formset
             self.object = form.save()
             if extra_charges.is_valid():
+                print('form valid')
                 extra_charges.instance = self.object
                 extra_charges.save()
 

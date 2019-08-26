@@ -1,0 +1,1017 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}
+{% if not form.instance.pk %}
+Create Sales Invoice
+{% else %}
+Update Sales Invoice
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% include "snippet_shortcut/shortcut_snippet.html" %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-12">
+    {% if not form.instance.pk %}
+    <h3><b>Create Sales Invoice</b></h3>
+    {% else %}
+    <h3><b>Update Sales Invoice</b></h3>
+    {% endif %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+      </li>
+      <li class="breadcrumb-item">
+
+        <a href="{% url 'company:list' %}">Company list</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a
+          href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">
+        {% if not form.instance.pk %}
+        <strong>Create Sales Invoice</strong>
+        {% else %}
+        <strong>Update Sales Invoice</strong>
+        {% endif %}
+      </li>
+    </ol>
+    <br>
+
+    <a href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+      class="btn btn-success" role="button">Select Sales Invoice</a>
+
+
+    <button type="button" class="btn btn-info show-form-update pull-right"
+      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      Update Period
+    </button>
+
+    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+
+      <strong>Selected Period: From</strong>
+      {{ period_selected.start_date|date }}
+      <strong>To</strong>
+      {{ period_selected.end_date|date }} &nbsp;
+
+    </a>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+  <form method="POST" class="form-horizontal">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-lg-12">
+
+        {% for field in form %}
+        {% if field.errors %}
+
+        <style type="text/css">
+          div.field_error input {
+            color: red
+          }
+        </style>
+
+
+
+        <div class="alert alert-danger">
+          {% if form.ref_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Invoice No</label>
+            <div class="col-lg-5">
+              {{ form.ref_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.voucher_date.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Invoice Date</label>
+            <div class="col-lg-5">
+              {{ form.voucher_date.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.doc_ledger.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Sales Ledger</label>
+            <div class="col-lg-5">
+              {{ form.doc_ledger.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.supply_place.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Nature of Transaction</label>
+            <div class="col-lg-5">
+              {{ form.supply_place.errors }}
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Place of Supply</label>
+            <div class="col-lg-5">
+              {{ form.supply_place.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.nature_transactions_sales.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Nature of Transaction</label>
+            <div class="col-lg-5">
+              {{ form.nature_transactions_sales.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.party_ac.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Buyer's Name</label>
+            <div class="col-lg-5">
+              {{ form.party_ac.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.gst_details.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Provide GST Details</label>
+            <div class="col-lg-5">
+              {{ form.gst_details.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.bill_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Shipping Bill no</label>
+            <div class="col-lg-5">
+              {{ form.bill_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.bill_date.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Shipping Bill Date</label>
+            <div class="col-lg-5">
+              {{ form.bill_date.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.port_code.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Port Code</label>
+            <div class="col-lg-5">
+              {{ form.port_code.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.consignee_name.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Consignee Name</label>
+            <div class="col-lg-5">
+              {{ form.consignee_name.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.consignee_address.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Consignee Address</label>
+            <div class="col-lg-5">
+              {{ form.consignee_address.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.consignee_country.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Consignee Country</label>
+            <div class="col-lg-5">
+              {{ form.consignee_country.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.consignee_state.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Consignee State</label>
+            <div class="col-lg-5">
+              {{ form.consignee_state.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.consignee_contact.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Consignee Contact No</label>
+            <div class="col-lg-5">
+              {{ form.consignee_contact.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.consignee_gstin.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Consignee GSTIN/UIN</label>
+            <div class="col-lg-5">
+              {{ form.consignee_gstin.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.consignee_pan.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Consignee PAN/IT No</label>
+            <div class="col-lg-5">
+              {{ form.consignee_pan.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+
+          {% if form.supplier_ref.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Supplier's Ref</label>
+            <div class="col-lg-5">
+              {{ form.supplier_ref.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.despatch_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Despatch Document No</label>
+            <div class="col-lg-5">
+              {{ form.despatch_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.despatch_info.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Despatch Through</label>
+            <div class="col-lg-5">
+              {{ form.despatch_info.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.destination.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Destination</label>
+            <div class="col-lg-5">
+              {{ form.destination.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.landing_bill.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Bill of Lading/LR-RR No</label>
+            <div class="col-lg-5">
+              {{ form.landing_bill.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.landing_date.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Bill of Lading/LR-RR Date</label>
+            <div class="col-lg-5">
+              {{ form.landing_date.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.vechicle_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Vechicle Number</label>
+            <div class="col-lg-5">
+              {{ form.vechicle_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.delivery_terms.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Terms of Delivery</label>
+            <div class="col-lg-5">
+              {{ form.delivery_terms.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.shipper_place.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Place of receipt by shipper</label>
+            <div class="col-lg-5">
+              {{ form.shipper_place.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.flight_no.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Vessel/Flight No</label>
+            <div class="col-lg-5">
+              {{ form.flight_no.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.loading_port.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Port of Loading</label>
+            <div class="col-lg-5">
+              {{ form.loading_port.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.discharge_port.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Port of Discharge</label>
+            <div class="col-lg-5">
+              {{ form.discharge_port.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if form.supply_country.errors %}
+          <div class="form-group row">
+            <label for="Seller2" class="col-lg-3 control-label">Country</label>
+            <div class="col-lg-5">
+              {{ form.supply_country.errors }}
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+
+        {% endif %}
+        {% endfor %}
+
+        <div class="ibox ">
+          <div class="ibox-title">
+            <h5><strong>Primary info</strong></h5>
+            <div class="ibox-tools">
+              <a class="collapse-link">
+                <i class="fa fa-chevron-up"></i>
+              </a>
+            </div>
+          </div>
+          <div class="ibox-content">
+
+            <style type="text/css">
+              .errorlist {
+                color: red;
+              }
+            </style>
+
+            <div class="col-sm-9 m-b-xs">
+              <div data-toggle="buttons" class="btn-group btn-group-toggle">
+                <label class="btn btn-sm btn-white"><a href="#invoice_details" data-toggle="collapse">Basic
+                    Details</a></label>
+                <label class="btn btn-sm btn-white"><a href="#ship_to" data-toggle="collapse">Consignee Details / Ship
+                    To</a></label>
+                <label class="btn btn-sm btn-white"><a href="#despatch" data-toggle="collapse">Despatch
+                    Details</a></label>
+                <label class="btn btn-sm btn-white" id="export_details" style="display: none;"><a href="#export"
+                    data-toggle="collapse">Export Details</a></label>
+
+              </div>
+            </div>
+
+
+            <br>
+            <div class="hidden-md" id="sales-info">
+              <div class="panel-collapse collapse show active" id="invoice_details" data-parent="#sales-info">
+                <h3>Basic Details</h3>
+                <hr>
+
+                <div class="form-group row">
+                  <label for="Invoice1" class="col-lg-2 control-label">Invoice No<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+                    {{ form.ref_no.errors }}
+                    {{form.ref_no}}
+                  </div>
+
+                  <label for="Date3" class="col-lg-2 control-label">Invoice Date<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+                    {{ form.voucher_date.errors }}
+                    {{form.voucher_date }}
+                  </div>
+
+
+                </div>
+
+                <div class="form-group row">
+                  <label for="Seller2" class="col-lg-2 control-label">Buyer's Name<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+                    {{ form.party_ac.errors }}
+                    {{form.party_ac}}
+                  </div>
+
+                    {% if form.instance.nature_transactions_sales == 'Exports Exempt' or form.instance.nature_transactions_sales == 'Exports LUT/Bond' or form.instance.nature_transactions_sales == 'Exports Nil Rated' or form.instance.nature_transactions_sales == 'Exports Taxable' %}
+                  <label for="State1" id="supply_place" class="col-lg-2 control-label" style="display: none;">Place of
+                    Supply<i class="material-icons" style="font-size:16px;color:red">*</i></label>
+                  {% else %}
+                  <label for="State1" id="supply_place" class="col-lg-2 control-label">Place of Supply<i
+                      class="material-icons" style="font-size:16px;color:red">*</i></label>
+                  {% endif %}
+
+                  {% if form.instance.nature_transactions_sales == 'Exports Exempt' or form.instance.nature_transactions_sales == 'Exports LUT/Bond' or form.instance.nature_transactions_sales == 'Exports Nil Rated' or form.instance.nature_transactions_sales == 'Exports Taxable' %}
+                  <div class="col-lg-4" id="supply_place_field" style="display: none">
+                    {% else %}
+                    <div class="col-lg-4" id="supply_place_field">
+                      {% endif %}
+
+                      {{ form.supply_place }}
+                      {{ form.supply_place.errors }}
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                  <label for="Seller2" class="col-lg-2 control-label">Nature of Transaction<i class="material-icons"
+                      style="font-size:16px;color:red">*</i></label>
+                  <div class="col-lg-4">
+
+                    {{ form.nature_transactions_sales.errors }}
+                    {{ form.nature_transactions_sales }}
+                    {{ form.supply_place.errors }}
+                  </div>
+
+                  
+                  </div>
+
+
+                  <div id="div_extra" style="display:none;">
+                    <div class="form-group row">
+                      <label for="PAN1" class="col-lg-2 control-label">Provide GST Details</label>
+                      <div class="col-lg-4">
+                        {{ form.gst_details.errors }}
+                        {{ form.gst_details }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="div_gst" style="display:none;">
+                    <div class="form-group row">
+                      <label for="PAN1" class="col-lg-1 control-label">Shipping Bill no</label>
+                      <div class="col-lg-3">
+                        {{ form.bill_no.errors }}
+                        {{ form.bill_no }}
+                      </div>
+                      <label for="PAN1" class="col-lg-1 control-label">Shipping Bill Date</label>
+                      <div class="col-lg-3">
+                        {{ form.bill_date.errors }}
+                        {{ form.bill_date }}
+                      </div>
+                      <label for="PAN1" class="col-lg-1 control-label">Port Code</label>
+                      <div class="col-lg-3">
+                        {{ form.port_code.errors }}
+                        {{ form.port_code }}
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="panel-collapse collapse" id="ship_to" data-parent="#sales-info">
+                  <h3>Consignee Details / Ship To</h3>
+                  <hr>
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-2 control-label">Consignee Name</label>
+                    <div class="col-lg-4">
+                      {{ form.consignee_name.errors }}
+                      {{form.consignee_name }}
+                    </div>
+                    <label for="Seller2" class="col-lg-2 control-label">Consignee Address</label>
+                    <div class="col-lg-4">
+                      {{ form.consignee_address.errors }}
+                      {{form.consignee_address }}
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-2 control-label">Consignee Country</label>
+                    <div class="col-lg-4">
+                      {{ form.consignee_country.errors }}
+                      {{form.consignee_country }}
+                    </div>
+
+                    <label for="Seller2" class="col-lg-2 control-label">Consignee State</label>
+                    <div class="col-lg-4">
+                      {{ form.consignee_state.errors }}
+                      {{form.consignee_state }}
+                    </div>
+
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-2 control-label">Consignee Contact No</label>
+                    <div class="col-lg-4">
+                      {{ form.consignee_contact.errors }}
+                      {{form.consignee_contact }}
+                    </div>
+
+                    <label for="Seller2" class="col-lg-2 control-label">Other Details</label>
+                    <div class="col-lg-4">
+                      {{ form.other_details.errors }}
+                      {{form.other_details }}
+                    </div>
+                  </div>
+
+                  <div id="con_gst_pan">
+                    <div class="form-group row">
+                      <label for="Seller2" class="col-lg-2 control-label">Consignee GSTIN/UIN</label>
+                      <div class="col-lg-4">
+                        {{ form.consignee_gstin.errors }}
+                        {{form.consignee_gstin }}
+                      </div>
+                      <label for="Seller2" class="col-lg-2 control-label">Consignee PAN/IT No</label>
+                      <div class="col-lg-4">
+
+                        {{ form.consignee_pan.errors }}
+                        {{form.consignee_pan }}
+                      </div>
+                    </div>
+                  </div>
+
+
+                </div>
+
+                <div class="panel-collapse collapse" id="despatch" data-parent="#sales-info">
+                  <h3>Despatch Details</h3>
+                  <hr>
+
+                  <div class="form-group row">
+                    <label for="Supp3" class="col-lg-2 control-label">Supplier's Ref</label>
+                    <div class="col-lg-4">
+                      {{ form.supplier_ref.errors }}
+                      {{ form.supplier_ref }}
+                    </div>
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Despatch Document No</label>
+                    <div class="col-lg-4">
+                      {{ form.despatch_no.errors }}
+                      {{form.despatch_no }}
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Despatch Through</label>
+                    <div class="col-lg-4">
+                      {{ form.despatch_info.errors }}
+                      {{form.despatch_info }}
+                    </div>
+
+                    <label for="Invoice1" class="col-lg-2 control-label">Destination</label>
+                    <div class="col-lg-4">
+                      {{ form.destination.errors }}
+                      {{form.destination }}
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+                    <label for="PAN1" class="col-lg-2 control-label">Bill of Lading/LR-RR No</label>
+                    <div class="col-lg-4">
+                      {{ form.landing_bill.errors }}
+                      {{ form.landing_bill }}
+                    </div>
+                    <label for="PAN1" class="col-lg-2 control-label">Bill of Lading/LR-RR Date</label>
+                    <div class="col-lg-4">
+                      {{ form.landing_date.errors }}
+                      {{ form.landing_date }}
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="Supp3" class="col-lg-2 control-label">Vechicle Number</label>
+                    <div class="col-lg-4">
+                      {{ form.vechicle_no.errors }}
+                      {{form.vechicle_no }}
+                    </div>
+
+                    <label for="Seller2" class="col-lg-2 control-label">Terms of Delivery</label>
+                    <div class="col-lg-4">
+
+                      {{ form.delivery_terms.errors }}
+                      {{form.delivery_terms }}
+                    </div>
+                  </div>
+
+                </div>
+
+
+                <div class="panel-collapse collapse" id="export" data-parent="#sales-info">
+                  <h3>Export Details</h3>
+                  <hr>
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-2 control-label">Place of receipt by shipper</label>
+                    <div class="col-lg-4">
+
+                      {{ form.shipper_place.errors }}
+                      {{form.shipper_place }}
+                    </div>
+                    <label for="Seller2" class="col-lg-2 control-label">Vehicle/Vessel/Flight No</label>
+                    <div class="col-lg-4">
+
+                      {{ form.flight_no.errors }}
+                      {{form.flight_no }}
+                    </div>
+                  </div>
+
+
+                  <div class="form-group row">
+                    <label for="Seller2" class="col-lg-1 control-label">Port of Loading</label>
+                    <div class="col-lg-3">
+
+                      {{ form.loading_port.errors }}
+                      {{form.loading_port }}
+                    </div>
+                    <label for="Seller2" class="col-lg-1 control-label">Port of Discharge</label>
+                    <div class="col-lg-3">
+
+                      {{ form.discharge_port.errors }}
+                      {{form.discharge_port }}
+                    </div>
+                    <label for="Seller2" class="col-lg-1 control-label">Country</label>
+                    <div class="col-lg-3">
+
+                      {{ form.supply_country.errors }}
+                      {{form.supply_country }}
+                    </div>
+                  </div>
+
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="ibox ">
+            <div class="ibox-title">
+              <h5>Provide Details</h5>
+              <div class="ibox-tools">
+                <a class="collapse-link">
+                  <i class="fa fa-chevron-up"></i>
+                </a>
+                <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-wrench"></i>
+                </a> -->
+                <!-- <ul class="dropdown-menu dropdown-user">
+                    <li><a href="#" class="dropdown-item">Config option 1</a>
+                    </li>
+                    <li><a href="#" class="dropdown-item">Config option 2</a>
+                    </li>
+                </ul> -->
+                <!-- <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a> -->
+              </div>
+            </div>
+            <div class="ibox-content">
+              <div class="row">
+                <div class="col-sm-9 m-b-xs">
+                  <div data-toggle="buttons" class="btn-group btn-group-toggle">
+                    <label class="btn btn-sm btn-white"><a href="#add_ledgers" data-toggle="collapse">Particulars</a></label>
+                    <label class="btn btn-sm btn-white"><a href="#gst_details" data-toggle="collapse">GST
+                        Details</a></label>
+
+                  </div>
+                </div>
+
+              </div>
+              <div class="row">
+
+                <div class="col">
+                  <div class="hidden-md" id="mobile-info">
+                    <div class="panel-collapse collapse show active" id="add_ledgers" data-parent="#mobile-info">
+                      {% if extra_charges.non_form_errors %}
+                      <div class="alert alert-danger">
+                        {{ extra_charges.non_form_errors }}
+                      </div>
+                      {% endif %}
+                      <br>
+                      <h3>Particulars</h3>
+                      <hr>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+                          {{ extra_charges.management_form }}
+
+                          <thead>
+                            <tr>
+                              <th>Ledgers</th>
+                              <th>Sub Total(&#8377;)</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {% for form in extra_charges %}
+
+                            <tr class='{% cycle "row1" "row2" %}  formset_row'>
+                              <td style="text-align: center ; width: 40%; height: 20%;">{{ form.id }} {{ form.ledger}}
+                              <td style="text-align: center ; width: 40%; height: 20%;">{{ form.total }}</td>
+                              <td></td>
+                            </tr>
+
+                            {% endfor %}
+
+                          </tbody>
+                        </table>
+                      </div>
+
+                    </div>
+
+                    <div class="panel-collapse collapse" id="gst_details" data-parent="#mobile-info">
+                      <br>
+                      <h3>GST Details</h3>
+                      <hr>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+
+                          {{ extra_gst.management_form }}
+
+                          <thead>
+
+                            <tr>
+
+                              <th>Ledgers</th>
+                              <th>Sub Total(&#8377;)</th>
+                              <th></th>
+                            </tr>
+
+                          </thead>
+                          <tbody>
+
+                            {% for form in extra_gst %}
+                            <tr class='{% cycle "row1" "row2" %}  formset_row_2'>
+                              <td style="text-align: center ; width: 50%; height: 20%;">{{ form.id }} {{ form.ledger}}
+                              </td>
+                              <td>{{ form.total}}</td>
+                              <td></td>
+                            </tr>
+                            {% endfor %}
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <a href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+                      class="btn btn-default" role="button">Cancel </a>
+                    {% if not form.instance.pk %}
+                    <button type="submit" class="btn btn-info pull-right" value="Submit">Create</button>
+                    {% else %}
+                    <button type="submit" class="btn btn-info pull-right" value="Submit">Update</button>
+                    {% endif %}
+
+                  </div>
+
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+  </form>
+</div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="{% static 'formset/jquery.formset.js' %}"></script>
+
+<script type="text/javascript">
+  $('.formset_row').formset({
+    addText: 'add ledger',
+    deleteText: 'remove',
+    prefix: '{{ stocksales.prefix }}',
+    formCssClass: 'dynamic-formset1'
+  });
+</script>
+
+
+<script type="text/javascript">
+  $('.formset_row_2').formset({
+    addText: 'add charges',
+    deleteText: 'remove',
+    prefix: 'salesgst',
+    formCssClass: 'dynamic-formset3'
+  });
+</script>
+
+
+
+<script>
+  function gst_change(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "Sales to SEZ - Exempt" || txt == "Sales to SEZ - LUT/Bond" || txt == "Sales to SEZ - Nil Rated" || txt == "Sales to SEZ - Exempt" || txt == "Sales to SEZ - Taxable" || txt == "Deemed Exports Exempt" || txt == "Deemed Exports Nil Rated" || txt == "Deemed Exports Taxable" || txt == "Intrastate Deemed Exports Exempt" || txt == "Intrastate Deemed Exports Nil Rated" || txt == "Intrastate Deemed Exports Taxabale" || txt == "Exports Exempt" || txt == "Exports Nil Rated" || txt == "Exports Taxable" || txt == "Exports LUT/Bond") {
+      document.getElementById("div_extra").style = "display:block;";
+
+    } else {
+      document.getElementById("div_extra").style = "display:none;";
+      document.getElementById("div_gst").style = "display:none;";
+    }
+
+    if (txt == "Exports Exempt" || txt == "Exports LUT/Bond" || txt == "Exports Nil Rated" || txt == "Exports Taxable") {
+      document.getElementById("id_port_code").disabled = false;
+      document.getElementById("export_details").style = "display:block;";
+      document.getElementById("id_vechicle_no").disabled = true;
+      document.getElementById("supply_place_field").style = "display:none;";
+      document.getElementById("supply_place").style = "display:none;";
+      var element = document.getElementById("id_supply_place");
+      element.className = element.className.replace('select2_demo_2 form-control select2-hidden-accessible', "form-control");
+      document.getElementById("id_supply_place").selectedIndex = 0;
+
+    } else {
+      document.getElementById("id_port_code").disabled = true;
+      document.getElementById("export_details").style = "display:none;";
+      document.getElementById("id_vechicle_no").disabled = false;
+      document.getElementById("supply_place_field").style = "display:block;";
+      document.getElementById("supply_place").style = "display:block;";
+      var element = document.getElementById("id_supply_place");
+      element.className = element.className.replace('form-control', "select2_demo_2 form-control select2-hidden-accessible");
+
+
+    }
+  }
+
+</script>
+
+<script>
+  function gst_details_value(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "Yes") {
+      document.getElementById("div_gst").style = "display:block;";
+
+    } else {
+      document.getElementById("div_gst").style = "display:none;";
+
+    }
+  }
+
+  function country_details_value(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "India") {
+      document.getElementById("id_consignee_state").disabled = false;
+      document.getElementById("id_consignee_gstin").disabled = false;
+      document.getElementById("id_consignee_pan").disabled = false;
+      document.getElementById("id_other_details").disabled = true;
+      document.getElementById("id_other_details").value = '';
+    } else {
+      document.getElementById("id_consignee_state").disabled = true;
+      document.getElementById("id_consignee_gstin").disabled = true;
+      document.getElementById("id_consignee_pan").disabled = true;
+      document.getElementById("id_consignee_state").selectedIndex = 0;
+      document.getElementById("id_consignee_pan").value = '';
+      document.getElementById("id_consignee_gstin").value = '';
+      document.getElementById("id_other_details").disabled = false;
+
+    }
+  }
+
+  function additional_ledger_value(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    ctrlIndex = sel.id.replace("id_sale_voucher_term_accounts-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
+
+    totalCtrlID = "id_sale_voucher_term_accounts-" + ctrlIndex + "-total"
+
+
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "---------") {
+      document.getElementById(totalCtrlID).value = 0.0;
+    }
+  }
+
+  function additional_gst_value(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    ctrlIndex = sel.id.replace("id_sale_voucher_tax_accounts-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
+
+    totalCtrlID = "id_sale_voucher_tax_accounts-" + ctrlIndex + "-total"
+
+
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "---------") {
+      document.getElementById(totalCtrlID).value = 0.0;
+    }
+  }
+
+</script>
+
+
+
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content animated flipInY"></div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block script %}
+
+<script type="text/javascript">
+   $(document).ready(function () {
+    $("select[id*='id_sale_voucher_term_accounts-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-ledger') !== -1) {
+        $(this).change(function () {
+          var ledger_id = $(this).val();
+          if (ledger_id == "")
+            return
+
+          var sales_nature = $('#id_nature_transactions_sales').val();
+
+          $.ajax({
+            url: '{% url "accounts_mode_voucher:is_ledger_nature_same_json" %}',
+            data: {
+              'ledger_id': ledger_id,
+            },
+            dataType: 'json',
+            success: function (data) {
+              if (data.nature_sales != sales_nature && sales_nature != 'Not Applicable') {
+                console.log(data.nature_sales)
+                swal({
+                  title: "Warning!",
+                  text: "Nature of transaction does not match",
+                  type: "warning"
+                });
+              } else if (data.nature_purchase) {
+                swal({
+                  title: "Warning!",
+                  text: "Nature of transaction does not match",
+                  type: "warning"
+                });
+              } 
+              else {
+                console.log("Not a Error")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+</script>
+
+
+{% endblock script %}

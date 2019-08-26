@@ -253,7 +253,6 @@ class SaleStockForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.company = kwargs.pop('company', None)
-
         super(SaleStockForm, self).__init__(*args, **kwargs)
 
         self.fields['stock_item'].queryset = StockItem.objects.filter(company=self.company)
@@ -270,6 +269,7 @@ class SaleStockForm(forms.ModelForm):
 
     def clean_stock_item(self):
         stock_item = self.cleaned_data['stock_item']
+        print(self.company)
         if not stock_item:
             raise forms.ValidationError("Product must be selected")
         return stock_item
