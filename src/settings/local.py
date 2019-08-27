@@ -96,7 +96,9 @@ INSTALLED_APPS = [
     'help_support',
     'income_tax_compute',
     'qr_code',
-    'job'   
+    'job',
+    'CRM',
+    'CRMcommon'
 ]
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True

@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from django.views.generic import (
+    CreateView, UpdateView, DetailView, TemplateView, View, DeleteView)
 import os
 import json
 import requests
@@ -13,4 +14,4 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
         context["accounts"] = 'accounts'
-    return context
+        return context
