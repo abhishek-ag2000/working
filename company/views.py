@@ -464,6 +464,9 @@ class OrganisationListView(LoginRequiredMixin, ListView):
             context['Products_QR'] = ProductActivated.objects.filter(
                 user=self.request.user, product__id=3, is_active=True)
 
+            context['Products_CRM'] = ProductActivated.objects.filter(
+                user=self.request.user, product__id=7, is_active=True)
+
             context['active_product_1'] = ProductActivated.objects.filter(
                 user=self.request.user, product__id=1, is_active=True)
             context['role_product_1'] = RoleBasedProductActivated.objects.filter(
