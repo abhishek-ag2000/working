@@ -3,8 +3,8 @@ from django.db import models
 from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from models_accounts import Account
-from models_contacts import Contact
+from .models_accounts import Account
+from .models_contacts import Contact
 # from common.models import User
 from django.conf import settings    #import user
 from company.models import Company  #import company

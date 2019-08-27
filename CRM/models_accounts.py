@@ -3,15 +3,15 @@ from django.db import models
 from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 
-<<<<<<< HEAD
 # from common.models import User
 from django.conf import settings    #import user
 from company.models import Company  #import company
 from CRMcommon.utils import INDCHOICES, COUNTRIES
-=======
+
 #from common.models import User
-from common.utils import INDCHOICES, COUNTRIES
->>>>>>> 25736eafbfb4c85d356cf7f84ec9a678f01210af
+from CRMcommon.utils import INDCHOICES, COUNTRIES
+from .models_leads import Lead
+
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
 from .models_contacts import Contact
@@ -78,12 +78,12 @@ class Account(models.Model):
     status = models.CharField(
         choices=ACCOUNT_STATUS_CHOICE, max_length=64, default='open')
     lead = models.ForeignKey(
-        'leads.Lead', related_name="account_leads",
+        Lead, related_name="account_leads",
         on_delete=models.SET_NULL, null=True)
     contact_name = models.CharField(pgettext_lazy(
         "Name of Contact", "Contact Name"), max_length=120)
     contacts = models.ManyToManyField(
-        'contacts.Contact', related_name="account_contacts")
+        Contact, related_name="account_contacts")
     
 
     def __str__(self):
