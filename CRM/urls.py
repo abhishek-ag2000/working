@@ -4,9 +4,9 @@ URLs
 from django.conf.urls import url
 from django.contrib import admin
 
-#from . import 
+from .views import HomeView
 
 urlpatterns = [
-    url(r'^CRMdashboard/'$,  ,name="CRMdashboard"),
+    url(r'^CRMdashboard/$', HomeView.as_view() ,name="CRMdashboard"),
 
 ]

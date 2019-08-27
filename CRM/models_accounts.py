@@ -3,10 +3,15 @@ from django.db import models
 from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 
+<<<<<<< HEAD
 # from common.models import User
 from django.conf import settings    #import user
 from company.models import Company  #import company
 from CRMcommon.utils import INDCHOICES, COUNTRIES
+=======
+#from common.models import User
+from common.utils import INDCHOICES, COUNTRIES
+>>>>>>> 25736eafbfb4c85d356cf7f84ec9a678f01210af
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
 from .models_contacts import Contact
