@@ -3,11 +3,11 @@ from django.db import models
 from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from common.models import User
+#from common.models import User
 from common.utils import INDCHOICES, COUNTRIES
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
-from . import Contact
+from .models_contacts import Contact
 
 
 class Tags(models.Model):
