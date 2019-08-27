@@ -6,6 +6,319 @@
 {% block title %}Balance Sheet Overview{% endblock %}
 
 {% block content %}
-    <h1>{{accounts}}</h1>
-    <h2>testing File</h2>
+<div class="wrapper wrapper-content">
+
+        <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h2>CRM Dashboard</h2>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                        </li>
+                        <li class="breadcrumb-item">
+        
+                            <a href="{% url 'company:list' %}">Company list</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            <strong> Dashboard</strong>
+                        </li>
+                    </ol>
+                    <br>
+                    <a href="{% url 'company:list' %}" class="btn btn-primary" role="button">Accounts </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-default" role="button">Contacts </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-warning" role="button">Leads </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-primary" role="button">Opportunities </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Cases </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-primary" role="button">Documents </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Sales </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-default" role="button">Tasks </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-warning" role="button">Invoices </a>
+                    <a href="{% url 'company:list' %}" class="btn btn-primary" role="button">Events</a>
+                    <a href="{% url 'company:list' %}" class="btn btn-success" role="button">Cases </a>
+        
+                    
+        
+                    
+                </div>
+            </div>
+            <br>
+
+
+        <div class="row">
+                    <div class="col-lg-3">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <span class="label label-success float-right">Accounts</span>
+                                <!-- <h5>Accounts</h5> -->
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">40 886,200</h1>
+                                <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div>
+                                <small>Total additions</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <span class="label label-info float-right">Contacts</span>
+                                <!-- <h5>Contacts</h5> -->
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">275,800</h1>
+                                <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div>
+                                <small>Total additions</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <span class="label label-primary float-right">Leads</span>
+                                <!-- <h5>Leads</h5> -->
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">106,120</h1>
+                                <div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
+                                <small>Total additions</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <span class="label label-danger float-right">Opportunity</span>
+                                <!-- <h5>Opportunity</h5> -->
+                            </div>
+                            <div class="ibox-content">
+                                <h1 class="no-margins">80,600</h1>
+                                <div class="stat-percent font-bold text-danger">38% <i class="fa fa-level-down"></i></div>
+                                <small>Total additions</small>
+                            </div>
+                        </div>
+            </div>
+        </div>
+
+        <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Orders</h5>
+                            <div class="float-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-xs btn-white active">Today</button>
+                                    <button type="button" class="btn btn-xs btn-white">Monthly</button>
+                                    <button type="button" class="btn btn-xs btn-white">Annual</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                            <div class="col-lg-9">
+                                <div class="flot-chart">
+                                    <div class="flot-chart-content" id="flot-dashboard-chart"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <ul class="stat-list">
+                                    <li>
+                                        <h2 class="no-margins">2,346</h2>
+                                        <small>Total orders in period</small>
+                                        <div class="stat-percent">48% <i class="fa fa-level-up text-navy"></i></div>
+                                        <div class="progress progress-mini">
+                                            <div style="width: 48%;" class="progress-bar"></div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <h2 class="no-margins ">4,422</h2>
+                                        <small>Orders in last month</small>
+                                        <div class="stat-percent">60% <i class="fa fa-level-down text-navy"></i></div>
+                                        <div class="progress progress-mini">
+                                            <div style="width: 60%;" class="progress-bar"></div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <h2 class="no-margins ">9,180</h2>
+                                        <small>Monthly income from orders</small>
+                                        <div class="stat-percent">22% <i class="fa fa-bolt text-navy"></i></div>
+                                        <div class="progress progress-mini">
+                                            <div style="width: 22%;" class="progress-bar"></div>
+                                        </div>
+                                    </li>
+                                    </ul>
+                                </div>
+                            </div>
+                    </div>
+
+
+</div>
+
+<div>
+
+<div class="row">
+        <div class="col-lg-6">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Recent Accounts</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table table-hover margin bottom">
+                                <thead>
+                                <tr>
+                                    <th style="width: 1%" class="text-center">No.</th>
+                                    <th>Transaction</th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-center">Amount</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td> Security doors
+                                        </td>
+                                    <td class="text-center small">16 Jun 2014</td>
+                                    <td class="text-center"><span class="label label-primary">$483.00</span></td>
+
+                                </tr>
+                                <tr>
+                                    <td class="text-center">2</td>
+                                    <td> Wardrobes
+                                    </td>
+                                    <td class="text-center small">10 Jun 2014</td>
+                                    <td class="text-center"><span class="label label-primary">$327.00</span></td>
+
+                                </tr>
+                                <tr>
+                                    <td class="text-center">3</td>
+                                    <td> Set of tools
+                                    </td>
+                                    <td class="text-center small">12 Jun 2014</td>
+                                    <td class="text-center"><span class="label label-warning">$125.00</span></td>
+
+                                </tr>
+                                <tr>
+                                    <td class="text-center">4</td>
+                                    <td> Panoramic pictures</td>
+                                    <td class="text-center small">22 Jun 2013</td>
+                                    <td class="text-center"><span class="label label-primary">$344.00</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">5</td>
+                                    <td>Phones</td>
+                                    <td class="text-center small">24 Jun 2013</td>
+                                    <td class="text-center"><span class="label label-primary">$235.00</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">6</td>
+                                    <td>Monitors</td>
+                                    <td class="text-center small">26 Jun 2013</td>
+                                    <td class="text-center"><span class="label label-primary">$100.00</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>Recent Accounts</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+    
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table class="table table-hover margin bottom">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 1%" class="text-center">No.</th>
+                                        <th>Transaction</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Amount</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td class="text-center">1</td>
+                                        <td> Security doors
+                                            </td>
+                                        <td class="text-center small">16 Jun 2014</td>
+                                        <td class="text-center"><span class="label label-primary">$483.00</span></td>
+    
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">2</td>
+                                        <td> Wardrobes
+                                        </td>
+                                        <td class="text-center small">10 Jun 2014</td>
+                                        <td class="text-center"><span class="label label-primary">$327.00</span></td>
+    
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">3</td>
+                                        <td> Set of tools
+                                        </td>
+                                        <td class="text-center small">12 Jun 2014</td>
+                                        <td class="text-center"><span class="label label-warning">$125.00</span></td>
+    
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">4</td>
+                                        <td> Panoramic pictures</td>
+                                        <td class="text-center small">22 Jun 2013</td>
+                                        <td class="text-center"><span class="label label-primary">$344.00</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">5</td>
+                                        <td>Phones</td>
+                                        <td class="text-center small">24 Jun 2013</td>
+                                        <td class="text-center"><span class="label label-primary">$235.00</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">6</td>
+                                        <td>Monitors</td>
+                                        <td class="text-center small">26 Jun 2013</td>
+                                        <td class="text-center"><span class="label label-primary">$100.00</span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                    </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+</div>
 {% endblock %}
