@@ -1,0 +1,44 @@
+# ignore all pycache files - * wildcard match / folder
+*.pyc
+*.bat
+*.cpython-37.pyc
+*.cpython-37
+
+
+
+# Ignore node_modules folder
+qr_code/__pycache__/*
+user_profile/__pycache__/*
+accounting_entry/__pycache__/*
+aggrement/__pycache__/*
+blog/__pycache__/*
+bracketline/migrations/*
+company/__pycache__/*
+consultancy/__pycache__/*
+consultancy/__pycache__/*
+ecommerce_integration/__pycache__/*
+gst_reports/__pycache__/*
+src/settings/__pycache__/*
+src/__pycache__/*
+accounting_entry/migrations/__pycache__/*
+company/migrations/__pycache__/*
+ecommerce_integration/migrations/*
+
+# migrations files ignore folder
+qr_code/migrations/*
+user_profile/migrations/*
+accounting_entry/migrations/*
+aggrement/migrations/*
+blog/migrations/*
+bracketline/migrations/*
+company/migrations/*
+consultancy/migrations/*
+consultancy/migrations/*
+ecommerce_integration/migrations/*
+gst_reports/migrations/*
+src/settings/migrations/*
+src/migrations/*
+
+# settings local 
+
+src/settings/local.py
