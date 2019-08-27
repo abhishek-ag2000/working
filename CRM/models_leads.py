@@ -5,13 +5,23 @@ from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
 from models_accounts import Tags
-from common.models import User
+# from common.models import User
+from django.conf import settings    #import user
+from company.models import Company  #import company
 from CRMcommon.utils import (COUNTRIES, LEAD_SOURCE, LEAD_STATUS,
                           return_complete_address)
 from models_contacts import Contact
 
 
 class Lead(models.Model):
+    # adding company details
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_Leads')
+    # adding user details
+    assigned_to = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='lead_assigned_users')
+    created_by = models.ForeignKey( settings.AUTH_USER_MODEL, related_name='lead_created_by', on_delete=models.SET_NULL, null=True) 
+
+
+
     title = models.CharField(
         pgettext_lazy("Treatment Pronouns for the customer",
                       "Title"), max_length=64)
@@ -39,16 +49,13 @@ class Lead(models.Model):
     website = models.CharField(
         _("Website"), max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    assigned_to = models.ManyToManyField(
-        User, related_name='lead_assigned_users')
+    
     account_name = models.CharField(max_length=255, null=True, blank=True)
     opportunity_amount = models.DecimalField(
         _("Opportunity Amount"),
         decimal_places=2, max_digits=12,
         blank=True, null=True)
-    created_by = models.ForeignKey(
-        User, related_name='lead_created_by',
-        on_delete=models.SET_NULL, null=True)
+    
     created_on = models.DateTimeField(_("Created on"), auto_now_add=True)
     is_active = models.BooleanField(default=False)
     enquery_type = models.CharField(max_length=255, blank=True, null=True)
