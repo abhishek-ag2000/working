@@ -35,6 +35,7 @@ urlpatterns = [
     url(r"^income_tax_compute/", include("income_tax_compute.urls", namespace="income_tax_compute")),
     url(r'^ratings/', include('star_ratings.urls', namespace='ratings')),
     url(r'^job/', include('job.urls', namespace='job')),
+    url(r'^CRM/', include('CRM.urls', namespace='CRM')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # if settings.DEBUG:
