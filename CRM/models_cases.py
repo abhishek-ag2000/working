@@ -34,7 +34,6 @@ class Case(models.Model):
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE, blank=True, null=True)
     contacts = models.ManyToManyField(Contact)
-    # closed_on = models.DateTimeField()
     closed_on = models.DateField()
     description = models.TextField(blank=True, null=True)
     
@@ -90,9 +89,9 @@ class Case(models.Model):
     #         object_id=self.id,
     #         event_type="Call").exclude(status="Planned")
 
-    # def get_assigned_user(self):
-    #     return User.objects.get(id=self.assigned_to.id)
+    def get_assigned_user(self):
+        return User.objects.get(id=self.assigned_to.id)
 
-    # @property
-    # def created_on_arrow(self):
-    #     return arrow.get(self.created_on).humanize()
+    @property
+    def created_on_arrow(self):
+        return arrow.get(self.created_on).humanize()

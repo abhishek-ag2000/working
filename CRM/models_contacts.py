@@ -36,12 +36,7 @@ class Contact(models.Model):
     address = models.CharField(_("Address"), max_length=500, blank=True, null=True)
 
     description = models.TextField(blank=True, null=True)
-    
 
-    #address = models.ForeignKey(
-    #    Address, related_name='adress_contacts',
-    #    on_delete=models.CASCADE, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
     #assigned_to = models.ManyToManyField(
     #    User, related_name='contact_assigned_users')
     #created_by = models.ForeignKey(

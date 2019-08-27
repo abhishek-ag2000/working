@@ -11,19 +11,11 @@ from CRMcommon.utils import INDCHOICES, COUNTRIES
 #from common.models import User
 from CRMcommon.utils import INDCHOICES, COUNTRIES
 from .models_leads import Lead
+from .models import Tags
 
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
 from .models_contacts import Contact
-
-
-class Tags(models.Model):
-    name = models.CharField(max_length=20)
-    slug = models.CharField(max_length=20, unique=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super(Tags, self).save(*args, **kwargs)
 
 
 class Account(models.Model):

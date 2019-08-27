@@ -3,8 +3,7 @@ from django.db import models
 from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
-# from .models_accounts import Tags
-# from .models_accounts import Tags
+from .models import Tags
 # from common.models import User
 from django.conf import settings    #import user
 from company.models import Company  #import company
@@ -59,8 +58,8 @@ class Lead(models.Model):
     created_on = models.DateTimeField(_("Created on"), auto_now_add=True)
     is_active = models.BooleanField(default=False)
     enquery_type = models.CharField(max_length=255, blank=True, null=True)
-    # tags = models.ManyToManyField(Tags, blank=True)
-    # contacts = models.ManyToManyField(Contact, related_name="lead_contacts")
+    tags = models.ManyToManyField(Tags, blank=True)
+    contacts = models.ManyToManyField(Contact, related_name="lead_contacts")
     # created_from_site = models.BooleanField(default=False)
 
     class Meta:
