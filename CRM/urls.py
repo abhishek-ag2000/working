@@ -9,8 +9,6 @@ from .views import HomeView
 app_name = 'CRM'
 
 urlpatterns = [
-    url(r"^$", HomeView.as_view(), name="CRMdashboard"),
-    # url(r'^CRMdashboard/$', HomeView.as_view() ,name="CRMdashboard"),
-    
+    url(r'^company/(?P<organisation_pk>\d+)', HomeView.as_view() ,name="CRMdashboard"),
 
 ]

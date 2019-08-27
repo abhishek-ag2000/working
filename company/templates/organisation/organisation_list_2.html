@@ -33,9 +33,9 @@
   {% endif %}
   
   {% if Products_CRM %}
-  <td><a class="btn btn-success"
-    href="{% url 'CRM' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">Go
-    To Bracket-QR</a></td>
+  <td><a class="btn btn-warning"
+    href="{% url 'CRM:CRMdashboard' organisation_pk=organisation.pk %}">Go
+    To Bracket-CRM</a></td>
     {% endif %}
   <td>
     <button class="btn btn-danger show-form-delete"

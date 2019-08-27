@@ -9,6 +9,9 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.shortcuts import get_object_or_404
+from company.models import Organisation
+
 
 # Create your views here.
 class HomeView(LoginRequiredMixin,TemplateView):
@@ -16,5 +19,9 @@ class HomeView(LoginRequiredMixin,TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
-        context["accounts"] = 'accounts'
+        
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+        context['organisation'] = organisation
+        print(organisation)
         return context
