@@ -1,0 +1,72 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block title %}Balance Sheet Overview{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-12">
+            <h2>CRM Dashboard</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                </li>
+                <li class="breadcrumb-item">
+
+                    <a href="{% url 'company:list' %}">Company list</a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <strong> Dashboard</strong>
+                </li>
+            </ol>
+            <br>
+            <a href="{% url 'company:list' %}" class="btn btn-primary"
+                role="button">Accounts </a>
+            <a href="{% url 'company:list' %}" class="btn btn-default"
+                role="button">Contacts </a>
+            <a href="{% url 'company:list' %}" class="btn btn-warning"
+                role="button">Leads </a>
+            <a href="{% url 'company:list' %}" class="btn btn-primary"
+                role="button">Opportunities </a>
+            <a href="{% url 'company:list' %}" class="btn btn-success"
+                role="button">Cases </a>
+            <a href="{% url 'company:list' %}" class="btn btn-primary"
+                role="button">Documents </a>
+            <a href="{% url 'company:list' %}" class="btn btn-success"
+                role="button">Sales </a>
+            <a href="{% url 'company:list' %}" class="btn btn-default"
+                role="button">Tasks </a>
+            <a href="{% url 'company:list' %}" class="btn btn-warning"
+                role="button">Invoices </a>
+            <a href="{% url 'company:list' %}" class="btn btn-primary"
+                role="button">Events</a>
+            <a href="{% url 'company:list' %}" class="btn btn-success"
+                role="button">Team </a>
+
+
+
+
+        </div>
+    </div>
+    <br>
+
+
+
+
+
+
+    <div>
+
+        <h1>Contacts </h1>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}
