@@ -27,9 +27,11 @@ from company.models import Organisation
 
 
 class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequiredMixin
+    
     model = Contact
     context_object_name = "contact_obj_list"
-    template_name = "contacts.html"
+    template_name = "contacts/contacts.html"
+    
 
     def get_queryset(self):
         queryset = self.model.objects.all()
@@ -63,7 +65,7 @@ class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequired
         organisation = get_object_or_404(
             Organisation, pk=self.kwargs['organisation_pk'])
         context['organisation'] = organisation
-        print(organisation)
+        # print(organisation)
 
 
         context["contact_obj_list"] = self.get_queryset()

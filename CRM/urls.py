@@ -5,7 +5,7 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from .views import HomeView
-from CRM.views_contacts import ContactsListView
+from .views_contacts import ContactsListView
 
 app_name = 'CRM'
 
@@ -16,8 +16,7 @@ urlpatterns = [
 
 
 
-############################################### CRM Urls ###############################################
-url(r'^company/(?P<organisation_pk>\d+)/CRM_contacts/$',
-        ContactsListView.as_view(), name='CRM_contacts'),
+# ############################################### CRM Urls ###############################################
+    url(r'^company/(?P<organisation_pk>\d+)/CRM_contacts/$', ContactsListView.as_view(), name='CRM_contacts'),
 
 ]

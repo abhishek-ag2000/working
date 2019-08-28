@@ -3,7 +3,7 @@
 {% load mathfilters %}
 {% load humanize %}
 
-{% block title %}Balance Sheet Overview{% endblock %}
+{% block title %}Contacts{% endblock %}
 
 {% block content %}
 <div class="wrapper wrapper-content">
@@ -20,14 +20,13 @@
                     <a href="{% url 'company:list' %}">Company list</a>
                 </li>
                 <li class="breadcrumb-item active">
-                    <strong> Dashboard</strong>
+                    <strong> Contacts </strong>
                 </li>
             </ol>
             <br>
             <a href="{% url 'company:list' %}" class="btn btn-primary"
                 role="button">Accounts </a>
-            <a href="{% url 'company:list' %}" class="btn btn-default"
-                role="button">Contacts </a>
+            <a href="{% url 'CRM:CRM_contacts' organisation_pk=organisation.pk %}" class="btn btn-default" role="button">Contacts </a>
             <a href="{% url 'company:list' %}" class="btn btn-warning"
                 role="button">Leads </a>
             <a href="{% url 'company:list' %}" class="btn btn-primary"

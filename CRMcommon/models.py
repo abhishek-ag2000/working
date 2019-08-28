@@ -119,6 +119,9 @@ from django.utils import timezone
 
 
 class Comment(models.Model):
+    # adding company details
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_Comment')
+
     case = models.ForeignKey(Case, blank=True, null=True,
                              related_name="cases", on_delete=models.CASCADE)
     comment = models.CharField(max_length=255)
@@ -163,6 +166,9 @@ class Comment(models.Model):
         return arrow.get(self.commented_on).humanize()
 
 class Comment_Files(models.Model):
+    # adding company details
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_Comment_Files')
+
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     updated_on = models.DateTimeField(auto_now_add=True)
     comment_file = models.FileField(
@@ -175,6 +181,9 @@ class Comment_Files(models.Model):
         return None
 
 class Attachments(models.Model):
+    # adding company details
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_Attachments')
+
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name='attachment_created_by',
         on_delete=models.SET_NULL, null=True)

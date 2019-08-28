@@ -23,5 +23,5 @@ class HomeView(LoginRequiredMixin,TemplateView):
         organisation = get_object_or_404(
             Organisation, pk=self.kwargs['organisation_pk'])
         context['organisation'] = organisation
-        print(organisation)
+        # print(organisation)
         return context

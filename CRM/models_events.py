@@ -54,4 +54,3 @@ class Event(models.Model):
     @property
     def created_on_arrow(self):
         return arrow.get(self.created_on).humanize()
-        
