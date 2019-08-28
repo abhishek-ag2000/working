@@ -34,14 +34,16 @@ class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequired
     
 
     def get_queryset(self):
+       
         queryset = self.model.objects.all()
-        if (self.request.user.role != "ADMIN" and not
-                self.request.user.is_superuser):
-            queryset = queryset.filter(
-                Q(assigned_to__in=[self.request.user]) |
-                Q(created_by=self.request.user))
-
+        # if (self.request.user.role != "ADMIN" and not
+        #         self.request.user.is_superuser):
+        #     queryset = queryset.filter(
+        #         Q(assigned_to__in=[self.request.user]) |
+        #         Q(created_by=self.request.user))
+        
         request_post = self.request.POST
+        print(self.request.POST)
         if request_post:
             if request_post.get('first_name'):
                 queryset = queryset.filter(
@@ -61,6 +63,7 @@ class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequired
         return queryset.distinct()
 
     def get_context_data(self, **kwargs):
+        
         context = super(ContactsListView, self).get_context_data(**kwargs)
         organisation = get_object_or_404(
             Organisation, pk=self.kwargs['organisation_pk'])
@@ -70,8 +73,8 @@ class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequired
 
         context["contact_obj_list"] = self.get_queryset()
         context["per_page"] = self.request.POST.get('per_page')
-        context["users"] = settings.AUTH_USER_MODEL.objects.filter(
-            is_active=True).order_by('email')
+        # context["users"] = settings.AUTH_USER_MODEL.objects.filter(
+        #     is_active=True).order_by('email')
         context["assignedto_list"] = [
             int(i) for i in self.request.POST.getlist('assigned_to', []) if i]
         search = False

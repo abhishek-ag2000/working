@@ -12,11 +12,12 @@ app_name = 'CRM'
 ############################################### CRM Dashboard ###############################################
 
 urlpatterns = [
-    url(r'^company/(?P<organisation_pk>\d+)', HomeView.as_view() ,name="CRMdashboard"),
+    url(r'^company/(?P<organisation_pk>\d+)/$', HomeView.as_view() ,name="CRMdashboard"),
 
 
 
 # ############################################### CRM Urls ###############################################
-    url(r'^company/(?P<organisation_pk>\d+)/CRM_contacts/$', ContactsListView.as_view(), name='CRM_contacts'),
+    url(r'^company/(?P<organisation_pk>\d+)/crm_contacts/$', ContactsListView.as_view(), name='crm_contacts'),
+    
 
 ]

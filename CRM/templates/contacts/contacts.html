@@ -26,7 +26,7 @@
             <br>
             <a href="{% url 'company:list' %}" class="btn btn-primary"
                 role="button">Accounts </a>
-            <a href="{% url 'CRM:CRM_contacts' organisation_pk=organisation.pk %}" class="btn btn-default" role="button">Contacts </a>
+            <a href="{% url 'CRM:crm_contacts' organisation_pk=organisation.pk %}" class="btn btn-default" role="button">Contacts </a>
             <a href="{% url 'company:list' %}" class="btn btn-warning"
                 role="button">Leads </a>
             <a href="{% url 'company:list' %}" class="btn btn-primary"
@@ -53,16 +53,68 @@
     </div>
     <br>
 
+        <div class="table_container_row row marl ">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="card-title text-right">
+                    <span class="float-left">Contacts - {{contact_obj_list|length}}</span>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        {% if contact_obj_list|length > 0 %}
+                        <tr class="text-center">
+                          <th width="5%">S.no</th>
+                          <th width="20%">Name</th>
+                          <th width="20%">Assigned To</th> 
+                          <th width="20%">Address</th>
+                          <th width="15%">Created On</th>
+                          <th width="20%">Actions</th>
+                        </tr>
+                        {% endif %}
+                      </thead>
+                      <tbody>
+                        
+                        {% for contact in contact_obj_list %}
+                        <tr style="text-align:center;">
+                          <td scope="row">{{ forloop.counter }}</td>
+                          <td><a href="#" data-toggle="modal"
+                              data-target="#exampleModalCenter_contact{{contact.id}}">{{contact.first_name}}
+                              {{contact.last_name}}</a></td>
+                          <td>
+                                {{contact.assigned_to}}
+                          </td>
+                          
+                          <td>
+                            {{ contact.address}}
+                          </td>
+                          <td title="{{contact.created_on}}">{{contact.created_on}}</td>
+                          <td class="actions">
+                            <a href="" class="btn btn-info view"><i
+                                class="glyphicon glyphicon-eye-open"></i></a>
+                            <a href="" class="btn btn-success edit"><i
+                                class="glyphicon glyphicon-pencil"></i></a>
+                            {% if request.user == contact.created_by or request.user.role == "ADMIN" or request.user.is_superuser %}
+                            <a href=""
+                              class="btn btn-danger delete remove_account"><i class="glyphicon glyphicon-trash"></i></a>
+                            {% endif %}
+                          </td>
+                        </tr>
+                        {% endfor%}
+                      </tbody>
+                    </table>
+                  </div>
+                  {%ifequal contact_obj_list|length 0 %}
+                  <h6 class="text-center">No Contact Records Found</h6>
+                  {%endifequal%}
+                  
+                </div>
+              </div>
+            </div>
+            <br clear="all">
+          </div>
 
-
-
-
-
-    <div>
-
-        <h1>Contacts </h1>
-
-    </div>
 
 
 </div>

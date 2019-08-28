@@ -1,7 +1,7 @@
 from django import forms
 from .models_contacts import Contact
 from CRMcommon.models import Comment, Attachments 
-from .models_teams import Teams
+from .models_teams import Teams 
 
 
 class ContactForm(forms.ModelForm):
