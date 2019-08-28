@@ -5,7 +5,7 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from .views import HomeView
-from .views_contacts import ContactsListView
+from CRM.views_contacts import ContactsListView
 
 app_name = 'CRM'
 

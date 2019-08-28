@@ -1,11 +1,15 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models_accounts import Tags, Account, Email, EmailLog
+from .models_accounts import Account, Email, EmailLog
+from .models import Tags
 from .models_cases import Case
 from .models_contacts import Contact
 from .models_leads import Lead
 from .models_opportunity import Opportunity
+from .models_events import Event
+from .models_tasks import Task
+from .models_teams import Teams
 
 class TagsAdmin(admin.ModelAdmin):
     """
@@ -75,6 +79,32 @@ class OpportunityAdmin(admin.ModelAdmin):
     list_display = ['company', 'created_by', 'name', 'account', 'lead_source']
     search_fields = ['company', 'created_by', 'name']
 
+class EventAdmin(admin.ModelAdmin):
+    """
+    Model Admin class for EventAdmin model
+    """
+    model = Event
+    list_display = ['company', 'name', 'event_type', 'description', 'status']
+    search_fields = ['company', 'name', 'event_type']
+
+
+class TaskAdmin(admin.ModelAdmin):
+    """
+    Model Admin class for TaskAdmin model
+    """
+    model = Task
+    list_display = ['company', 'title', 'created_by', 'status', 'account']
+    search_fields = ['company', 'title', 'created_by']
+
+
+class TeamsAdmin(admin.ModelAdmin):
+    """
+    Model Admin class for TeamsAdmin model
+    """
+    model = Teams
+    list_display = ['company', 'name', 'description', 'created_by']
+    search_fields = ['company', 'name', 'description']
+
 
 
 admin.site.register(Tags, TagsAdmin)
@@ -85,3 +115,6 @@ admin.site.register(Case, CaseAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(Lead, LeadAdmin)
 admin.site.register(Opportunity, OpportunityAdmin)
+admin.site.register(Event, EventAdmin)
+admin.site.register(Task, TaskAdmin)
+admin.site.register(Teams, TeamsAdmin)

@@ -28,6 +28,9 @@ class Event(models.Model):
         ('Canceled', 'Canceled'),
         ('Deferred', 'Deferred')
     )
+# adding company details
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_Event')
+
     name = models.CharField(_("Event"), max_length=64)
     event_type = models.CharField(max_length=20, choices=EVENT_TYPE)
     status = models.CharField(choices=EVENT_STATUS, max_length=64, blank=True, null=True)
@@ -51,3 +54,4 @@ class Event(models.Model):
     @property
     def created_on_arrow(self):
         return arrow.get(self.created_on).humanize()
+        

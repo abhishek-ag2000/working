@@ -21,6 +21,15 @@ class Task(models.Model):
         ("Medium", "Medium"),
         ("High", "High")
     )
+# adding User 
+    assigned_to = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name='users_tasks')
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name='task_created', blank=True, null=True, on_delete=models.SET_NULL)
+
+# adding company details
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_Tasks')
 
     title = models.CharField(_("title"), max_length=200)
     status = models.CharField(
@@ -35,12 +44,7 @@ class Task(models.Model):
     contacts = models.ManyToManyField(
         Contact, related_name="contacts_tasks")
 
-    assigned_to = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name='users_tasks')
-
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='task_created', blank=True, null=True, on_delete=models.SET_NULL)
-
+    
     def __str__(self):
         return self.title
 
