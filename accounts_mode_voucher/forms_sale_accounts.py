@@ -159,6 +159,21 @@ class SaleAccountsForm(forms.ModelForm):
                 "This nature of transaction in not valid for the given Place of Supply")
         return supply_place
 
+    def clean_ref_no(self):
+        """
+        Clean function to raise Validation Error if Invoice Number already exist in a company.
+        """
+        ref_no = self.cleaned_data['ref_no']
+        master_id = 0
+
+        if self.instance:
+            # master id is used to exclude current master so that it is not checked as duplicate
+            master_id = self.instance.id
+
+        if SaleVoucherAccounts.objects.filter(company=self.company, ref_no__iexact=ref_no).exclude(id=master_id).exists():
+            raise forms.ValidationError("This Invoice Number already exists")
+        return ref_no
+
 
 class SaleTermAccountsForm(forms.ModelForm):
     """
@@ -174,7 +189,11 @@ class SaleTermAccountsForm(forms.ModelForm):
 
         self.fields['ledger'].queryset = LedgerMaster.objects.filter(
             Q(company=self.company),
-            Q(ledger_group__group_base__is_revenue__exact='Yes'))
+            Q(ledger_group__group_base__name__exact='Sales Accounts') |
+            Q(ledger_group__group_base__name__exact='Direct Incomes') |
+            Q(ledger_group__group_base__name__exact='Indirect Incomes') |
+            Q(ledger_group__group_base__name__exact='Indirect Expenses') |
+            Q(ledger_group__group_base__name__exact='Direct Expenses'))
         self.fields['ledger'].widget.attrs = {
             'class': 'select2_demo_2 form-control', 'onchange': 'additional_ledger_value(this)'}
         self.fields['total'].widget.attrs = {
@@ -187,11 +206,6 @@ class SaleTermAccountsForm(forms.ModelForm):
         return ledger
 
 
-    def clean_total(self):
-        total = self.cleaned_data['total']
-        if total < 0:
-            raise forms.ValidationError("Total cannot be negative")
-        return total
 
 class SaleTermAccountsFormSet(forms.BaseInlineFormSet):
     """
@@ -212,7 +226,7 @@ class SaleTermAccountsFormSet(forms.BaseInlineFormSet):
                 # if not stock_item:
                 #     raise forms.ValidationError("Please choose a product", "error")
 
-        if form_changed_count == 0:
+        if form.changed_data and form_changed_count == 0:
             raise forms.ValidationError("At least one stock details must be supplied", "error")
 
 

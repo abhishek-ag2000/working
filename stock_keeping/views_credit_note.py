@@ -15,6 +15,7 @@ from messaging.models import Message
 
 from accounting_entry.models import PeriodSelected
 from accounting_entry.mixins import ProductExistsRequiredMixin
+from accounts_mode_voucher.model_credit_note_accounts import CreditNoteAccountsVoucher
 from .mixins import CompanyAccountsWithInventoryMixin
 from .models_credit_note import CreditNoteVoucher, CreditNoteStock, CreditNoteTerm, CreditNoteTax
 from .forms_credit_note import CreditNoteForm, CREDIT_NOTE_STOCK_FORM_SET, CREDIT_NOTE_TERM_FORM_SET, CREDIT_NOTE_TAX_FORM_SET
@@ -42,8 +43,13 @@ class CreditNoteListview(ProductExistsRequiredMixin,  LoginRequiredMixin, ListVi
         period_selected = get_object_or_404(
             PeriodSelected, pk=self.kwargs['period_selected_pk'])
         context['period_selected'] = period_selected
-        context['credit_list'] = CreditNoteVoucher.objects.filter(
-            company=self.kwargs['company_pk']).order_by('-id')
+
+        context['credit_list_inv'] = CreditNoteVoucher.objects.filter(
+            company=self.kwargs['company_pk']).order_by('-voucher_date')
+
+        context['credit_list_accounts'] = CreditNoteAccountsVoucher.objects.filter(
+            company=self.kwargs['company_pk']).order_by('-voucher_date')
+
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -87,6 +93,7 @@ class CreditNoteDetailsView(ProductExistsRequiredMixin,  UserPassesTestMixin, Lo
         for obj in qsjb:
             if obj.stock_item:
                 obj.stock_item.save()
+                credit_details.save()
         context['stocklist'] = qsjb
         # saving the extra_charges
 
@@ -122,14 +129,18 @@ class CreditNoteDetailsView(ProductExistsRequiredMixin,  UserPassesTestMixin, Lo
             g.save()
             g.ledger.save()
 
-        # saving the sales ledger
-        credit_details.doc_ledger.save()
-        # saving the sales ledger group
-        credit_details.doc_ledger.ledger_group.save()
-        # saving the party ledger
-        credit_details.party_ac.save()
-        # saving the party ledger group
-        credit_details.party_ac.ledger_group.save()
+        tax_total = credit_details.credit_note_gst.aggregate(
+        the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        extra_total = credit_details.credit_note_term.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        stock_total = credit_details.credit_note_voucher.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+
+        if tax_total or extra_total or stock_total:
+            total = tax_total + extra_total + stock_total
+
+        credit_details.total = total
+        credit_details.save()
 
         extra_gst_credit_central = CreditNoteTax.objects.filter(
             credit_note=credit_details.pk, ledger__tax_type='Central Tax').count()
@@ -149,6 +160,7 @@ class CreditNoteDetailsView(ProductExistsRequiredMixin,  UserPassesTestMixin, Lo
         context['in_word'] = num2words(credit_details.total, lang='en_IN')
         context['credit_details'] = credit_details
         context['extra_charge_credit'] = extra_charge_credit
+        context['total'] = total
         context['extra_gst_credit'] = extra_gst_credit
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
@@ -195,12 +207,13 @@ class CreditNoteCreateView(ProductExistsRequiredMixin,  LoginRequiredMixin, Crea
             if extra_charges.is_valid():
                 extra_charges.instance = self.object
                 extra_charges.save()
-        extra_gst = context['extra_gst']
-        with transaction.atomic():
-            self.object = form.save()
-            if extra_gst.is_valid():
-                extra_gst.instance = self.object
-                extra_gst.save()
+        if c.gst_enabled == 'Yes':
+            extra_gst = context['extra_gst']
+            with transaction.atomic():
+                self.object = form.save()
+                if extra_gst.is_valid():
+                    extra_gst.instance = self.object
+                    extra_gst.save()
         return super(CreditNoteCreateView, self).form_valid(form)
 
     def get_form_kwargs(self):
@@ -225,15 +238,17 @@ class CreditNoteCreateView(ProductExistsRequiredMixin,  LoginRequiredMixin, Crea
                 'company': company.pk})
             context['extra_charges'] = CREDIT_NOTE_TERM_FORM_SET(
                 self.request.POST, form_kwargs={'company': company.pk})
-            context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
-                self.request.POST, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
+                    self.request.POST, form_kwargs={'company': company.pk})
         else:
             context['stockcredit'] = CREDIT_NOTE_STOCK_FORM_SET(
                 form_kwargs={'company': company.pk})
             context['extra_charges'] = CREDIT_NOTE_TERM_FORM_SET(
                 form_kwargs={'company': company.pk})
-            context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
-                form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
+                    form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -286,15 +301,17 @@ class CreditNoteUpdateView(ProductExistsRequiredMixin,  UserPassesTestMixin, Log
                 self.request.POST, instance=sales_return_particular, form_kwargs={'company': company.pk})
             context['extra_charges'] = CREDIT_NOTE_TERM_FORM_SET(
                 self.request.POST, instance=sales_return_particular, form_kwargs={'company': company.pk})
-            context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
-                self.request.POST, instance=sales_return_particular, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
+                    self.request.POST, instance=sales_return_particular, form_kwargs={'company': company.pk})
         else:
             context['stockcredit'] = CREDIT_NOTE_STOCK_FORM_SET(
                 instance=sales_return_particular, form_kwargs={'company': company.pk})
             context['extra_charges'] = CREDIT_NOTE_TERM_FORM_SET(
                 instance=sales_return_particular, form_kwargs={'company': company.pk})
-            context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
-                instance=sales_return_particular, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = CREDIT_NOTE_TAX_FORM_SET(
+                    instance=sales_return_particular, form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -314,9 +331,10 @@ class CreditNoteUpdateView(ProductExistsRequiredMixin,  UserPassesTestMixin, Log
         extra_charges = context['extra_charges']
         if extra_charges.is_valid():
             extra_charges.save()
-        extra_gst = context['extra_gst']
-        if extra_gst.is_valid():
-            extra_gst.save()
+        if c.gst_enabled == 'Yes':
+            extra_gst = context['extra_gst']
+            if extra_gst.is_valid():
+                extra_gst.save()
         return super(CreditNoteUpdateView, self).form_valid(form)
 
     def get_form_kwargs(self):

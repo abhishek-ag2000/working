@@ -1,6 +1,6 @@
 {% extends "clouderp/base_2.html" %}
 {% load staticfiles %}
-
+{% load mathfilters %}
 {% block title %}Products{% endblock %}
 
 {% block content %}
@@ -52,23 +52,7 @@
                             <h2 class="font-bold m-b-xs">
                                 {{ products_details.title}}
                             </h2>
-
                             <hr>
-                            <div>
-                                {% if products_details in user.profile.subscribed_products.all %}
-                                <button type="button" class="btn btn-success float-right" data-toggle="modal"
-                                    data-target="#myModal4">
-                                    SUBSCRIBED
-                                </button>
-                                {% elif products_details in current_order_products %}
-                                <a href="{% url 'ecommerce_cart:order_summary' %}" class="btn btn-warning pull-right">Go
-                                    to Cart</a>
-                                {% else %}
-                                <a href="{% url 'ecommerce_cart:add_to_cart' products_details.id %}"
-                                    class="btn btn-primary pull-right" onclick="return confirm_delete();"><i
-                                        class="fa fa-shopping-cart" style="font-size:16px"></i>&nbsp; Add to cart</a>
-                                {% endif %}
-                            </div>
                             <div>
                                 <style type="text/css">
                                     .checked {
@@ -97,32 +81,122 @@
                                 <dd class="col-md-8">{{ products_details.summary}}</dd>
                             </dl>
 
-
                         </div>
                     </div>
-
                 </div>
             </div>
 
         </div>
     </div>
 </div>
-<div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content animated fadeIn">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                        class="sr-only">Close</span></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>You have already subscribed to this product&hellip;</strong></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+
+{% if price_models and user.is_authenticated %}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="ibox product-detail">
+                <div class="ibox-content">
+                    <div id="page-top" class="landing-page no-skin-config pace-done">
+
+                        <section id="pricing" class="pricing">
+                            <div class="container">
+                                <div class="row m-b-lg">
+                                    <div class="col-lg-12 text-center">
+                                        <div class="navy-line"></div>
+                                        <h1>Product Pricing</h1>
+                                        <p>Flexible plans that suits your needs</p>
+                                    </div>
+                                </div>
+                                {% if active_subscription %}
+                                <div class="row m-b-lg">
+                                    <div class="col-lg-12 text-center alert alert-danger">
+                                        <h3>Your current subscription plan <strong>{{ active_subscription.price_model.product_feature.feature_name }}</strong> will expire in <strong>{{ active_subscription.subscription_upto|timeuntil }}</strong></h3>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if future_subscription %}
+                                <div class="row m-b-lg">
+                                    <div class="col-lg-12 text-center alert alert-danger">
+                                        <h3>Your have already subscribed to plan <strong>{{ future_subscription.price_model.product_feature.feature_name }}</strong> which will start on <strong>{{ future_subscription.subscription_from }}</strong></h3>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="row">
+                                    {% for price_plan in price_models %}
+                                    {% if price_plan.row_number == 1 %}
+                                    {# since window function does not support filtering, manual fiter is done in template #}
+                                    <div class="col-lg-{{ feature_col_count }} wow zoomIn animated"
+                                        style="visibility: visible;" id="div_my_cart_form_{{ price_plan.id }}">
+                                        <form method="post">{% csrf_token %}
+                                            <ul
+                                                class="pricing-plan list-unstyled {% if price_plan.product_feature.suggested %}selected{% endif %}">
+                                                <li class="pricing-title" {% if price_feature_count > 3 %} style="font-size: 16px" {% elif price_feature_count > 2 %} style="font-size: 17px" {% endif %}>
+                                                    {{ price_plan.product_feature.feature_name }}
+                                                </li>
+                                                <li class="pricing-desc">
+                                                    {{ price_plan.product_feature.feature_summary }}
+                                                </li>
+                                                <li class="pricing-price">
+                                                    <span>&#8377;
+                                                        {{ price_plan.annual_inclusive_price|floatformat:0 }}</span>
+                                                    / yearly
+                                                </li>
+                                                <li class="pricing-price">
+                                                    <span>&#8377;
+                                                        {{ price_plan.half_yearly_inclusive_price|floatformat:0 }}</span>
+                                                    / half yearly
+                                                </li>
+                                                <li class="pricing-price">
+                                                    <span>&#8377;
+                                                        {{ price_plan.quarterly_inclusive_price|floatformat:0 }}</span>
+                                                    / quarterly
+                                                </li>
+                                                <li class="pricing-price">
+                                                    <span>&#8377;
+                                                        {{ price_plan.monthly_inclusive_price|floatformat:0 }}</span>
+                                                    / monthly
+                                                </li>
+                                                <li>
+                                                    {{ price_plan.product_feature.description|safe }}
+                                                </li>
+                                                {% if not future_subscription %}
+                                                <li>
+                                                    {{ product_to_cart_form }}
+                                                    <input type="hidden" name="model_id" id="hid_model_id"
+                                                        value="{{ price_plan.id }}" />
+                                                </li>
+                                                <li style="background-color:lightblue; color: black; font-size: large">
+                                                    &#8377; <span id="your_price_{{ price_plan.id }}">{{ price_plan.annual_inclusive_price|floatformat:0 }}</span>
+                                                </li>
+                                                <li>
+                                                    <button type="submit" class="btn btn-primary btn-xs fa fa-shopping-cart">&nbsp; Add to Cart</button>
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                        </form>
+                                    </div>
+
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="row m-t-lg">
+                                    <div class="col-lg-12 text-center m-t-lg">
+                                        <p>* Product price may update any time. The price listed will be valid
+                                            till your subscription ends.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </section>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
@@ -208,4 +282,49 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block script %}
+<script>
+    function month_count_changed(sel) {
+        div_id = $(sel).parents("div:first").prop('id');
+        if (div_id == undefined) {
+            return;
+        }
+
+        i = div_id.lastIndexOf("_")
+        if (i < 0) {
+            return;
+        }
+
+        plan_id = div_id.substring(i + 1)
+
+        result_span = "#your_price_" + plan_id
+
+        var form = $(sel).closest("form");
+        $.ajax({
+            url: "{% url 'ecommerce_integration:product_price_json' %}",
+            data: form.serialize(),
+            method: 'POST',
+            dataType: 'json',
+            beforeSend: function () {
+                jQuery.noConflict()
+                $(result_span).html("Loading...");
+            },
+            error: function (xhr, error) {
+                $(result_span).html("Failed!");
+            },
+            success: function (data) {
+                if (data.is_error) {
+                    console.log(data.error_message)
+                    $(result_span).html("Error!");
+                }
+                else {
+                    $(result_span).html(data.price);
+                }
+            }
+        });
+
+    }
+</script>
 {% endblock %}

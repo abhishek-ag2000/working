@@ -107,7 +107,6 @@ Update Company
                     </div>
                 </div>
 
-                {% if not form.instance.pk %}
                 <div class="form-group row">
 
                     <label class="col-lg-2 col-form-label">Maintain<i class="material-icons"
@@ -120,19 +119,6 @@ Update Company
 
                     </div>
                 </div>
-                {% else %}
-                <div class="form-group row">
-
-                    <label class="col-lg-2 col-form-label">Maintain<i class="material-icons"
-                            style="font-size:16px;color:red">*</i></label>
-
-                    <div class="col-lg-10">
-
-                        {{ form.instance.maintain }}
-
-                    </div>
-                </div>
-                {% endif %}
 
 
                 <div class="form-group row">

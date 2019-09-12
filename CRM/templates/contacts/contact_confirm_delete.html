@@ -1,0 +1,35 @@
+{% extends "clouderp/base_2.html" %}
+
+
+{% block title %}Delete Contact{% endblock %}
+
+{% block content %}
+
+<div class="content-wrapper">
+	<div class="container">
+		<section class="content-header">
+			<div class="col-md-12">
+			<h1>
+			<strong>Delete?</strong>
+			</h1>
+			</div>
+		</section>
+
+<form method="POST">
+  {% csrf_token %}
+  <input type="submit" class="btn btn-danger" value="Delete">
+  <a href="{% url 'CRM:crm_contacts' organisation_pk=organisation.pk  %}">Cancel</a>
+  <button class='btn btn-default pull-right' onclick="goBack()">Go Back</button>
+
+
+</form>
+	</div>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+
+{% endblock %}

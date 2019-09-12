@@ -9,13 +9,13 @@ from django.contrib.auth.models import (AbstractBaseUser, PermissionsMixin,
                                         UserManager)
 from django.conf import settings    #import user
 from company.models import Company  #import company
-from CRM.models_tasks import Task
-from CRM.models_cases import Case
-from CRM.models_accounts import Account
-from CRM.models_opportunity import Opportunity
-from CRM.models_contacts import Contact
-from CRM.models_leads import Lead
-from CRM.models_events import Event
+# from CRM.models_tasks import Task
+# from CRM.models_cases import Case
+# from CRM.models_accounts import Account
+# from CRM.models_opportunity import Opportunity
+# from CRM.models_contacts import Contact
+# from CRM.models_leads import Lead
+# from CRM.models_events import Event
 from CRMcommon.templatetags_common_tags import (
     is_document_file_image, is_document_file_audio,
     is_document_file_video, is_document_file_pdf,
@@ -26,6 +26,7 @@ from CRMcommon.templatetags_common_tags import (
 #from common.utils import COUNTRIES, ROLES
 #from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+from bracketline.models import CountryMaster, StateMaster 
 # Create your models here.
 
 # class User(AbstractBaseUser, PermissionsMixin):
@@ -71,92 +72,91 @@ from django.utils import timezone
 #     class Meta:
 #         ordering = ['-is_active']
 
-# class Address(models.Model):
-#     address_line = models.CharField(
-#         _("Address"), max_length=255, blank=True, null=True)
-#     street = models.CharField(
-#         _("Street"), max_length=55, blank=True, null=True)
-#     city = models.CharField(_("City"), max_length=255, blank=True, null=True)
-#     state = models.CharField(_("State"), max_length=255, blank=True, null=True)
-#     postcode = models.CharField(
-#         _("Post/Zip-code"), max_length=64, blank=True, null=True)
-#     country = models.CharField(
-#         max_length=3, choices=COUNTRIES, blank=True, null=True)
+class Address(models.Model):
+    address_line = models.CharField(
+        _("Address"), max_length=255, blank=True, null=True)
+    street = models.CharField(
+        _("Street"), max_length=55, blank=True, null=True)
+    city = models.CharField(_("City"), max_length=255, blank=True, null=True)
+    state = models.ForeignKey(StateMaster, on_delete=models.DO_NOTHING, related_name='crm_state')
+    postcode = models.CharField(
+        _("Post/Zip-code"), max_length=64, blank=True, null=True)
+    country = models.ForeignKey(CountryMaster, on_delete=models.DO_NOTHING, default=12, related_name="crm_country")
 
-#     def __str__(self):
-#         return self.city if self.city else ""
+    def __str__(self):
+        return self.city if self.city else ""
 
-    # def get_complete_address(self):
-    #     address = ""
-    #     if self.address_line:
-    #         address += self.address_line
-    #     if self.street:
-    #         if address:
-    #             address += ", " + self.street
-    #         else:
-    #             address += self.street
-    #     if self.city:
-    #         if address:
-    #             address += ", " + self.city
-    #         else:
-    #             address += self.city
-    #     if self.state:
-    #         if address:
-    #             address += ", " + self.state
-    #         else:
-    #             address += self.state
-    #     if self.postcode:
-    #         if address:
-    #             address += ", " + self.postcode
-    #         else:
-    #             address += self.postcode
-    #     if self.country:
-    #         if address:
-    #             address += ", " + self.get_country_display()
-    #         else:
-    #             address += self.get_country_display()
-    #     return address
+    def get_complete_address(self):
+        address = ""
+        if self.address_line:
+            address += self.address_line
+        if self.street:
+            if address:
+                address += ", " + self.street
+            else:
+                address += self.street
+        if self.city:
+            if address:
+                address += ", " + self.city
+            else:
+                address += self.city
+        # if self.state:
+        #     if address:
+        #         address += ", " + self.state
+        #     else:
+        #         address += self.state
+        if self.postcode:
+            if address:
+                address += ", " + self.postcode
+            else:
+                address += self.postcode
+        # if self.country:
+        #     if address:
+        #         address += ", " + self.get_country_display()
+        #     else:
+        #         address += self.get_country_display()
+        return address
 
 
 class Comment(models.Model):
     # adding company details
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_Comment')
 
-    case = models.ForeignKey(Case, blank=True, null=True,
-                             related_name="cases", on_delete=models.CASCADE)
+    # case = models.ForeignKey(Case, blank=True, null=True,
+    #                          related_name="cases", on_delete=models.CASCADE)
     comment = models.CharField(max_length=255)
     commented_on = models.DateTimeField(auto_now_add=True)
     commented_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
-    account = models.ForeignKey(
-        Account, blank=True, null=True,
-        related_name="accounts_comments",
-        on_delete=models.CASCADE)
-    lead = models.ForeignKey(Lead,
-                             blank=True, null=True,
-                             related_name="leads_comments",
-                             on_delete=models.CASCADE)
-    opportunity = models.ForeignKey(
-        Opportunity, blank=True,
-        null=True, related_name="opportunity_comments",
-        on_delete=models.CASCADE)
-    contact = models.ForeignKey(
-        Contact, blank=True,
-        null=True, related_name="contact_comments",
-        on_delete=models.CASCADE)
+    # account = models.ForeignKey(
+    #     Account, blank=True, null=True,
+    #     related_name="accounts_comments",
+    #     on_delete=models.CASCADE)
+    # lead = models.ForeignKey(Lead,
+    #                          blank=True, null=True,
+    #                          related_name="leads_comments",
+    #                          on_delete=models.CASCADE)
+    # opportunity = models.ForeignKey(
+    #     Opportunity, blank=True,
+    #     null=True, related_name="opportunity_comments",
+    #     on_delete=models.CASCADE)
+    # contact = models.ForeignKey(
+    #     Contact, blank=True,
+    #     null=True, related_name="contact_comments",
+    #     on_delete=models.CASCADE)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, blank=True, null=True,
         related_name="user_comments",
         on_delete=models.CASCADE)
 
-    task = models.ForeignKey(Task, blank=True, null=True,
-                             related_name='tasks_comments', on_delete=models.CASCADE)
+    # task = models.ForeignKey(Task, blank=True, null=True,
+    #                          related_name='tasks_comments', on_delete=models.CASCADE)
 
     # invoice = models.ForeignKey('invoices.Invoice', blank=True, null=True,
     #                             related_name='invoice_comments', on_delete=models.CASCADE)
 
-    event = models.ForeignKey(Event, blank=True, null=True,
-                              related_name='events_comments', on_delete=models.CASCADE)
+    # event = models.ForeignKey(Event, blank=True, null=True,
+    #                           related_name='events_comments', on_delete=models.CASCADE)
 
     def get_files(self):
         return Comment_Files.objects.filter(comment_id=self)
@@ -191,32 +191,32 @@ class Attachments(models.Model):
     created_on = models.DateTimeField(_("Created on"), auto_now_add=True)
     attachment = models.FileField(
         max_length=1001, upload_to='attachments/%Y/%m/')
-    lead = models.ForeignKey(
-        Lead, null=True,
-        blank=True, related_name='lead_attachment',
-        on_delete=models.CASCADE)
-    account = models.ForeignKey(
-        Account, null=True, blank=True,
-        related_name='account_attachment', on_delete=models.CASCADE)
-    contact = models.ForeignKey(
-        Contact, on_delete=models.CASCADE,
-        related_name='contact_attachment',
-        blank=True, null=True)
-    opportunity = models.ForeignKey(
-        Opportunity, blank=True,
-        null=True, on_delete=models.CASCADE,
-        related_name='opportunity_attachment')
-    case = models.ForeignKey(
-        Case, blank=True, null=True,
-        on_delete=models.CASCADE, related_name='case_attachment')
+    # lead = models.ForeignKey(
+    #     Lead, null=True,
+    #     blank=True, related_name='lead_attachment',
+    #     on_delete=models.CASCADE)
+    # account = models.ForeignKey(
+    #     Account, null=True, blank=True,
+    #     related_name='account_attachment', on_delete=models.CASCADE)
+    # contact = models.ForeignKey(
+    #     Contact, on_delete=models.CASCADE,
+    #     related_name='contact_attachment',
+    #     blank=True, null=True)
+    # opportunity = models.ForeignKey(
+    #     Opportunity, blank=True,
+    #     null=True, on_delete=models.CASCADE,
+    #     related_name='opportunity_attachment')
+    # case = models.ForeignKey(
+    #     Case, blank=True, null=True,
+    #     on_delete=models.CASCADE, related_name='case_attachment')
 
-    task = models.ForeignKey(Task, blank=True, null=True,
-                             related_name='tasks_attachment', on_delete=models.CASCADE)
+    # task = models.ForeignKey(Task, blank=True, null=True,
+    #                          related_name='tasks_attachment', on_delete=models.CASCADE)
 
     # invoice = models.ForeignKey('invoices.Invoice', blank=True, null=True,
     #                             related_name='invoice_attachment', on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, blank=True, null=True,
-                              related_name='events_attachment', on_delete=models.CASCADE)
+    # event = models.ForeignKey(Event, blank=True, null=True,
+    #                           related_name='events_attachment', on_delete=models.CASCADE)
 
     def file_type(self):
         name_ext_list = self.attachment.url.split(".")

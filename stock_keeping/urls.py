@@ -13,6 +13,14 @@ urlpatterns = [
     url(r'^company/(?P<company_pk>\d+)/ajax/is_stock_group_name_taken_json$',
         views_ajax.is_stock_group_name_taken_json, name='is_stock_group_name_taken_json'),
 
+
+    url(r'^ajax/alteration_gst/$', views_ajax.get_stock_gst_set_json,
+        name='get_stock_gst_set_json'),
+
+    url(r'^ajax/stock_group_value/$', views_ajax.get_stock_group_value, name='get_stock_group_value'),
+
+    ################################### Sales AJAX Urls #######################################
+
     url(r'^ajax/reg_ledger_value/$', views_ajax.is_ledger_gst_reg_type_registered_json,
         name='is_ledger_gst_reg_type_registered_json'),
 
@@ -28,8 +36,68 @@ urlpatterns = [
     url(r'^ajax/nilrated_stock_value/$', views_ajax.is_nil_rate_type_stock_json,
         name='is_nil_rate_type_stock_json'),
 
-    url(r'^ajax/alteration_gst/$', views_ajax.get_stock_gst_set_json,
-        name='get_stock_gst_set_json'),
+    url(r'^ajax/sales/reg_ledger_value/$', views_ajax.is_ledger_nature_same_json,
+        name='is_ledger_nature_same_json'),
+
+    url(r'^ajax/sales/gst_ledger_value/$', views_ajax.is_ledger_nature_with_gst_json,
+        name='is_ledger_nature_with_gst_json'),
+
+    ################################### Purchase AJAX Urls #######################################
+
+    url(r'^ajax/reg_stock_value/purchase/$', views_ajax.is_exempt_type_stock_purchase_json,
+        name='is_exempt_type_stock_purchase_json'),
+
+    url(r'^ajax/reg_gst_value/purchase/$', views_ajax.is_ledger_gst_reg_type_registered_purchase_json,
+        name='is_ledger_gst_reg_type_registered_purchase_json'),
+
+    url(r'^ajax/nongst_stock_value/purchase/$', views_ajax.is_non_gst_type_stock_purchase_json,
+        name='is_non_gst_type_stock_purchase_json'),
+
+    url(r'^ajax/registered_stock_value/purchase/$',
+        views_ajax.is_taxable_or_non_gst_type_stock_purchase_json, name='is_taxable_or_non_gst_type_stock_purchase_json'),
+
+    url(r'^ajax/nilrated_stock_value//purchase/$', views_ajax.is_nil_rate_type_stock_purchase_json,
+        name='is_nil_rate_type_stock_purchase_json'),
+
+    url(r'^ajax/purchase/reg_ledger_value/$', views_ajax.is_ledger_nature_same_purchase_json,
+        name='is_ledger_nature_same_purchase_json'),
+
+    url(r'^ajax/purchase/gst_ledger_value/$', views_ajax.is_ledger_nature_purchase_with_gst_json,
+        name='is_ledger_nature_purchase_with_gst_json'),
+
+    ################################### Debit Note AJAX Urls #######################################
+
+    url(r'^ajax/reg_stock_value/debitnote/$', views_ajax.is_exempt_type_stock_debitnote_json,
+        name='is_exempt_type_stock_debitnote_json'),
+
+    url(r'^ajax/nongst_stock_value/debitnote/$', views_ajax.is_non_gst_type_stock_debitnote_json,
+        name='is_non_gst_type_stock_debitnote_json'),
+
+    url(r'^ajax/registered_stock_value/debitnote/$',
+        views_ajax.is_taxable_or_non_gst_type_stock_debitnote_json, name='is_taxable_or_non_gst_type_stock_debitnote_json'),
+
+    url(r'^ajax/nilrated_stock_value//debitnote/$', views_ajax.is_nil_rate_type_stock_debitnote_json,
+        name='is_nil_rate_type_stock_debitnote_json'),
+
+    url(r'^ajax/purchase/reg_ledger_value/$', views_ajax.is_ledger_nature_same_debitnote_json,
+        name='is_ledger_nature_same_debitnote_json'),
+
+    ################################### Credit Note AJAX Urls #######################################
+
+    url(r'^ajax/reg_stock_value/creditnote/$', views_ajax.is_exempt_type_stock_creditnote_json,
+        name='is_exempt_type_stock_creditnote_json'),
+
+    url(r'^ajax/nongst_stock_value/creditnote/$', views_ajax.is_non_gst_type_stock_creditnote_json,
+        name='is_non_gst_type_stock_creditnote_json'),
+
+    url(r'^ajax/registered_stock_value/creditnote/$',
+        views_ajax.is_taxable_or_non_gst_type_stock_creditnote_json, name='is_taxable_or_non_gst_type_stock_creditnote_json'),
+
+    url(r'^ajax/nilrated_stock_value//creditnote/$', views_ajax.is_nil_rate_type_stock_creditnote_json,
+        name='is_nil_rate_type_stock_creditnote_json'),
+
+    url(r'^ajax/purchase/reg_ledger_value/$', views_ajax.is_ledger_nature_same_creditnote_json,
+        name='is_ledger_nature_same_creditnote_json'),
 
 
     ################################### Simple Units Url #######################################

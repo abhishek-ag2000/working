@@ -88,13 +88,15 @@ Credit Note Invoice
                 {% endif %}
                 {{credit_details.Party_ac.Address}}<br>
 
-                <abbr><strong>GSTIN/UIN:</strong></abbr>{% if credit_details.party_ac.gst_no %}
-                {{ credit_details.party_ac.gst_no }} {% endif %}
+                {% if credit_details.party_ac.registration_type != 'Unregistered' and credit_details.party_ac.registration_type != 'Consumer' %}
+                  <abbr><strong>GSTIN/UIN:</strong></abbr>{% if credit_details.party_ac.gst_no %}
+                  {{ credit_details.party_ac.gst_no }} {% endif %}
 
-                <br>
+                  <br>
 
-                <abbr><strong>PAN/IT No:</strong></abbr>{% if credit_details.party_ac.pan_no %}
-                {{ credit_details.party_ac.pan_no }} {% endif %}
+                  <abbr><strong>PAN/IT No:</strong></abbr>{% if credit_details.party_ac.pan_no %}
+                  {{ credit_details.party_ac.pan_no }} {% endif %}
+                {% endif %}
 
                 <br>
                 <strong>State</strong>: {{credit_details.party_ac.state.state_name }}&nbsp; <strong>Code</strong> :
@@ -143,12 +145,22 @@ Credit Note Invoice
                   <td>{{forloop.counter}}</td>
                   <td>{{stock_total.stock_item}}</td>
                   <td>{{stock_total.stock_item.hsn}}</td>
-                  <td>
-                    <center>{{stock_total.quantity}}</center>
-                  </td>
+                  {% if not stock_total.stock_item.compound_unit %}
+                    <td>
+                      {{stock_total.quantity|floatformat:0}}&nbsp; ({{stock_total.stock_item.simple_unit.symbol}})
+                    </td>
+                  {% else %}
+                    <td>
+                      {{stock_total.quantity|floatformat:0}}&nbsp; ({{stock_total.stock_item.compound_unit.first_unit}}&nbsp;of&nbsp;{{stock_total.stock_item.compound_unit.seconds_unit}})
+                    </td>
+                  {% endif %}
                   <td>{{stock_total.rate }}</td>
-                  <td>{{stock_total.disc }}</td>
-                  <td>{{stock_total.total|abs|floatformat:2|intcomma}}</td>
+                  {% if stock_total.disc != 0 %}
+                    <td>{{stock_total.disc }}&nbsp;%</td>
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+                  <td>{{stock_total.total|floatformat:2|intcomma}}</td>
                 </tr>
                 {% endif %}
                 {% endfor %}
@@ -156,19 +168,19 @@ Credit Note Invoice
 
                 {% for extra in extra_charge_credit %}
                 {% if extra.ledger.ledger_name %}
-                <tr>
+                 <tr>
                   <td></td>
                   <td><em>{{extra.ledger.ledger_name}}</em></td>
                   <td><em>{{extra.ledger.hsn_no}}</em></td>
                   <td></td>
                   {% if extra.rate != 0 %}
-                  <td>{{extra.rate|abs|floatformat:0|intcomma}}&nbsp;%</td>
+                    <td>{{extra.rate|floatformat:2}}&nbsp;%</td>
                   {% else %}
-                  <td></td>
+                    <td></td>
                   {% endif %}
                   <td></td>
-                  <td>{{extra.total|abs|floatformat:2|intcomma}}</td>
-                </tr>
+                  <td>{{extra.total|floatformat:2}}</td>
+                </tr >
                 {% endif %}
                 {% endfor %}
               </tbody>
@@ -185,34 +197,34 @@ Credit Note Invoice
                 <tbody>
                   <tr>
                     <td><strong>Sub total For Goods(&#8377;) :</strong></td>
-                    <td>{{credit_details.sub_total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{credit_details.sub_total|floatformat:2|intcomma}}</td>
                   </tr>
                   {% for extra in extra_charge_credit %}
                   {% if extra.total != 0 %}
                   <tr>
                     <td><strong><em>{{ extra.ledger.ledger_name }}</em>(&#8377;) :</strong></td>
-                    <td>{{extra.total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{extra.total|floatformat:2|intcomma}}</td>
                   </tr>
                   {% endif %}
                   {% endfor %}
                   {% if credit_details.tax_total != 0 %}
                   <tr>
                     <td><strong>Tax(&#8377;) :</strong></td>
-                    <td>{{credit_details.tax_total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{credit_details.tax_total|floatformat:2|intcomma}}</td>
                   </tr>
                   {% else %}
                   {% for tax in extra_gst_credit %}
                   {% if tax.total != 0 %}
                   <tr>
                     <td><strong>{{ tax.ledger.ledger_name }}(&#8377;) :</strong></td>
-                    <td>{{tax.total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{tax.total|floatformat:2|intcomma}}</td>
                   </tr>
                   {% endif %}
                   {% endfor %}
                   {% endif %}
                   <tr>
                     <td><strong>Total(&#8377;) :</strong></td>
-                    <td>{{credit_details.total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{total|floatformat:2|intcomma}}</td>
                   </tr>
                 </tbody>
               </table>

@@ -109,6 +109,10 @@ def delete_ledger_group_json(request, company_pk, ledger_group_pk, period_select
         data['error_message'] = "No Group found with the ID supplied"
         return JsonResponse(data)
 
+    # if LedgerGroup.objects.filter(company=company,counter__gte=1,counter__lte=29).first():
+    #     data['is_error'] = True
+    #     data['error_message'] = "This group cannot be deleted"
+
     period_selected = PeriodSelected.objects.filter(pk=period_selected_pk).first()
     if not period_selected:
         data['is_error'] = True

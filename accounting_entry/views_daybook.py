@@ -3,7 +3,7 @@ Views for Daybook / Cash/Bank Statements
 """
 from django.shortcuts import get_object_or_404, render
 from django.db.models.functions import Coalesce
-from django.db.models import Count, Value, Sum
+from django.db.models import Count, Value, Sum, OuterRef, Subquery, FloatField, Case, When, F
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,9 +11,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from company.models import Company
 from messaging.models import Message
 from ecommerce_integration.decorators import product_1_activation
-from user_profile.models import Profile
 from .mixins import ProductExistsRequiredMixin
-from .models import PeriodSelected, LedgerGroup, JournalVoucher
+from .models import PeriodSelected, LedgerGroup, LedgerMaster, JournalVoucher
 
 
 class DayBookListView(ProductExistsRequiredMixin, LoginRequiredMixin, ListView):
@@ -37,8 +36,6 @@ class DayBookListView(ProductExistsRequiredMixin, LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(DayBookListView, self).get_context_data(**kwargs)
-
-        context['profile_details'] = Profile.objects.all()
         company = get_object_or_404(Company, pk=self.kwargs['company_pk'])
         context['company'] = company
         period_selected = get_object_or_404(PeriodSelected, pk=self.kwargs['period_selected_pk'])
@@ -58,44 +55,75 @@ def cash_and_bank_view(request, company_pk, period_selected_pk):
     company = get_object_or_404(Company, pk=company_pk)
     period_selected = get_object_or_404(PeriodSelected, pk=period_selected_pk)
 
-    # Cash Account
-    cash_group = LedgerGroup.objects.filter(
-        company=company, group_base__name__exact='Cash-in-Hand')
+    # Journal queries to get the debit and credit balances of all ledgers
+    Journal_debit = JournalVoucher.objects.filter(company=company, dr_ledger=OuterRef(
+    'pk'), voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).values('dr_ledger')
 
-    cash_group_closing = cash_group.annotate(
-        closing=Coalesce(Sum('group_ledger__closing_balance'), 0),  # reverse lookup
+    Journal_credit = JournalVoucher.objects.filter(company=company, cr_ledger=OuterRef(
+    'pk'), voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).values('cr_ledger')
+
+    Journal_debit_opening = JournalVoucher.objects.filter(company=company, dr_ledger=OuterRef(
+    'pk'), voucher_date__lt=period_selected.start_date).values('dr_ledger')
+
+    Journal_credit_opening = JournalVoucher.objects.filter(company=company, cr_ledger=OuterRef(
+    'pk'), voucher_date__lt=period_selected.start_date).values('cr_ledger')
+
+    
+    total_debit = Journal_debit.annotate(
+    total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+    total_credit = Journal_credit.annotate(
+    total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+    total_debit_opening = Journal_debit_opening.annotate(
+    total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+    total_credit_opening = Journal_credit_opening.annotate(
+    total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+    ledgers = LedgerMaster.objects.filter(company=company).annotate(
+        debit_balance_opening = Coalesce(Subquery(total_debit_opening,output_field=FloatField()), Value(0)),
+        credit_balance_opening = Coalesce(Subquery(total_credit_opening,output_field=FloatField()), Value(0)),
+        debit_balance = Coalesce(Subquery(total_debit,output_field=FloatField()), Value(0)),
+        credit_balance = Coalesce(Subquery(total_credit,output_field=FloatField()), Value(0))
     )
 
-    groups_ca_pos = cash_group.annotate(
-        closing=Coalesce(Sum('group_ledger__closing_balance'), 0)
-    ).filter(closing__gt=0)
-
-    groups_ca_neg = cash_group.annotate(
-        closing=Coalesce(Sum('group_ledger__closing_balance'), 0)
-    ).filter(closing__lte=0)
-
-    groups_ca_positive = groups_ca_pos.aggregate(
-        the_sum=Coalesce(Sum('closing'), Value(0)))['the_sum']
-
-    groups_ca_negative = groups_ca_neg.aggregate(
-        the_sum=Coalesce(Sum('closing'), Value(0)))['the_sum']
-
-    # Bank Account
-    bank_group = LedgerGroup.objects.filter(
-        company=company, group_base__name__exact='Bank Accounts')
-    bank_group_closing = bank_group.annotate(
-        closing=Coalesce(Sum('group_ledger__closing_balance'), 0),
+    ledger_list = ledgers.annotate(
+        opening_balance_generated = Case(
+            When(ledger_group__group_base__is_debit='Yes', then=F('opening_balance') + F('debit_balance_opening') - F('credit_balance_opening')),
+            When(ledger_group__group_base__is_debit='No', then=F('opening_balance') + F('credit_balance_opening') - F('debit_balance_opening')),
+            default=None,
+            output_field=FloatField()
+            ),
     )
 
-    groups_ba_pos = bank_group.annotate(
-        closing=Coalesce(Sum('group_ledger__closing_balance'), 0),
-    ).filter(closing__gt=0)
+    
+    ledger_final_list = ledger_list.annotate(
+        closing_balance_generated = Case(
+            When(ledger_group__group_base__is_debit='Yes', then=F('opening_balance_generated') + F('debit_balance') - F('credit_balance')),
+            When(ledger_group__group_base__is_debit='No', then=F('opening_balance_generated') + F('credit_balance') - F('debit_balance')),
+            default=None,
+            output_field=FloatField()
+            ),
+    )
 
-    groups_ba_positive = groups_ba_pos.aggregate(
-        the_sum=Coalesce(Sum('closing'), Value(0)))['the_sum']
+    total_cash_positive = ledger_final_list.filter(ledger_group__group_base__name__contains='Cash-in-Hand',closing_balance_generated__gte=0).aggregate(
+            the_sum=Coalesce(Sum('closing_balance_generated'), Value(0)))['the_sum']
 
-    positive = groups_ca_positive + groups_ba_positive
-    negative = groups_ca_negative
+    total_cash_negative = ledger_final_list.filter(ledger_group__group_base__name__contains='Cash-in-Hand',closing_balance_generated__lt=0).aggregate(
+            the_sum=Coalesce(Sum('closing_balance_generated'), Value(0)))['the_sum']
+
+
+    total_bank_positive = ledger_final_list.filter(ledger_group__group_base__name__contains='Bank Accounts',closing_balance_generated__gte=0).aggregate(
+            the_sum=Coalesce(Sum('closing_balance_generated'), Value(0)))['the_sum']
+
+    total_bank_negative = ledger_final_list.filter(ledger_group__group_base__name__contains='Bank Accounts',closing_balance_generated__lt=0).aggregate(
+            the_sum=Coalesce(Sum('closing_balance_generated'), Value(0)))['the_sum']
+
+    total_positive = total_cash_positive + total_bank_positive
+
+    total_negative = abs(total_cash_negative) + abs(total_bank_negative)
+
 
     inbox = Message.objects.filter(reciever=request.user)
     inbox_count = inbox.aggregate(
@@ -107,12 +135,13 @@ def cash_and_bank_view(request, company_pk, period_selected_pk):
         'company': company,
         'period_selected': period_selected,
 
-        'cash_group': cash_group_closing,
+        'total_cash_positive' : total_cash_positive,
+        'total_cash_negative' : total_cash_negative,
+        'total_bank_positive' : total_bank_positive,
+        'total_bank_negative' : total_bank_negative,
 
-        'bank_group': bank_group_closing,
-
-        'positive': positive,
-        'negative': negative,
+        'total_positive' : round(total_positive, 2),
+        'total_negative' : round(total_negative, 2),
 
         'inbox': inbox,
         'inbox_count': inbox_count,

@@ -28,8 +28,8 @@
       </li>
     </ol>
     <br>
-    <a href="{% url 'stock_keeping:profitloss' company_pk=company.pk period_selected_pk=period_selected.pk %}"
-      class="btn btn-success" role="button">Profit & Loss Expanded View</a>
+    <!-- <a href="#"
+      class="btn btn-success" role="button">Profit & Loss Expanded View</a> -->
 
     <a href="{% url 'accounting_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}"
       class="btn btn-warning" role="button">Balance Sheet Overview</a>
@@ -100,34 +100,52 @@
                   {% endif %}
 
                   {% if total_sales_ledger != 0 %}
-                  {% for group in sales_ledger %}
-                  <tr>
-                    <th></th>
-                    <td></td>
-                    <th></th>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
-                    </th>
-                    <td></td>
-                    <th>{{ total_sales_ledger|abs|floatformat:2|intcomma }}</th>
-                  </tr>
-                  {% endfor %}
+                    {% if total_sales_ledger > 0 %}
+                      <tr>
+                        <th></th>
+                        <td></td>
+                        <th></th>
+                        <th>Sales Accounts
+                        </th>
+                        <td></td>
+                        <th>{{ total_sales_ledger|abs|floatformat:2|intcomma }}</th>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <th>Sales Accounts</th>
+                        <td></td>
+                        <th>{{ total_sales_ledger|abs|floatformat:2|intcomma }}</th>
+                        <th>
+                        </th>
+                        <td></td>
+                        <th></th>
+                      </tr>
+                    {% endif %}
                   {% endif %}
 
 
                   {% if total_purchase_ledger != 0 %}
-                  {% for group in purchase_ledger %}
-                  <tr>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
-                    </th>
-                    <td></td>
-                    <th>{{ total_purchase_ledger|abs|floatformat:2|intcomma }}</th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  {% endfor %}
+                    {% if total_purchase_ledger > 0 %}
+                      <tr>
+                        <th>Purchase Accounts
+                        </th>
+                        <td></td>
+                        <th>{{ total_purchase_ledger|abs|floatformat:2|intcomma }}</th>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <th>
+                        </th>
+                        <td></td>
+                        <th></th>
+                        <th>Purchase Accounts</th>
+                        <td></td>
+                        <th>{{ total_purchase_ledger|abs|floatformat:2|intcomma }}</th>
+                      </tr>
+                    {% endif %}
                   {% endif %}
 
                   {% if closing_stock != 0 %}
@@ -137,17 +155,15 @@
                     <th></th>
                     <th>Closing Stock</th>
                     <td></td>
-                    <th>{{ closing_stock|abs|floatformat:2|intcomma }}</th>
+                    <th>{{ closing_stock|abs|floatformat:2 }}</th>
                   </tr>
                   {% endif %}
 
 
-                  {% if total_direct_expenses != 0 %}
-                  {% if total_direct_expenses >= 0 %}
-                  {% for group in direct_expenses_group %}
+              {% if total_direct_expenses != 0 %}
+                {% if total_direct_expenses > 0 %}
                   <tr>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
+                    <th>Direct Expenses
                     </th>
                     <td></td>
                     <th>{{ total_direct_expenses|abs|floatformat:2|intcomma }}</th>
@@ -155,47 +171,37 @@
                     <td></td>
                     <th></th>
                   </tr>
+                {% else %}
 
-                  {% endfor %}
-
-                  {% else %}
-
-                  {% for group in direct_expenses_group %}
                   <tr>
                     <th></th>
                     <td></td>
                     <th></th>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
+                    <th>Direct Expenses
                     </th>
                     <td></td>
                     <th>{{ total_direct_expenses|abs|floatformat:2|intcomma }}</th>
                   </tr>
 
-                  {% endfor %}
-                  {% endif %}
-                  {% endif %}
+                {% endif %}
+              {% endif %}
 
 
-                  {% if total_direct_incomes != 0 %}
-                  {% if total_direct_incomes >= 0 %}
-                  {% for group in direct_incomes %}
+              {% if total_direct_incomes != 0 %}
+                {% if total_direct_incomes > 0 %}
                   <tr>
                     <th></th>
                     <td></td>
                     <th></th>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
+                    <th>Direct Incomes
                     </th>
                     <td></td>
                     <th>{{ total_direct_incomes|abs|floatformat:2|intcomma }}</th>
                   </tr>
 
 
-                  {% endfor %}
+                {% else %}
 
-                  {% else %}
-                  {% for group in direct_incomes %}
                   <tr>
                     <th>Direct Incomes</th>
                     <td></td>
@@ -204,10 +210,8 @@
                     <td></td>
                     <th></th>
                   </tr>
-
-                  {% endfor %}
-                  {% endif %}
-                  {% endif %}
+                {% endif %}
+              {% endif %}
 
 
                   {% if gross_profit >= 0 %}
@@ -265,74 +269,61 @@
 
 
 
-                  {% if total_indirectexp_ledger != 0 %}
+                {% if total_indirectexp_ledger != 0 %}
                   {% if total_indirectexp_ledger >= 0 %}
 
-                  {% for group in indirectexp_group %}
-                  <tr>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
-                    </th>
-                    <td></td>
-                    <th>{{ total_indirectexp_ledger|abs|floatformat:2|intcomma }}</th>
-                    <td></td>
-                    <td></td>
-                    <th></th>
-                  </tr>
+                    <tr>
+                      <th>Indirect Expenses
+                      </th>
+                      <td></td>
+                      <th>{{ total_indirectexp_ledger|abs|floatformat:2 }}</th>
+                      <td></td>
+                      <td></td>
+                      <th></th>
+                    </tr>
 
-                  {% endfor %}
 
                   {% else %}
 
-                  {% for group in indirectexp_group %}
-                  <tr>
-                    <th></th>
-                    <td></td>
-                    <th></th>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
-                    </th>
-                    <td></td>
-                    <th>{{ total_indirectexp_ledger|abs|floatformat:2|intcomma }}</th>
-                  </tr>
-
-                  {% endfor %}
+                    <tr>
+                      <th></th>
+                      <td></td>
+                      <th></th>
+                      <th>Indirect Expenses
+                      </th>
+                      <td></td>
+                      <th>{{ total_indirectexp_ledger|abs|floatformat:2 }}</th>
+                    </tr>
 
                   {% endif %}
-                  {% endif %}
+                {% endif %}
 
 
                   {% if total_indirectinc_ledger != 0 %}
-                  {% if total_indirectinc_ledger >= 0 %}
-                  {% for group in indirectinc_group %}
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <th></th>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
-                    </th>
-                    <td></td>
-                    <th>{{ total_indirectinc_ledger|abs|floatformat:2|intcomma }}</th>
-                  </tr>
+                    {% if total_indirectinc_ledger >= 0 %}
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <th></th>
+                        <th>Indirect Incomes
+                        </th>
+                        <td></td>
+                        <th>{{ total_indirectinc_ledger|abs|floatformat:2|intcomma }}</th>
+                      </tr>
 
-                  {% endfor %}
 
-                  {% else %}
-                  {% for group in indirectinc_group %}
-                  <tr>
-                    <th><a
-                        href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk pk2=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a>
-                    </th>
-                    <td></td>
-                    <th>{{ total_indirectinc_ledger|abs|floatformat:2|intcomma }}</th>
-                    <th></th>
-                    <td></td>
-                    <th></th>
-                  </tr>
+                    {% else %}
+                      <tr>
+                        <th>Indirect Incomes
+                        </th>
+                        <td></td>
+                        <th>{{ total_indirectinc_ledger|abs|floatformat:2|intcomma }}</th>
+                        <th></th>
+                        <td></td>
+                        <th></th>
+                      </tr>
 
-                  {% endfor %}
-                  {% endif %}
+                    {% endif %}
                   {% endif %}
 
 

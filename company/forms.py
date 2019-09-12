@@ -14,7 +14,7 @@ class OrganisationForm(forms.ModelForm):
     """
     class Meta:
         model = Organisation
-        fields = ('name', 'address', 'country', 'state','telephone_no', 'mobile_no')
+        fields = ('name', 'address', 'country', 'state','telephone_no', 'mobile_no','logo','cover')
 
     def __init__(self, *args, **kwargs):
         super(OrganisationForm, self).__init__(*args, **kwargs)
@@ -38,6 +38,7 @@ class CompanyForm(forms.ModelForm):
                   'intrastate_apl', 'threshold_limit_intra', 'adv_receipt_tax', 'tax_liability', 'set_or_alter_gst', 'hsn',
                   'taxability', 'reverse_charge', 'input_credit', 'integrated_tax', 'central_tax', 'state_tax', 'cess',
                   'provide_lut', 'lut_bond_no', 'gst_applicable', 'applicable_from', 'applicable_to', 'tax_rate', 'purchase_tax')
+        
         widgets = {
             'books_begining_from': DateInput(),
             'applicable_from': DateInput(),
@@ -84,59 +85,59 @@ class CompanyForm(forms.ModelForm):
         self.fields['purchase_tax'].widget.attrs = {'class': 'select2_demo_2 form-control', }
 
 
-class CompanyUpdateForm(forms.ModelForm):
-    """
-    Company Update Form
-    """
-    class Meta:
-        model = Company
-        fields = ('type_of_company', 'bussiness_nature', 'gst_enabled','financial_year_from', 'books_begining_from', 'gst', 'pan_no', 'gst_registration_type',
-                  'is_other_territory', 'way_bill', 'threshold_limit_inc', 'threshold_limit', 'interstate_apl',
-                  'intrastate_apl', 'threshold_limit_intra', 'adv_receipt_tax', 'tax_liability', 'set_or_alter_gst', 'hsn',
-                  'taxability', 'reverse_charge', 'input_credit', 'integrated_tax', 'central_tax', 'state_tax', 'cess',
-                  'provide_lut', 'lut_bond_no', 'gst_applicable', 'applicable_from', 'applicable_to', 'tax_rate', 'purchase_tax')
-        widgets = {
-            'books_begining_from': DateInput(),
-            'applicable_from': DateInput(),
-            'applicable_to': DateInput(),
-            'gst_applicable': DateInput(),
-        }
+# class CompanyUpdateForm(forms.ModelForm):
+#     """
+#     Company Update Form
+#     """
+#     class Meta:
+#         model = Company
+#         fields = ('type_of_company', 'bussiness_nature', 'gst_enabled','financial_year_from', 'books_begining_from', 'gst', 'pan_no', 'gst_registration_type',
+#                   'is_other_territory', 'way_bill', 'threshold_limit_inc', 'threshold_limit', 'interstate_apl',
+#                   'intrastate_apl', 'threshold_limit_intra', 'adv_receipt_tax', 'tax_liability', 'set_or_alter_gst', 'hsn',
+#                   'taxability', 'reverse_charge', 'input_credit', 'integrated_tax', 'central_tax', 'state_tax', 'cess',
+#                   'provide_lut', 'lut_bond_no', 'gst_applicable', 'applicable_from', 'applicable_to', 'tax_rate', 'purchase_tax')
+#         widgets = {
+#             'books_begining_from': DateInput(),
+#             'applicable_from': DateInput(),
+#             'applicable_to': DateInput(),
+#             'gst_applicable': DateInput(),
+#         }
 
-    def __init__(self, *args, **kwargs):
-        super(CompanyUpdateForm, self).__init__(*args, **kwargs)
-        self.fields['type_of_company'].widget.attrs = {'class': 'select2_demo_2 form-control', }
-        self.fields['bussiness_nature'].widget.attrs = {'class': 'select2_demo_2 form-control', }
-        self.fields['financial_year_from'].widget.attrs = {'class': 'select2_demo_2 form-control', }
-        self.fields['books_begining_from'].widget.attrs = {'class': 'form-control', }
-        self.fields['gst'].widget.attrs = {'class': 'form-control', }
-        self.fields['gst_enabled'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'gst_change_enability(this)', }
-        self.fields['gst_registration_type'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'registration_effects(this)', }
-        self.fields['pan_no'].widget.attrs = {'class': 'form-control', }
-        self.fields['is_other_territory'].widget.attrs = {'class': 'js-switch', }
-        self.fields['way_bill'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'waybill_change_enability(this)', }
-        self.fields['threshold_limit_inc'].widget.attrs = {'class': 'form-control', }
-        self.fields['threshold_limit'].widget.attrs = {'class': 'form-control', }
-        self.fields['interstate_apl'].widget.attrs = {'class': 'select2_demo_2 form-control', }
-        self.fields['threshold_limit_intra'].widget.attrs = {'class': 'form-control', }
-        self.fields['intrastate_apl'].widget.attrs = {'class': 'select2_demo_2 form-control', }
-        self.fields['taxability'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'change_taxability_stock(this)', }
-        self.fields['hsn'].widget.attrs = {'class': 'form-control', }
-        self.fields['set_or_alter_gst'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'gst_change_setalter_enability(this)', }
-        self.fields['tax_liability'].widget.attrs = {'class': 'js-switch_2', }
-        self.fields['adv_receipt_tax'].widget.attrs = {'class': 'js-switch_3', }
-        self.fields['reverse_charge'].widget.attrs = {'class': 'form-control', }
-        self.fields['input_credit'].widget.attrs = {'class': 'form-control', }
-        self.fields['integrated_tax'].widget.attrs = {'class': 'form-control', }
-        self.fields['central_tax'].widget.attrs = {'class': 'form-control', }
-        self.fields['state_tax'].widget.attrs = {'class': 'form-control', }
-        self.fields['cess'].widget.attrs = {'class': 'form-control', }
-        self.fields['provide_lut'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'lut_details_enability(this)', }
-        self.fields['lut_bond_no'].widget.attrs = {'class': 'form-control', }
-        self.fields['gst_applicable'].widget.attrs = {'class': 'form-control', }
-        self.fields['applicable_from'].widget.attrs = {'class': 'form-control', }
-        self.fields['applicable_to'].widget.attrs = {'class': 'form-control', }
-        self.fields['tax_rate'].widget.attrs = {'class': 'form-control', }
-        self.fields['purchase_tax'].widget.attrs = {'class': 'select2_demo_2 form-control', }
+#     def __init__(self, *args, **kwargs):
+#         super(CompanyUpdateForm, self).__init__(*args, **kwargs)
+#         self.fields['type_of_company'].widget.attrs = {'class': 'select2_demo_2 form-control', }
+#         self.fields['bussiness_nature'].widget.attrs = {'class': 'select2_demo_2 form-control', }
+#         self.fields['financial_year_from'].widget.attrs = {'class': 'select2_demo_2 form-control', }
+#         self.fields['books_begining_from'].widget.attrs = {'class': 'form-control', }
+#         self.fields['gst'].widget.attrs = {'class': 'form-control', }
+#         self.fields['gst_enabled'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'gst_change_enability(this)', }
+#         self.fields['gst_registration_type'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'registration_effects(this)', }
+#         self.fields['pan_no'].widget.attrs = {'class': 'form-control', }
+#         self.fields['is_other_territory'].widget.attrs = {'class': 'js-switch', }
+#         self.fields['way_bill'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'waybill_change_enability(this)', }
+#         self.fields['threshold_limit_inc'].widget.attrs = {'class': 'form-control', }
+#         self.fields['threshold_limit'].widget.attrs = {'class': 'form-control', }
+#         self.fields['interstate_apl'].widget.attrs = {'class': 'select2_demo_2 form-control', }
+#         self.fields['threshold_limit_intra'].widget.attrs = {'class': 'form-control', }
+#         self.fields['intrastate_apl'].widget.attrs = {'class': 'select2_demo_2 form-control', }
+#         self.fields['taxability'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'change_taxability_stock(this)', }
+#         self.fields['hsn'].widget.attrs = {'class': 'form-control', }
+#         self.fields['set_or_alter_gst'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'gst_change_setalter_enability(this)', }
+#         self.fields['tax_liability'].widget.attrs = {'class': 'js-switch_2', }
+#         self.fields['adv_receipt_tax'].widget.attrs = {'class': 'js-switch_3', }
+#         self.fields['reverse_charge'].widget.attrs = {'class': 'form-control', }
+#         self.fields['input_credit'].widget.attrs = {'class': 'form-control', }
+#         self.fields['integrated_tax'].widget.attrs = {'class': 'form-control', }
+#         self.fields['central_tax'].widget.attrs = {'class': 'form-control', }
+#         self.fields['state_tax'].widget.attrs = {'class': 'form-control', }
+#         self.fields['cess'].widget.attrs = {'class': 'form-control', }
+#         self.fields['provide_lut'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange': 'lut_details_enability(this)', }
+#         self.fields['lut_bond_no'].widget.attrs = {'class': 'form-control', }
+#         self.fields['gst_applicable'].widget.attrs = {'class': 'form-control', }
+#         self.fields['applicable_from'].widget.attrs = {'class': 'form-control', }
+#         self.fields['applicable_to'].widget.attrs = {'class': 'form-control', }
+#         self.fields['tax_rate'].widget.attrs = {'class': 'form-control', }
+#         self.fields['purchase_tax'].widget.attrs = {'class': 'select2_demo_2 form-control', }
 
 
 class StaticPageForm(forms.ModelForm):

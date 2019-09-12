@@ -45,6 +45,11 @@ Update Sales Invoice
     <a href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
       class="btn btn-success" role="button">Select Sales Invoice</a>
 
+    {% if company.maintain == 'Accounts with Inventory' %}
+      <a href="{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+      class="btn btn-warning" role="button">Sales With Inventory</a>
+    {% endif %}
+
 
     <button type="button" class="btn btn-info show-form-update pull-right"
       data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
@@ -389,8 +394,13 @@ Update Sales Invoice
                     To</a></label>
                 <label class="btn btn-sm btn-white"><a href="#despatch" data-toggle="collapse">Despatch
                     Details</a></label>
-                <label class="btn btn-sm btn-white" id="export_details" style="display: none;"><a href="#export"
+                {% if company.gst_enabled == 'Yes' %}
+                  <label class="btn btn-sm btn-white" id="export_details" style="display: none;"><a href="#export"
                     data-toggle="collapse">Export Details</a></label>
+                {% else %}
+                  <label class="btn btn-sm btn-white" id="export_details" style="display: block;"><a href="#export"
+                    data-toggle="collapse">Export Details</a></label>
+                {% endif %}
 
               </div>
             </div>
@@ -428,7 +438,8 @@ Update Sales Invoice
                     {{form.party_ac}}
                   </div>
 
-                    {% if form.instance.nature_transactions_sales == 'Exports Exempt' or form.instance.nature_transactions_sales == 'Exports LUT/Bond' or form.instance.nature_transactions_sales == 'Exports Nil Rated' or form.instance.nature_transactions_sales == 'Exports Taxable' %}
+                {% if company.gst_enabled == 'Yes' %}
+                  {% if form.instance.nature_transactions_sales == 'Exports Exempt' or form.instance.nature_transactions_sales == 'Exports LUT/Bond' or form.instance.nature_transactions_sales == 'Exports Nil Rated' or form.instance.nature_transactions_sales == 'Exports Taxable' %}
                   <label for="State1" id="supply_place" class="col-lg-2 control-label" style="display: none;">Place of
                     Supply<i class="material-icons" style="font-size:16px;color:red">*</i></label>
                   {% else %}
@@ -445,9 +456,10 @@ Update Sales Invoice
                       {{ form.supply_place }}
                       {{ form.supply_place.errors }}
                     </div>
+                {% endif %}
                 </div>
 
-
+              {% if company.gst_enabled == 'Yes' %}
                 <div class="form-group row">
                   <label for="Seller2" class="col-lg-2 control-label">Nature of Transaction<i class="material-icons"
                       style="font-size:16px;color:red">*</i></label>
@@ -460,8 +472,9 @@ Update Sales Invoice
 
                   
                   </div>
+              {% endif %}
 
-
+              {% if company.gst_enabled == 'Yes' %}
                   <div id="div_extra" style="display:none;">
                     <div class="form-group row">
                       <label for="PAN1" class="col-lg-2 control-label">Provide GST Details</label>
@@ -492,6 +505,7 @@ Update Sales Invoice
                     </div>
 
                   </div>
+                {% endif %}
 
                 </div>
 
@@ -545,11 +559,19 @@ Update Sales Invoice
 
                   <div id="con_gst_pan">
                     <div class="form-group row">
-                      <label for="Seller2" class="col-lg-2 control-label">Consignee GSTIN/UIN</label>
-                      <div class="col-lg-4">
+                    {% if company.gst_enabled == 'Yes' %}
+                      <label for="Seller2" class="col-lg-2 control-label" style="display: block;">Consignee GSTIN/UIN</label>
+                      <div class="col-lg-4" style="display: block;">
                         {{ form.consignee_gstin.errors }}
                         {{form.consignee_gstin }}
                       </div>
+                    {% else %}
+                      <label for="Seller2" class="col-lg-2 control-label" style="display: none;">Consignee GSTIN/UIN</label>
+                      <div class="col-lg-4" style="display: none;">
+                        {{ form.consignee_gstin.errors }}
+                        {{form.consignee_gstin }}
+                      </div>
+                    {% endif %}
                       <label for="Seller2" class="col-lg-2 control-label">Consignee PAN/IT No</label>
                       <div class="col-lg-4">
 
@@ -710,8 +732,10 @@ Update Sales Invoice
                 <div class="col-sm-9 m-b-xs">
                   <div data-toggle="buttons" class="btn-group btn-group-toggle">
                     <label class="btn btn-sm btn-white"><a href="#add_ledgers" data-toggle="collapse">Particulars</a></label>
+                  {% if company.gst_enabled == 'Yes' %}
                     <label class="btn btn-sm btn-white"><a href="#gst_details" data-toggle="collapse">GST
                         Details</a></label>
+                  {% endif %}
 
                   </div>
                 </div>
@@ -746,8 +770,16 @@ Update Sales Invoice
                             {% for form in extra_charges %}
 
                             <tr class='{% cycle "row1" "row2" %}  formset_row'>
-                              <td style="text-align: center ; width: 40%; height: 20%;">{{ form.id }} {{ form.ledger}}
-                              <td style="text-align: center ; width: 40%; height: 20%;">{{ form.total }}</td>
+                              <td style="text-align: center ; width: 40%; height: 20%;">
+                              {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                              {{ form.id }} 
+                              {{ form.ledger}}
+                              <small>{{ form.ledger.errors }}</small>
+                              </td>
+                              <td style="text-align: center ; width: 40%; height: 20%;">
+                              {{ form.total }}
+                              <small>{{ form.total.errors }}</small>
+                              </td>
                               <td></td>
                             </tr>
 
@@ -759,6 +791,7 @@ Update Sales Invoice
 
                     </div>
 
+                  {% if company.gst_enabled == 'Yes' %}
                     <div class="panel-collapse collapse" id="gst_details" data-parent="#mobile-info">
                       <br>
                       <h3>GST Details</h3>
@@ -793,6 +826,7 @@ Update Sales Invoice
                         </table>
                       </div>
                     </div>
+                  {% endif %}
 
                     <a href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
                       class="btn btn-default" role="button">Cancel </a>
@@ -823,7 +857,7 @@ Update Sales Invoice
   $('.formset_row').formset({
     addText: 'add ledger',
     deleteText: 'remove',
-    prefix: '{{ stocksales.prefix }}',
+    prefix: '{{ extra_charges.prefix }}',
     formCssClass: 'dynamic-formset1'
   });
 </script>
@@ -833,8 +867,8 @@ Update Sales Invoice
   $('.formset_row_2').formset({
     addText: 'add charges',
     deleteText: 'remove',
-    prefix: 'salesgst',
-    formCssClass: 'dynamic-formset3'
+    prefix: '{{ extra_gst.prefix }}',
+    formCssClass: 'dynamic-formset2'
   });
 </script>
 
@@ -874,6 +908,13 @@ Update Sales Invoice
 
 
     }
+    if (txt.indexOf("SEZ") >= 0) {
+        document.getElementById("id_port_code").disabled = false;
+
+    } else {
+        document.getElementById("id_port_code").disabled = true;
+
+        }
   }
 
 </script>
@@ -989,16 +1030,145 @@ Update Sales Invoice
             dataType: 'json',
             success: function (data) {
               if (data.nature_sales != sales_nature && sales_nature != 'Not Applicable') {
-                console.log(data.nature_sales)
                 swal({
                   title: "Warning!",
                   text: "Nature of transaction does not match",
                   type: "warning"
                 });
-              } else if (data.nature_purchase) {
+              }else {
+                console.log("Not a Error")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+
+  $("#id_party_ac").change(function () {
+    var ledgerID = $(this).val();
+    if (ledgerID == "")
+      return
+
+    $.ajax({
+      url: '{% url "accounts_mode_voucher:is_ledger_gst_reg_type_registered_json" %}',
+      data: {
+        'ledger_id': ledgerID
+      },
+      dataType: 'json',
+      success: function (data) {
+        if (!data.is_registered) {
+          $('#con_gst_pan').hide();
+        }
+        else {
+          $('#con_gst_pan').show();
+        }
+      }
+    });
+  });
+
+$(document).ready(function () {
+    $("select[id*='id_sale_voucher_tax_accounts-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-ledger') !== -1) {
+        $(this).change(function () {
+          var ledger_ID = $(this).val();
+          if (ledger_ID == "")
+            return
+
+          var sales_nature = $('#id_nature_transactions_sales').val();
+
+          $.ajax({
+            url: '{% url "accounts_mode_voucher:is_ledger_nature_with_gst_accounts_json" %}',
+            data: {
+              'ledger_id': ledger_ID,
+            },
+            dataType: 'json',
+            success: function (data) {
+              if (data.tax_type && sales_nature.indexOf('Nil Rated') >= 0) {
                 swal({
                   title: "Warning!",
-                  text: "Nature of transaction does not match",
+                  text: "Tax is not applicable for Nil Rated Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type && sales_nature.indexOf('Exempt') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Tax is not applicable for Exempt Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type && sales_nature.indexOf('LUT/Bond') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Tax is not applicable for LUT/Bond Nature of Transaction",
+                  type: "warning"
+                });
+              }
+              else if (data.tax_type == 'Central Tax' && sales_nature.indexOf('Interstate') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for Interstate Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && sales_nature.indexOf('Interstate') >= 0) {
+                swal({ 
+                  title: "Warning!",
+                  text: "State Tax is not applicable for Interstate Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && sales_nature.indexOf('SEZ - Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for SEZ Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Central Tax' && sales_nature.indexOf('SEZ - Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for SEZ Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Integrated Tax' && sales_nature ==  'Deemed Exports Taxable') {
+                swal({
+                  title: "Warning!",
+                  text: "Integrated Tax is not applicable for this Nature of Transaction",
+                  type: "warning"
+                });
+               } else if (data.tax_type == 'Central Tax' && sales_nature ==  'Interstate Deemed Exports Taxable') {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for this Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && sales_nature ==  'Interstate Deemed Exports Taxable') {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for this Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Central Tax' && sales_nature.indexOf('Exports') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for Export Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && sales_nature.indexOf('Exports') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for Export Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Integrated Tax' && sales_nature.indexOf('Intrastate') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Integrated Tax is not applicable for Intrastate Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Integrated Tax' && sales_nature.indexOf('Consumer - Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Integrated Tax is not applicable for this Nature of Transaction",
                   type: "warning"
                 });
               } 
@@ -1011,6 +1181,7 @@ Update Sales Invoice
       }
     });
   });
+  
 </script>
 
 

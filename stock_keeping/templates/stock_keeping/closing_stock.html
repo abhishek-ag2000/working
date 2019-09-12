@@ -84,21 +84,22 @@
                 </tr>
               </thead>
               <tbody>
-                {% for stockdata in stock_journal %}
+                {% for stockdata in closing_stock %}
+                
                 <tr>
 
                   <th><a
-                      href="{% url 'stock_keeping:stockmonthly' company_pk=company.pk stock_item_pk=stockdata.stock_item.id period_selected_pk=period_selected.pk %}">{{ stockdata.stock_item.stock_name }}</a>
+                      href="{% url 'stock_keeping:stockmonthly' company_pk=company.pk stock_item_pk=stockdata.pk period_selected_pk=period_selected.pk %}">{{ stockdata.stock_name }}</a>
                   </th>
-                  <td>{{ stockdata.closing_quantity }}</td>
+                  <td>{{ stockdata.closing_quantity|abs|floatformat:0 }}</td>
 
                   {% if stockdata.closing_quantity == 0 %}
-                  <td>{{ stockdata.closing_stock|abs }}</td>
+                  <td>{{ stockdata.closing_balance|abs }}</td>
                   {% else %}
-                  <td>{{ stockdata.closing_stock|div:stockdata.closing_quantity|abs }}</td>
+                  <td>{{ stockdata.closing_balance|div:stockdata.closing_quantity|abs|floatformat:2 }}</td>
                   {% endif %}
 
-                  <td>{{ stockdata.closing_stock|abs }}</td>
+                  <td>{{ stockdata.closing_balance|abs|floatformat:2 }}</td>
                 </tr>
 
                 {% endfor %}

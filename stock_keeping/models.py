@@ -36,13 +36,13 @@ class StockGroup(models.Model):
         ('Nil Rated', 'Nil Rated'),
         ('Taxable', 'Taxable'),
     )
-    taxability = models.CharField(max_length=100, choices=tax_cat, default='Unknown')
-    reverse_charge = models.CharField(max_length=100, choices=boolean_types, default='No')
-    input_credit = models.CharField(max_length=100, choices=boolean_types, default='No')
-    integrated_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2)
-    central_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2)
-    state_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2)
-    cess = models.DecimalField(default=0, max_digits=20, decimal_places=2)
+    taxability = models.CharField(max_length=100, choices=tax_cat, default='Unknown',blank=True)
+    reverse_charge = models.CharField(max_length=100, choices=boolean_types, default='No',blank=True)
+    input_credit = models.CharField(max_length=100, choices=boolean_types, default='No',blank=True)
+    integrated_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
+    central_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
+    state_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
+    cess = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
 
     def __str__(self):
         return self.group_name
@@ -77,7 +77,7 @@ class SimpleUnit(models.Model):
     url_hash = models.CharField(max_length=100)
     symbol = models.CharField(max_length=32)
     formal = models.CharField(max_length=32)
-    uqc = models.ForeignKey(UQC, on_delete=models.DO_NOTHING)
+    uqc = models.ForeignKey(UQC, on_delete=models.DO_NOTHING,blank=True,default=1)
 
     def __str__(self):
         return self.symbol
@@ -135,7 +135,7 @@ class StockItem(models.Model):
     quantity = models.DecimalField(max_digits=20, decimal_places=3, default=0.000)
     rate = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
     opening = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
-    stock_name = models.CharField(max_length=32)
+    stock_name = models.CharField(max_length=100)
     batch_no = models.PositiveIntegerField(blank=True, null=True)
     barcode_image = ImageField(upload_to='stockmanagement', null=True, blank=True)
     barcode_text = models.CharField(max_length=50, blank=True)
@@ -159,13 +159,13 @@ class StockItem(models.Model):
         ('Nil Rated', 'Nil Rated'),
         ('Taxable', 'Taxable'),
     )
-    taxability = models.CharField(max_length=20, choices=tax_cat, default='Unknown')
-    reverse_charge = models.CharField(max_length=3, choices=boolean_types, default='No')
-    input_credit = models.CharField(max_length=3, choices=boolean_types, default='No')
-    integrated_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2)
-    central_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2)
-    state_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2)
-    cess = models.DecimalField(default=0, max_digits=20, decimal_places=2)
+    taxability = models.CharField(max_length=20, choices=tax_cat,blank=True,null=True)
+    reverse_charge = models.CharField(max_length=3, choices=boolean_types, default='No',blank=True)
+    input_credit = models.CharField(max_length=3, choices=boolean_types, default='No',blank=True)
+    integrated_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
+    central_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
+    state_tax = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
+    cess = models.DecimalField(default=0, max_digits=20, decimal_places=2,blank=True)
 
     def __str__(self):
         return self.stock_name
@@ -179,18 +179,7 @@ class StockItem(models.Model):
         """
         Overwrite save to update hsn, opening balance, all taxes and url_hash
         """
-        if self.stock_group.hsn:
-            self.hsn = self.stock_group.hsn
-        if self.stock_group.taxability != 'Unknown':
-            self.taxability = self.stock_group.taxability
-        if self.stock_group.integrated_tax != 0:
-            self.integrated_tax = self.stock_group.integrated_tax
-        if self.stock_group.central_tax != 0:
-            self.central_tax = self.stock_group.central_tax
-        if self.stock_group.state_tax != 0:
-            self.state_tax = self.stock_group.state_tax
-        if self.stock_group.cess != 0:
-            self.cess = self.stock_group.cess
+
         if self.quantity or self.rate:
             self.opening = self.quantity * self.rate
 

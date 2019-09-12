@@ -5,7 +5,9 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from .views import HomeView
-from .views_contacts import ContactsListView
+from .views_contacts import ContactsListView,CreateContactView,UpdateContactView,DeleteContactView,DetailContactView
+# from .views_accounts import CreateAccountView
+
 
 app_name = 'CRM'
 
@@ -18,6 +20,11 @@ urlpatterns = [
 
 # ############################################### CRM Urls ###############################################
     url(r'^company/(?P<organisation_pk>\d+)/crm_contacts/$', ContactsListView.as_view(), name='crm_contacts'),
-    
+    url(r'^company/(?P<organisation_pk>\d+)/crm_contact_create/$', CreateContactView.as_view(), name='crm_contact_create'),
+    url(r'^company/(?P<organisation_pk>\d+)/crm_contact_update/(?P<contact_pk>\d+)/$', UpdateContactView.as_view(), name='crm_contact_update'),
+    url(r'^company/(?P<organisation_pk>\d+)/crm_contact_delete/(?P<contact_pk>\d+)/$', DeleteContactView.as_view(), name='crm_contact_delete'),
+    url(r'^company/(?P<organisation_pk>\d+)/crm_contact_detail/(?P<contact_pk>\d+)/$', DetailContactView.as_view(), name='crm_contact_detail'),
+    # url(r'^company/(?P<organisation_pk>\d+)/crm_contact_detail/(?P<contact_pk>\d+)/$', views_contacts.contact_details, name='crm_contact_detail'),
+
 
 ]

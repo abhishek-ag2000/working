@@ -1,11 +1,16 @@
 """
 Company (Model)
 """
+import sys
+from io import BytesIO
 import datetime
 from datetime import datetime as dte
 from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.exceptions import ValidationError
 from django.db import models
+from PIL import Image
+from sorl.thumbnail import ImageField
 from bracketline.models import CountryMaster, StateMaster 
 
 
@@ -21,6 +26,8 @@ class Organisation(models.Model):
     state = models.ForeignKey(StateMaster, on_delete=models.DO_NOTHING, related_name='company_state')
     telephone_no = models.CharField(max_length=32, blank=True, null=True)
     mobile_no = models.CharField(max_length=32, blank=True, null=True)
+    qr_code = ImageField(upload_to='qr_images', null=True, blank=True)
+    is_qr = models.BooleanField(default=False)
     logo = models.ImageField(upload_to='organisation/logo', blank=True, null=True)
     cover = models.ImageField(upload_to='organisation/cover', blank=True, null=True)
 
@@ -52,7 +59,7 @@ class Organisation(models.Model):
             pass
 
         if self.logo:
-            imageTemproary = Image.open(self.logo)
+            imageTemproary = Image.open(self.logo).convert('RGB')
             outputIoStream = BytesIO()
             imageTemproaryResized = imageTemproary.resize((300, 300))
             imageTemproaryResized.save(
@@ -62,7 +69,7 @@ class Organisation(models.Model):
                 '.')[0], 'image/jpeg', sys.getsizeof(outputIoStream), None)
 
         if self.cover:
-            imageTemproary = Image.open(self.cover)
+            imageTemproary = Image.open(self.cover).convert('RGB')
             outputIoStream = BytesIO()
             imageTemproaryResized = imageTemproary.resize((300, 300))
             imageTemproaryResized.save(

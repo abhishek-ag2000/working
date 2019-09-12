@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils import timezone
 from ckeditor_uploader.fields import RichTextUploadingField
 from sorl.thumbnail import ImageField
 from ecommerce_integration.models import Product, RoleBasedProduct
@@ -129,20 +130,65 @@ def products_activation(instance, **kwargs):  # sender, instance, created, **kwa
             RoleBasedProductActivated.objects.create(user=instance.user, product=product)
 
 
+class ProfessionalVerifyDoc(models.Model):
+    """
+    Professional Verify Document Model
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="requesting_user")
+    user_doc_types = (
+        ('Aadhar Card', 'Aadhar Card'),
+        ('Birth Certificate', 'Birth Certificate'),
+        ('Degree Certificate', 'Degree Certificate'),
+        ('Diploma Certificate', 'Diploma Certificate'),
+        ('Driving License', 'Driving License'),
+        ('Experience Certificate', 'Experience Certificate'),
+        ('NOC', 'NOC'),
+        ('PAN Card', 'PAN Card'),
+        ('Passport', 'Passport'),
+        ('Registration Certificate', 'Registration Certificate'),
+        ('Residential Certificate', 'Residential Certificate'),
+        ('Trade License', 'Trade License'),
+        ('Voter Card', 'Voter Card'),
+        ('Others', 'Others'),
+    )
+    doc_type = models.CharField(max_length=30, choices=user_doc_types, default='Others', blank=False)
+    manual_doc_type = models.CharField(max_length=30, null=True, blank=True)
+    doc_image = models.ImageField(upload_to='pro_verification')
+    date_added = models.DateTimeField(default=timezone.now)
+    user_doc_status = (
+        ('Pending', 'Pending'),
+        ('Verified', 'Verified'),
+        ('Regret', 'Regret'),
+    )
+    doc_status = models.CharField(max_length=30, choices=user_doc_status, default='Pending', blank=False)
+    remarks = models.CharField(max_length=255, null=True, blank=True)
+    verifier = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="verifier_user")
+    date_verified = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.user) + " " + self.doc_type
+
+
 class ProfessionalVerify(models.Model):
     """
     Professional Verify Model
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='pro_product')
-    phone_no = models.BigIntegerField(blank=True)
-    email = models.EmailField(max_length=70, blank=True)
-    upload_1 = models.FileField(upload_to="pro_verification", blank=True, validators=[file_size])
-    u1_status = models.BooleanField(default=False)
-    upload_2 = models.FileField(upload_to="pro_verification", blank=True, validators=[file_size])
-    u2_status = models.BooleanField(default=False)
-    upload_3 = models.FileField(upload_to="pro_verification", blank=True, validators=[file_size])
-    u3_status = models.BooleanField(default=False)
+    phone_no = models.CharField(max_length=15)
+    phone_verified = models.BooleanField(default=False)
+    email = models.EmailField(max_length=70)
+    email_verified = models.BooleanField(default=False)
+    request_date = models.DateTimeField(default=timezone.now)
+    request_status = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Regret', 'Regret'),
+    )
+    request_status = models.CharField(max_length=30, choices=request_status, default='Pending', blank=False)
+    remarks = models.CharField(max_length=255, null=True, blank=True)
+    verifier = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="request_verifier")
+    date_verified = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return str(self.user)
@@ -151,7 +197,7 @@ class ProfessionalVerify(models.Model):
         """
         Returns absolute url for the model object
         """
-        return reverse("user_profile:profiledetail")
+        return reverse("user_profile:pro_request_list")
 
 
 class Post(models.Model):

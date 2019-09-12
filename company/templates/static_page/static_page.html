@@ -1,7 +1,7 @@
 
 {% load staticfiles %}
 
-{% block content %}
+
 
 
 
@@ -23,13 +23,13 @@
     <title>Live --BracketLine</title>
 
     {% endif %}
-{% endblock %}
+   {% endblock %}
     <link rel = "icon" href =  
     "" 
             type = "image/x-icon">
 
     <!-- Bootstrap core CSS -->
-    <link href="{% static 'static_page/Bootstrap/css//bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'static_page/bootstrap/css//bootstrap.min.css' %}" rel="stylesheet">
 
     <!-- Custom fonts for this template -->
     <link href="{% static 'static_page/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
@@ -53,7 +53,7 @@
 </style>
  {% endif %}
 <style>
-    bg-hover
+    .bg-hover
     {
     position: absolute;
     width: 100%;
@@ -78,16 +78,21 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav text-uppercase ml-auto">
+					{% if service_details %}
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" href="#services">Services</a>
                     </li>
+					{% endif %}
+					{% if portfolio_details %}
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" href="#portfolio">Portfolio</a>
                     </li>
-
+					{% endif %}
+					 {% if team_details %}
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" href="#team">Team</a>
                     </li>
+					{% endif %}
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
                     </li>
@@ -109,6 +114,7 @@
     </header>
 
     <!-- Services -->
+    {% if service_details %}
     <section class="page-section" id="services">
         <div class="container">
             <div class="row">
@@ -133,8 +139,10 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
     <!-- Portfolio Grid -->
+      {% if portfolio_details %}
     <section class="bg-light page-section" id="portfolio">
         <div class="container">
             <div class="row">
@@ -168,9 +176,10 @@
             </div>
         </div>
     </section>
+     {% endif %}
 
 
-
+    {% if team_details %}
     <!-- Team -->
     <section class="bg-white page-section" id="team">
         <div class="container">
@@ -183,7 +192,7 @@
             <div class="row">
                 {% for team in team_details %}
                 <div class="col-sm-4">
-                    <div class="team-member">
+                    <div class="team-member bg-hover">
                         {% if team.pic %}
                          <img class="mx-auto rounded-circle" src="{{ team.pic.url }}" alt="">
                          
@@ -223,13 +232,13 @@
 
         </div>
     </section>
+     {% endif %}
     <section class="page-section" id="contact">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2 class="section-heading text-uppercase">Contact Us</h2>
-                    <h3 class="section-subheading text-muted">We would love to adress your needs with an in-office
-                        discussion over coffee.</h3>
+                    <h3 class="section-subheading text-muted"></h3>
 
                 </div>
             </div>
@@ -238,14 +247,21 @@
                     <div class="col-lg-2"></div>
                     <div class="col-lg-4 text-white">
                         <a href="">{{organisation.name}}.</a>
-                        <p><i class="fa fa-map-marker"></i> <span>{{organisation.address}}</span> </p>
-                        <i class="fa fa-phone"> </i> P: (1800) 456-7890
+                        <p><i class="fa fa-map-marker"></i> <span>{{organisation.address}}, {{organisation.state}}, {{organisation.country}}</span> </p>
+                        {% if organisation.mobile_no  %}
+						<i class="fa fa-phone"> </i><span> P: {{ organisation.mobile_no }}</span><br>
+						{% endif %}
+						{% if organisation.telephone_no %}
+                        <i class="fa fa-phone"> </i> <span>Tel: {{organisation.telephone_no}}</span>
+						{% endif %}
                     </div>
-
+					{% if organisation.gstin %}
                     <div class="col-lg-4 text-white">
-                        GSTIN: 19AAICB1614Q1ZB<br>
-                        Registered under Start-Up-India with valid DIPP registration.
+					
+                        {{ organisation.gstin }}<br>
+                        
                     </div>
+					{% endif %}
 
                 </div>
             </div>
@@ -327,6 +343,10 @@
     <script src="{% static 'js/popper.min.js' %}"></script>
 
 
+
+
+
+
     <!-- Custom scripts for this template -->
     <script src="{% static 'static_page/js/agency.min.js' %}"></script>
 
@@ -339,4 +359,3 @@
 
 
   
-{% endblock %}

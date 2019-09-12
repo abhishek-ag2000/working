@@ -11,46 +11,46 @@ from .models import StockItem
 from .models_credit_note import CreditNoteVoucher, CreditNoteTerm, CreditNoteTax
 
 
-@receiver(pre_save, sender=CreditNoteVoucher)
-@prevent_signal_call_on_bulk_load
-def update_subtotal_credit_note(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the sub total of every goods in a particular voucher
-    """
-    total = instance.credit_note_voucher.aggregate(
-        the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+# @receiver(pre_save, sender=CreditNoteVoucher)
+# @prevent_signal_call_on_bulk_load
+# def update_subtotal_credit_note(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the sub total of every goods in a particular voucher
+#     """
+#     total = instance.credit_note_voucher.aggregate(
+#         the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
 
-    if total:
-        instance.sub_total = total
+#     if total:
+#         instance.sub_total = total
 
 
 
-@receiver(pre_save, sender=CreditNoteVoucher)
-@prevent_signal_call_on_bulk_load
-def update_gst_totals_credit_note(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the GST totals of a particular voucher
-    """
-    total_cgst_stock = instance.credit_note_voucher.aggregate(
-        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
-    total_sgst_stock = instance.credit_note_voucher.aggregate(
-        the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
-    total_igst_stock = instance.credit_note_voucher.aggregate(
-        the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+# @receiver(pre_save, sender=CreditNoteVoucher)
+# @prevent_signal_call_on_bulk_load
+# def update_gst_totals_credit_note(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the GST totals of a particular voucher
+#     """
+#     total_cgst_stock = instance.credit_note_voucher.aggregate(
+#         the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+#     total_sgst_stock = instance.credit_note_voucher.aggregate(
+#         the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+#     total_igst_stock = instance.credit_note_voucher.aggregate(
+#         the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
 
-    total_cgst_extra = instance.credit_note_term.aggregate(
-        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
-    total_sgst_extra = instance.credit_note_term.aggregate(
-        the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
-    total_igst_extra = instance.credit_note_term.aggregate(
-        the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+#     total_cgst_extra = instance.credit_note_term.aggregate(
+#         the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+#     total_sgst_extra = instance.credit_note_term.aggregate(
+#         the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+#     total_igst_extra = instance.credit_note_term.aggregate(
+#         the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
 
-    if total_cgst_stock or total_cgst_extra:
-        instance.cgst_total = total_cgst_stock + total_cgst_extra
-    if total_sgst_stock or total_sgst_extra:
-        instance.sgst_total = total_sgst_stock + total_sgst_extra
-    if total_igst_stock or total_igst_extra:
-        instance.igst_total = total_igst_stock + total_igst_extra
+#     if total_cgst_stock or total_cgst_extra:
+#         instance.cgst_total = total_cgst_stock + total_cgst_extra
+#     if total_sgst_stock or total_sgst_extra:
+#         instance.sgst_total = total_sgst_stock + total_sgst_extra
+#     if total_igst_stock or total_igst_extra:
+#         instance.igst_total = total_igst_stock + total_igst_extra
 
 
 @receiver(pre_save, sender=CreditNoteVoucher)

@@ -10,12 +10,12 @@ from CRMcommon.utils import INDCHOICES, COUNTRIES
 
 #from common.models import User
 from CRMcommon.utils import INDCHOICES, COUNTRIES
-from .models_leads import Lead
+# from .models_leads import Lead
 from .models import Tags
 
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
-from .models_contacts import Contact
+# from .models_contacts import Contact
 
 
 class Account(models.Model):
@@ -69,13 +69,13 @@ class Account(models.Model):
     tags = models.ManyToManyField(Tags, blank=True)
     status = models.CharField(
         choices=ACCOUNT_STATUS_CHOICE, max_length=64, default='open')
-    lead = models.ForeignKey(
-        Lead, related_name="account_leads",
-        on_delete=models.SET_NULL, null=True)
-    contact_name = models.CharField(pgettext_lazy(
-        "Name of Contact", "Contact Name"), max_length=120)
-    contacts = models.ManyToManyField(
-        Contact, related_name="account_contacts")
+    # lead = models.ForeignKey(
+    #     Lead, related_name="account_leads",
+    #     on_delete=models.SET_NULL, null=True)
+    # contact_name = models.CharField(pgettext_lazy(
+    #     "Name of Contact", "Contact Name"), max_length=120)
+    # contacts = models.ManyToManyField(
+    #     Contact, related_name="account_contacts")
     
 
     def __str__(self):
@@ -128,7 +128,7 @@ class Account(models.Model):
 class Email(models.Model):
     from_account = models.ForeignKey(
         Account, related_name='sent_email', on_delete=models.SET_NULL, null=True)
-    recipients = models.ManyToManyField(Contact, related_name='recieved_email')
+    # recipients = models.ManyToManyField(Contact, related_name='recieved_email')
     message_subject = models.TextField(null=True)
     message_body = models.TextField(null=True)
     timezone = models.CharField(max_length=100, default='UTC')
@@ -147,6 +147,6 @@ class Email(models.Model):
 class EmailLog(models.Model):
     """ this model is used to track if the email is sent or not """
 
-    email = models.ForeignKey(Email, related_name='email_log', on_delete=models.SET_NULL, null=True)
-    contact = models.ForeignKey(Contact, related_name='contact_email_log', on_delete=models.SET_NULL, null=True)
+    # email = models.ForeignKey(Email, related_name='email_log', on_delete=models.SET_NULL, null=True)
+    # contact = models.ForeignKey(Contact, related_name='contact_email_log', on_delete=models.SET_NULL, null=True)
     is_sent = models.BooleanField(default=False)

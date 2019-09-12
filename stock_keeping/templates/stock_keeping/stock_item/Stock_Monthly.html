@@ -134,7 +134,7 @@
                 <th></th>
                 <th></th>
                 {% else %}
-                <th>{{ stock_item.quantity }}</th>
+                <th>{{ stock_item.quantity|floatformat:0 }}</th>
                 <th>{{ stock_item.opening|abs }}</th>
                 {% endif %}
 
@@ -153,9 +153,9 @@
                 <td></td>
                 {% else %}
                 {% if value.1 < 0 %}
-                <td>(-){{ value.1|abs|floatformat:2 }}</td>
+                <td>(-){{ value.1|abs|floatformat:0 }}</td>
                 {% else %}
-                <td>{{ value.1|abs|floatformat:2 }}</td>
+                <td>{{ value.1|abs|floatformat:0 }}</td>
                 {% endif %}
                 {% endif %}
 
@@ -173,9 +173,9 @@
                 <td></td>
                 {% else %}
                 {% if value.2 < 0 %}
-                <td>(-){{ value.2|abs|floatformat:2 }}</td>
+                <td>(-){{ value.2|abs|floatformat:0 }}</td>
                 {% else %}
-                <td>{{ value.2|abs|floatformat:2 }}</td>
+                <td>{{ value.2|abs|floatformat:0 }}</td>
                 {% endif %}
                 {% endif %}
 
@@ -189,10 +189,10 @@
                 {% endif %}
                 {% endif %}
 
-                {% if stockitem.Quantity == None %}
+                {% if stock_item.quantity == None %}
                 <td>{{ value.0|abs }}</td>
                 {% else %}
-                <td>{{ value.0|add:stockitem.Quantity|abs}}</td>
+                <td>{{ value.0|add:stock_item.quantity|abs}}</td>
                 {% endif %}
 
 
@@ -213,15 +213,15 @@
                   <center>Grand Total</center>
                 </th>
 
-                <th>{{ total_purchase_quantity|abs }}</th>
+                <th>{{ total_purchase_quantity|abs|floatformat:0 }}</th>
 
-                <th>{{ total_purchase|abs|floatformat:2|intcomma }}</th>
-                <th>{{ total_sale_quantity|abs }}</th>
+                <th>{{ total_purchase|abs|floatformat:2 }}</th>
+                <th>{{ total_sale_quantity|abs|floatformat:0 }}</th>
                 <th>{{ total_sale|abs|floatformat:2|intcomma }}</th>
-                {% if stockitem.Quantity == None %}
+                {% if stock_item.quantity == None %}
                 <th>{{ total_purchase_quantity|sub:total_sale_quantity|abs }}</th>
                 {% else %}
-                <th>{{ total_purchase_quantity|sub:total_sale_quantity|add:stockitem.Quantity|abs }}</th>
+                <th>{{ total_purchase_quantity|sub:total_sale_quantity|add:stock_item.quantity|abs|floatformat:0 }}</th>
                 {% endif %}
                 <th>{{ Closing_balance|abs|floatformat:2|intcomma }}</th>
               </tr>

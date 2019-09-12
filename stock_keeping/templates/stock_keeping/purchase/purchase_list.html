@@ -2,134 +2,179 @@
 {% load staticfiles %}
 {% load mathfilters %}
 {% load humanize %}
-{% block title %}Purchases{% endblock %}
+{% block title %}Purchase{% endblock %}
 
 {% block content %}
 
-{% include "snippet_shortcut/shortcut_snippet.html" %}
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
 
-<div class="row wrapper border-bottom white-bg page-heading">
-  <div class="col-lg-12">
-    <h3>Purchases</h3>
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-      </li>
-      <li class="breadcrumb-item">
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h3>Sales</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Purchase</strong>
+                    </li>
+                </ol>
+           <br>
+          
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <a href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}" class="btn btn-warning" role="button">Create Purchase Invoice</a>
+        {% else %}
+            <a href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}" class="btn btn-warning" role="button">Create Purchase Invoice</a>
+        {% endif %}
 
-        <a href="{% url 'company:list' %}">Company list</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a
-          href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
-      </li>
-      <li class="breadcrumb-item active">
-        <strong>Purchases</strong>
-      </li>
-    </ol>
-    <br>
+           
+                            <button  class="btn btn-info show-form-update pull-right" data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                              Update Period 
+                            </button>
 
-    <a href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}"
-      class="btn btn-warning" role="button">Create Purchase Invoice</a>
+                      <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
 
-    <button class="btn btn-info show-form-update pull-right"
-      data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
-      <span class="glyphicon glyphicon-pencil"></span>
-      Update Period
-    </button>
+                      <strong>Selected Period: From</strong>
+                       {{ period_selected.start_date|date }}
+                        <strong>To</strong>
+                         {{ period_selected.end_date|date }}  &nbsp;
 
-    <a id="book-table-date" class="pull-right" style="padding-top:0.5%">
+                      </a> 
+                </div>
+            </div>
 
-      <strong>Selected Period: From</strong>
-      {{ period_selected.start_date }}
-      <strong>To</strong>
-      {{ period_selected.end_date}} &nbsp;
-
-    </a>
-  </div>
-</div>
-
-<div class="wrapper wrapper-content animated fadeInRight ecommerce">
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
 
 
 
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="ibox">
-        <div class="ibox-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <div class="col-sm-9 m-b-xs">
+                              <div data-toggle="buttons" class="btn-group btn-group-toggle">
+                                <label class="btn btn-sm btn-white"><a href="#with_inventory" data-toggle="collapse">Purchase With Inventory Details
+                                    </a></label>
+                                <label class="btn btn-sm btn-white"><a href="#only_accounts" data-toggle="collapse">Purchase With Accounts Only</a></label>
+                                
 
-          <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="15"
-              id="book-table">
-              <thead>
-                <tr>
-                  <th>Sl no</th>
-                  <th>Date</th>
-                  <th>Party A/c</th>
-                  <th>Supplier Name</th>
-                  <th>Purchase type</th>
-                  <th>Total Amount</th>
+                              </div>
+                            </div>
+                            <br>
 
-                </tr>
-              </thead>
+                            <div class="hidden-md" id="sales-info">
+                                <div class="panel-collapse collapse show active" id="with_inventory" data-parent="#sales-info">
+                                  <h3>Purchase With Inventory Details</h3>
+                                  <hr>
 
-              <tbody>
+                                  <div class="table-responsive">
+                                        <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="15" id="book-table">
+                                            <thead>
+                                            <tr>
+                                            <th>Date</th>
+                                            <th>Billing Name</th>
+                                            <th>Total Amount</th>
+                                          </tr>
+                                            </thead>
 
-                {% for purchase in purchase_list %}
-                <tr>
-                  <td><a
-                      href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">
-                      {{ purchase.counter }}
-                    </a></td>
-                  <td> <a
-                      href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.voucher_date }}</a>
-                  </td>
-                  <td><a
-                      href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.party_ac }}</a>
-                  </td>
-                  <td> <a
-                      href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.party_ac }}</a>
-                  </td>
-                  <td> <a
-                      href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.doc_ledger }}</a>
-                  </td>
-                  {% if company.gst_enabled == 'Yes' %}
-                  <td> <a
-                      href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.total }}</a>
-                  </td>
-                  {% else %}
-                  <td> <a
-                      href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.sub_total }}</a>
-                  </td>
-                  {% endif %}
+                                            <tbody>
 
-                </tr>
-                {% endfor %}
+                                            {% for purchase in purchase_inventory_list %}
+                                              <tr>
+                                                <td> <a href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.voucher_date }}</a></td>
+                                                <td> <a href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.party_ac.ledger_name }}</a></td>
 
-              </tbody>
+                                                {% if company.gst_enabled == 'Yes' %}
+                                                    <td> <a href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.total  }}</a></td>
+                                                {% else %}
+                                                    <td> <a href="{% url 'stock_keeping:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.sub_total }}</a></td>
+                                                {% endif %}      
+                                              </tr>
+                                            {% endfor %}
 
-              <tfoot>
-                <tr>
-                  <td colspan="6">
-                    <ul class="pagination float-right"></ul>
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+                                            </tbody>
+
+                                            <tfoot>
+                                            <tr>
+                                                <td colspan="6">
+                                                    <ul class="pagination float-right"></ul>
+                                                </td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="panel-collapse collapse" id="only_accounts" data-parent="#sales-info">
+                                  <h3>Purchase With Accounts Only</h3>
+                                  <hr>
+
+                                  <div class="table-responsive">
+                                        <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="15" id="book-table">
+                                            <thead>
+                                            <tr>
+                                            <th>Date</th>
+                                            <th>Billing Name</th>
+                                            <th>Total Amount</th>
+                                          </tr>
+                                            </thead>
+
+                                            <tbody>
+
+                                            {% for purchase in purchase_accounts_list %}
+                                              <tr>
+                                                <td> <a href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.voucher_date }}</a></td>
+                                                <td> <a href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.party_ac.ledger_name }}</a></td>
+
+                                                {% if company.gst_enabled == 'Yes' %}
+                                                    <td> <a href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.total  }}</a></td>
+                                                {% else %}
+                                                    <td> <a href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=purchase.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ purchase.sub_total }}</a></td>
+                                                {% endif %}      
+                                              </tr>
+                                            {% endfor %}
+
+                                            </tbody>
+
+                                            <tfoot>
+                                            <tr>
+                                                <td colspan="6">
+                                                    <ul class="pagination float-right"></ul>
+                                                </td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+
+                                </div>
+
+                                
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
-      </div>
-    </div>
-  </div>
 
 
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content animated flipInY"></div>
 </div>
 
-
-<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content animated flipInY"></div>
-  </div>
-
-  {% endblock %}
+{% endblock %}

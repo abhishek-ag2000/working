@@ -103,6 +103,29 @@
                                 </tr>
                                 {% endfor %}
 
+                                {% for p in result_account %}
+                                <tr>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=p.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ p.voucher_date }}</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=p.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ p.party_ac }}</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=p.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">Purchase</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=p.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ p.id }}</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=p.pk company_pk=company.pk period_selected_pk=period_selected.pk %}"></a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:purchasedetail' purchase_pk=p.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ p.total }}</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
                             </tbody>
 
                             <tfoot>

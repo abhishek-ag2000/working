@@ -1,0 +1,89 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Upload{% endblock %}
+
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h3>Professional Request</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'user_profile:profiledetail' %}">Profile</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'user_profile:pro_request_list' %}">Professional Request</a>
+            </li>
+            <li class="breadcrumb-item">
+                    <a href="{% url 'user_profile:pro_doc_list' %}">Documents</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Upload</strong>
+            </li>
+        </ol>
+        <br>
+    </div>
+    <br>
+    <div class="col-lg-12">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Upload Document</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Document Type<i class="material-icons"
+                                style="font-size:16px;color:red">*</i></label>
+
+                        <div class="col-lg-10">
+                            {{ form.doc_type }}
+                            {{ form.doc_type.errors }}
+                            {{ form.manual_doc_type }}
+                            {{ form.manual_doc_type.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+
+                        <label class="col-lg-2 col-form-label">Document</label>
+
+                        <div class="col-lg-10">
+                            {{ form.doc_image }}
+                            {{ form.doc_image.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            <button type="submit" class="btn btn-info pull-right" value="Submit">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block script %}
+    <script>
+    function doc_type_change(sel){
+        if(sel.value=="Others"){
+            $("#id_manual_doc_type").show();
+            $("#id_manual_doc_type").prop('required',true);
+        }else{
+            $("#id_manual_doc_type").hide();
+            $("#id_manual_doc_type").prop('required',false);
+        }
+    }
+    </script>
+    {% endblock %}

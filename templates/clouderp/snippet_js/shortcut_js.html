@@ -184,51 +184,105 @@
         });
     </script>
 
-    <!-- c + s (create sales invoice) -->
-    <script>
-        $(document).ready(function() {
-            var down = [];
-                $(document).keydown(function(e) {
-                    down[e.keyCode] = true;
-                }).keyup(function(e) {
-                    if (down[67] && down[83]) {
-                        window.location = '{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
-                    }
-                    down[e.keyCode] = false;
-                });
-        });
-    </script>
+    {% if company.maintain == 'Accounts with Inventory' %}
+
+        <!-- c + s (create sales invoice) -->
+        <script>
+            $(document).ready(function() {
+                var down = [];
+                    $(document).keydown(function(e) {
+                        down[e.keyCode] = true;
+                    }).keyup(function(e) {
+                        if (down[67] && down[83]) {
+                            window.location = '{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
+                        }
+                        down[e.keyCode] = false;
+                    });
+            });
+        </script>
 
 
-    <!-- v + s (sales list) -->
-    <script>
-        $(document).ready(function() {
-            var down = [];
-                $(document).keydown(function(e) {
-                    down[e.keyCode] = true;
-                }).keyup(function(e) {
-                    if (down[86] && down[83]) {
-                        window.location = '{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
-                    }
-                    down[e.keyCode] = false;
-                });
-        });
-    </script>
+        <!-- v + s (sales list) -->
+        <script>
+            $(document).ready(function() {
+                var down = [];
+                    $(document).keydown(function(e) {
+                        down[e.keyCode] = true;
+                    }).keyup(function(e) {
+                        if (down[86] && down[83]) {
+                            window.location = '{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
+                        }
+                        down[e.keyCode] = false;
+                    });
+            });
+        </script>
+
+    {% else %}
+
+         <!-- c + s (create sales invoice) -->
+        <script>
+            $(document).ready(function() {
+                var down = [];
+                    $(document).keydown(function(e) {
+                        down[e.keyCode] = true;
+                    }).keyup(function(e) {
+                        if (down[67] && down[83]) {
+                            window.location = '{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
+                        }
+                        down[e.keyCode] = false;
+                    });
+            });
+        </script>
+
+
+        <!-- v + s (sales list) -->
+        <script>
+            $(document).ready(function() {
+                var down = [];
+                    $(document).keydown(function(e) {
+                        down[e.keyCode] = true;
+                    }).keyup(function(e) {
+                        if (down[86] && down[83]) {
+                            window.location = '{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}';
+                        }
+                        down[e.keyCode] = false;
+                    });
+            });
+        </script>
+    {% endif %}
 
     <!-- c + p (create purchase invoice) -->
-    <script>
-        $(document).ready(function() {
-            var down = [];
-                $(document).keydown(function(e) {
-                    down[e.keyCode] = true;
-                }).keyup(function(e) {
-                    if (down[67] && down[80]) {
-                        window.location = '{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
-                    }
-                    down[e.keyCode] = false;
-                });
-        });
-    </script>
+    {% if company.maintain == 'Accounts with Inventory' %}
+        <script>
+            $(document).ready(function() {
+                var down = [];
+                    $(document).keydown(function(e) {
+                        down[e.keyCode] = true;
+                    }).keyup(function(e) {
+                        if (down[67] && down[80]) {
+                            window.location = '{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
+                        }
+                        down[e.keyCode] = false;
+                    });
+            });
+        </script>
+    {% else %}
+        <script>
+            $(document).ready(function() {
+                var down = [];
+                    $(document).keydown(function(e) {
+                        down[e.keyCode] = true;
+                    }).keyup(function(e) {
+                        if (down[67] && down[80]) {
+                            window.location = '{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}';
+                        }
+                        down[e.keyCode] = false;
+                    });
+            });
+        </script>
+    {% endif %}
+
+
 
     <!-- v + p (purchase invoice list) -->
     <script>
@@ -259,7 +313,7 @@
                 });
         });
     </script>
-
+{% if company.maintain == 'Accounts with Inventory' %}
     <!-- c + t (stock item create) -->
     <script>
         $(document).ready(function() {
@@ -304,6 +358,8 @@
                 });
         });
     </script>
+
+{% endif %}
 
     <!-- b + s (BRS) -->
     <script>

@@ -1,4 +1,4 @@
-{% extends "clouderp/base.html" %}
+ {% extends "clouderp/base.html" %}
 {% load staticfiles %}
 {% load mathfilters %}
 {% block title %}
@@ -45,7 +45,7 @@
             <a href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}" class="btn btn-warning" role="button">Create Stockgroup</a>
            
                 </div>
-                </div>s
+                </div>
 
 <br>
 
@@ -113,7 +113,7 @@
                     <div class="col-lg-10">
                     </div>
                 </div> -->
-
+                {% if company.gst_enabled == 'Yes' %}
                 <div class="form-group row">
 
                 <label class="col-lg-2 col-form-label">Set/Alter GST</label>
@@ -123,6 +123,7 @@
                     {{ form.set_or_alter_gst }}
                     </div>
                 </div>
+                {% endif %}
 
             
         </div>
@@ -190,6 +191,12 @@
                     </div>
                 </div>
 
+            {% if form.instance.is_non_gst == 'Yes' %}
+                <div id="for_non_gst" style="display: none;">
+            {% else %}
+                <div id="for_non_gst" style="display: block;">
+            {% endif %}
+
                 <div class="form-group row">
 
                 <label class="col-lg-2 col-form-label">Taxability</label>
@@ -201,6 +208,13 @@
 
                     </div>
                 </div>
+            </div>
+
+            {% if form.instance.taxability == 'Taxable' or form.instance.is_non_gst == 'No' %}
+                <div id="taxability_cond" style="display: block;">
+            {% else %}
+                <div id="taxability_cond" style="display: none;">
+            {% endif %}
 
                 <div class="form-group row">
 
@@ -213,6 +227,7 @@
 
                     </div>
                 </div>
+            
 
                 <div class="form-group row">
 
@@ -275,6 +290,8 @@
                     </div>
                 </div>
 
+            </div>
+
             
         </div>
     </div>
@@ -317,6 +334,12 @@
         document.getElementById("gst_chan").style="display:block;";
     }else{
         document.getElementById("gst_chan").style="display:none;";
+        document.getElementById("id_integrated_tax").value = 0;
+        document.getElementById("id_central_tax").value = 0;
+        document.getElementById("id_state_tax").value = 0;
+        document.getElementById("id_cess").value = 0;
+        document.getElementById("id_reverse_charge").value = '';
+        document.getElementById("id_input_credit").value = '';
     }
 }
 </script>
@@ -331,20 +354,16 @@
                     //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
             var txt=sel.options[sel.selectedIndex].text;
 
-            if(txt=="Taxable"){
-                document.getElementById("id_integrated_tax").disabled = false;
-                document.getElementById("id_central_tax").disabled = false;
-                document.getElementById("id_state_tax").disabled = false;
-                document.getElementById("id_cess").disabled = false;
-            }else{
-                document.getElementById("id_integrated_tax").disabled = true;
+            if (txt == "Taxable") {
+            document.getElementById("taxability_cond").style = "display:block";
+            } else {
+                document.getElementById("taxability_cond").style = "display:none";
                 document.getElementById("id_integrated_tax").value = 0;
-                document.getElementById("id_central_tax").disabled = true;
                 document.getElementById("id_central_tax").value = 0;
-                document.getElementById("id_state_tax").disabled = true;
                 document.getElementById("id_state_tax").value = 0;
-                document.getElementById("id_cess").disabled = true;
                 document.getElementById("id_cess").value = 0;
+                document.getElementById("id_reverse_charge").value = '';
+                document.getElementById("id_input_credit").value = '';
             }
             
         }
@@ -353,29 +372,18 @@
                     //document.getElementById("id_name").value = document.getElementById("id_LedgerGroup_Name").value;
             var txt=sel.options[sel.selectedIndex].text;
 
-            if(txt=="No"){
-                document.getElementById("id_taxability").disabled = false;
-                document.getElementById("id_integrated_tax").disabled = false;
-                document.getElementById("id_central_tax").disabled = false;
-                document.getElementById("id_state_tax").disabled = false;
-                document.getElementById("id_cess").disabled = false;
-                document.getElementById("id_reverse_charge").disabled = false;
-                document.getElementById("id_input_credit").disabled = false;
-            }else{
-                document.getElementById("id_taxability").disabled = true;
+            if (txt == "No") {
+            document.getElementById("for_non_gst").style = "display:block";
+            } else {
                 document.getElementById("id_taxability").value = '';
-                document.getElementById("id_reverse_charge").disabled = true;
                 document.getElementById("id_reverse_charge").value = '';
-                document.getElementById("id_input_credit").disabled = true;
                 document.getElementById("id_input_credit").value = '';
-                document.getElementById("id_integrated_tax").disabled = true;
                 document.getElementById("id_integrated_tax").value = 0;
-                document.getElementById("id_central_tax").disabled = true;
                 document.getElementById("id_central_tax").value = 0;
-                document.getElementById("id_state_tax").disabled = true;
                 document.getElementById("id_state_tax").value = 0;
-                document.getElementById("id_cess").disabled = true;
                 document.getElementById("id_cess").value = 0;
+                document.getElementById("for_non_gst").style = "display:none";
+                document.getElementById("taxability_cond").style = "display:none";
             }
             
         }

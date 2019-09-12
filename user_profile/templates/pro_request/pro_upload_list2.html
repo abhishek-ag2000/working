@@ -1,0 +1,10 @@
+{% for doc in pro_docs %}
+<tr>
+  <td>{{ forloop.counter }}</a></td>
+  <td>{{ doc.doc_type }}</td>
+  <td>{{ doc.manual_doc_type }}</td>
+  <td>{{ doc.date_added }}</td>
+  <td>{{ doc.doc_status }}</td>
+  <td>{{ doc.remarks }}</td>
+</tr>
+{% endfor %}

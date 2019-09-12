@@ -77,7 +77,7 @@ class LedgerMasterForm(forms.ModelForm):
                   'duty_tax_type', 'tax_type', 'assessable_value', 'appropiate_to', 'calculation_method', 'gst_applicable', 'set_or_alter_gst',
                   'supply_type', 'registration_type', 'is_eoperator', 'deemed_expoter', 'party_type', 'is_transporter', 'transporter_id',
                   'hsn_desc', 'hsn_no', 'is_non_gst', 'nature_transactions_purchase', 'nature_transactions_sales', 'goods_nature',
-                  'taxability', 'integrated_tax', 'central_tax', 'state_tax', 'cess')
+                  'taxability', 'integrated_tax', 'central_tax', 'state_tax', 'cess','assessee_of_other_teritory')
 
     def __init__(self,  *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -98,7 +98,7 @@ class LedgerMasterForm(forms.ModelForm):
         self.fields['state'].widget.attrs = {
             'class': 'select2_demo_2 form-control', }
         self.fields['country'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', 'onchange': 'country_change(this)',}
+            'class': 'select2_demo_2 form-control', 'onchange': 'country_change(this)'}
         self.fields['pin_code'].widget.attrs = {'class': 'form-control', }
         self.fields['pan_no'].widget.attrs = {'class': 'form-control', }
         self.fields['gst_no'].widget.attrs = {
@@ -153,7 +153,7 @@ class LedgerMasterForm(forms.ModelForm):
         self.fields['goods_nature'].widget.attrs = {
             'class': 'form-control', }
         #self.fields['goods_nature'].widget.attrs['disabled'] = True
-        self.fields['taxability'].widget.attrs = {'class': 'form-control', }
+        self.fields['taxability'].widget.attrs = {'class': 'form-control','onchange': 'change_taxability(this)', }
         self.fields['integrated_tax'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
         self.fields['central_tax'].widget.attrs = {
@@ -161,6 +161,9 @@ class LedgerMasterForm(forms.ModelForm):
         self.fields['state_tax'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
         self.fields['cess'].widget.attrs = {'class': 'form-control', }
+        self.fields['assessee_of_other_teritory'].widget.attrs = {
+            'class': 'select2_demo_2 form-control', 'onchange': 'change_assessee_of_other_teritory(this)', }
+        self.fields['assessee_of_other_teritory'].initial = 'No'
 
     def get_form(self, request, obj=None, **kwargs):
         """
@@ -199,7 +202,7 @@ class LedgerMasterFormAdmin(forms.ModelForm):
                   'duty_tax_type', 'tax_type', 'assessable_value', 'appropiate_to', 'calculation_method', 'gst_applicable', 'set_or_alter_gst',
                   'supply_type', 'registration_type', 'is_eoperator', 'deemed_expoter', 'party_type', 'is_transporter', 'transporter_id',
                   'hsn_desc', 'hsn_no', 'is_non_gst', 'nature_transactions_purchase', 'nature_transactions_sales',
-                  'goods_nature', 'taxability', 'integrated_tax', 'central_tax', 'state_tax', 'cess')
+                  'goods_nature', 'taxability', 'integrated_tax', 'central_tax', 'state_tax', 'cess','assessee_of_other_teritory')
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -272,7 +275,7 @@ class LedgerMasterFormAdmin(forms.ModelForm):
         self.fields['goods_nature'].widget.attrs = {
             'class': 'form-control', }
         #self.fields['goods_nature'].widget.attrs['disabled'] = True
-        self.fields['taxability'].widget.attrs = {'class': 'form-control', }
+        self.fields['taxability'].widget.attrs = {'class': 'form-control','onchange': 'change_taxability(this)', }
         self.fields['integrated_tax'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
         self.fields['central_tax'].widget.attrs = {
@@ -280,6 +283,9 @@ class LedgerMasterFormAdmin(forms.ModelForm):
         self.fields['state_tax'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
         self.fields['cess'].widget.attrs = {'class': 'form-control', }
+        self.fields['assessee_of_other_teritory'].widget.attrs = {
+            'class': 'select2_demo_2 form-control', 'onchange': 'change_assessee_of_other_teritory(this)', }
+        self.fields['assessee_of_other_teritory'].initial = 'No'
 
 
 class JournalVoucherForm(forms.ModelForm):
@@ -399,6 +405,44 @@ class PaymentVoucherRowsForm(forms.ModelForm):
             'class': 'select2_demo_2 form-control', }
         self.fields['amount'].widget.attrs = {'class': 'form-control', }
 
+    def clean(self):
+
+        cleaned_data = super().clean()
+        particular = cleaned_data.get("particular")
+        amount = cleaned_data.get("amount")
+
+
+        if not particular:
+            msg = "Particular must be selected."
+            self.add_error('particular', msg)
+        if amount <= 0:
+            msg = "Amount cannot be zero or negative."
+            self.add_error('amount', msg)
+
+
+
+class PaymentVoucherRowsFormSet(forms.BaseInlineFormSet):
+    """
+    Form set validation
+    """
+
+    def clean(self):
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        form_changed_count = 0
+
+        for form in self.forms:
+            if form.has_changed():
+                form_changed_count += 1
+                # stock_item = form.cleaned_data.get('stock_item', '')
+                # if not stock_item:
+                #     raise forms.ValidationError("Please choose a product", "error")
+
+        if form_changed_count == 0:
+            raise forms.ValidationError("At least one Ledger details must be supplied", "error")
+
 
 class ReceiptVoucherForm(forms.ModelForm):
     """
@@ -447,6 +491,43 @@ class ReceiptVoucherRowsForm(forms.ModelForm):
             'class': 'select2_demo_2 form-control', }
         self.fields['amount'].widget.attrs = {'class': 'form-control', }
 
+    def clean(self):
+
+        cleaned_data = super().clean()
+        particular = cleaned_data.get("particular")
+        amount = cleaned_data.get("amount")
+
+
+        if not particular:
+            msg = "Particular must be selected."
+            self.add_error('particular', msg)
+        if amount <= 0:
+            msg = "Amount cannot be zero or negative."
+            self.add_error('amount', msg)
+
+
+
+class ReceiptVoucherRowsFormSet(forms.BaseInlineFormSet):
+    """
+    Form set validation
+    """
+
+    def clean(self):
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        form_changed_count = 0
+
+        for form in self.forms:
+            if form.has_changed():
+                form_changed_count += 1
+                # stock_item = form.cleaned_data.get('stock_item', '')
+                # if not stock_item:
+                #     raise forms.ValidationError("Please choose a product", "error")
+
+        if form_changed_count == 0:
+            raise forms.ValidationError("At least one Ledger details must be supplied", "error")
 
 class ContraVoucherForm(forms.ModelForm):
     """
@@ -492,6 +573,43 @@ class ContraVoucherRowsForm(forms.ModelForm):
         self.fields['particular'].widget.attrs = {'class': 'select2_demo_2 form-control', }
         self.fields['amount'].widget.attrs = {'class': 'form-control', }
 
+    def clean(self):
+
+        cleaned_data = super().clean()
+        particular = cleaned_data.get("particular")
+        amount = cleaned_data.get("amount")
+
+
+        if not particular:
+            msg = "Particular must be selected."
+            self.add_error('particular', msg)
+        if amount <= 0:
+            msg = "Amount cannot be zero or negative."
+            self.add_error('amount', msg)
+
+
+
+class ContraVoucherRowsFormSet(forms.BaseInlineFormSet):
+    """
+    Form set validation
+    """
+
+    def clean(self):
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        form_changed_count = 0
+
+        for form in self.forms:
+            if form.has_changed():
+                form_changed_count += 1
+                # stock_item = form.cleaned_data.get('stock_item', '')
+                # if not stock_item:
+                #     raise forms.ValidationError("Please choose a product", "error")
+
+        if form_changed_count == 0:
+            raise forms.ValidationError("At least one ledger details must be supplied", "error")
 
 class MultiJournalVoucherForm(forms.ModelForm):
     """
@@ -531,6 +649,8 @@ class MultiJournalVoucherDrRowsForm(forms.ModelForm):
         self.fields['ledger'].widget.attrs = {
             'class': 'select2_demo_2 form-control', }
 
+
+
 class MultiJournalVoucherCrRowsForm(forms.ModelForm):
     """
     Multi-Journal Voucher Rows Form
@@ -550,15 +670,16 @@ class MultiJournalVoucherCrRowsForm(forms.ModelForm):
             'class': 'select2_demo_2 form-control', }
 
 
+
 PAYMENT_FORM_SET = inlineformset_factory(PaymentVoucher, PaymentVoucherRows,
-                                         form=PaymentVoucherRowsForm, extra=3)
+                                         form=PaymentVoucherRowsForm,formset=PaymentVoucherRowsFormSet, extra=3)
 
 
 RECEIPT_FORM_SET = inlineformset_factory(ReceiptVoucher, ReceiptVoucherRows,
-                                         form=ReceiptVoucherRowsForm, extra=3)
+                                         form=ReceiptVoucherRowsForm,formset=ReceiptVoucherRowsFormSet, extra=3)
 
 CONTRA_FORM_SET = inlineformset_factory(ContraVoucher, ContraVoucherRows,
-                                        form=ContraVoucherRowsForm, extra=3)
+                                        form=ContraVoucherRowsForm,formset=ContraVoucherRowsFormSet, extra=3)
 
 
 MULTI_JOURNAL_DR_FORM_SET = inlineformset_factory(MultiJournalVoucher, MultiJournalVoucherDrRows,

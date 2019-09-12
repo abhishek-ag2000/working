@@ -183,16 +183,30 @@
                 <li><a
                         href="{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Sales
                         Invoice</a></li>
-                <li><a
-                        href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase
-                        Invoice</a></li>
-                <li>
+                {% if company.maintain == 'Accounts with Inventory' %}
+                    <li><a
+                            href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase
+                            Invoice</a></li>
+                    <li>
+                {% else %}
+                    <li><a
+                            href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase
+                            Invoice</a></li>
+                    <li>
+                {% endif %}
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -203,10 +217,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -270,6 +291,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+            {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -284,6 +306,24 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+
+            {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -298,95 +338,114 @@
 
                     </ul>
                 </li>
-            </ul>
-        </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
+            {% else %}
                 <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
                         </li>
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
                         </li>
 
                     </ul>
                 </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
-
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
-
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
-
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-
-                    </ul>
-                </li>
+            {% endif %}
             </ul>
         </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
 
         <li class="{% if request.path == bank %}
                             active
@@ -466,6 +525,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+            {% if company.gst_enabled == 'Yes' %}
                 <li>
                     <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -490,6 +550,7 @@
 
                     </ul>
                 </li>
+            {% endif %}
                 <li>
                     <a href="#">Income Tax Reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -688,9 +749,17 @@
             <a href="#"><i class="fa fa-edit"></i> <span class="nav-label">Vouchers</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
-                <li><a
-                        href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase
-                        Invoice</a></li>
+                {% if company.maintain == 'Accounts with Inventory' %}
+                    <li><a
+                            href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase
+                            Invoice</a></li>
+                    <li>
+                {% else %}
+                    <li><a
+                            href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Purchase
+                            Invoice</a></li>
+                    <li>
+                {% endif %}
             </ul>
         </li>
         <li class="{% if request.path == purchase_create %}
@@ -705,9 +774,14 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
                         <li>
                             <a
                                 href="{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -715,6 +789,23 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -729,71 +820,113 @@
 
                     </ul>
                 </li>
-            </ul>
-        </li>
-        <li class="{% if request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
+            {% else %}
                 <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
                         </li>
-
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
                         </li>
 
                     </ul>
                 </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-
-                    </ul>
-                </li>
+            {% endif %}
             </ul>
         </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
 
         <li class="{% if request.path == bank %}
                             active
@@ -834,6 +967,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.gst_enabled == 'Yes' %}
                 <li>
                     <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -842,6 +976,7 @@
                                 href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST
                                 Overview</a>
                         </li>
+
                         <li>
                             <a
                                 href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
@@ -857,6 +992,7 @@
 
                     </ul>
                 </li>
+            {% endif %}
                 <li>
                     <a href="#">Income Tax Reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -1082,13 +1218,14 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}"><i
-                                    class="fa fa-circle-o"></i> Create</a></li>
+                                href="{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
                         <li>
                             <a
                                 href="{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -1096,9 +1233,30 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
                         <li>
                             <a
                                 href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -1106,75 +1264,113 @@
 
                     </ul>
                 </li>
-            </ul>
-        </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
+            {% else %}
                 <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
                         </li>
-
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
                         </li>
 
                     </ul>
                 </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-
-                    </ul>
-                </li>
+            {% endif %}
             </ul>
         </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
 
         <li class="{% if request.path == bank %}
                             active
@@ -1215,6 +1411,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.gst_enabled == 'Yes' %}
                 <li>
                     <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -1223,6 +1420,7 @@
                                 href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST
                                 Overview</a>
                         </li>
+
                         <li>
                             <a
                                 href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
@@ -1238,6 +1436,7 @@
 
                     </ul>
                 </li>
+            {% endif %}
                 <li>
                     <a href="#">Income Tax Reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -1442,10 +1641,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -1456,10 +1662,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -1523,11 +1736,13 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
                         <li>
-
+                            <a
+                                href="{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
                         </li>
                         <li>
                             <a
@@ -1536,11 +1751,29 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
                         <li>
-
+                            <a
+                                href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
                         </li>
                         <li>
                             <a
@@ -1549,80 +1782,113 @@
 
                     </ul>
                 </li>
-            </ul>
-        </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
+            {% else %}
                 <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
-
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
                         </li>
-
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
                         </li>
 
                     </ul>
                 </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-
-                    </ul>
-                </li>
+            {% endif %}
             </ul>
         </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
         <li class="{% if request.path == bank %}
                             active
                             {% endif %}">
@@ -1701,6 +1967,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.gst_enabled == 'Yes' %}
                 <li>
                     <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -1709,6 +1976,7 @@
                                 href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST
                                 Overview</a>
                         </li>
+
                         <li>
                             <a
                                 href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
@@ -1724,6 +1992,7 @@
 
                     </ul>
                 </li>
+            {% endif %}
                 <li>
                     <a href="#">Income Tax Reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -1958,10 +2227,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -1972,10 +2248,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -2040,6 +2323,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -2054,6 +2338,23 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -2068,96 +2369,114 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
-                <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
 
-                    </ul>
-                </li>
-            </ul>
-        </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
-
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
+        
         <li class="{% if request.path == bank %}
                             active
                             {% endif %}">
@@ -2406,10 +2725,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -2420,10 +2746,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -2487,6 +2820,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -2501,6 +2835,23 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -2515,95 +2866,113 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
-                <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
 
-                    </ul>
-                </li>
-            </ul>
-        </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
 
         <li class="{% if request.path == bank %}
                             active
@@ -2856,10 +3225,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -2870,10 +3246,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -2937,6 +3320,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -2951,6 +3335,23 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -2965,95 +3366,113 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
-                <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
 
-                    </ul>
-                </li>
-            </ul>
-        </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
 
         <li class="{% if request.path == bank %}
                             active
@@ -3241,6 +3660,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -3255,6 +3675,23 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -3269,6 +3706,22 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
 
@@ -3390,10 +3843,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                     {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -3404,10 +3864,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -3471,6 +3938,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -3485,6 +3953,22 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
 
@@ -3607,10 +4091,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -3621,10 +4112,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -3688,6 +4186,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -3702,6 +4201,22 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
 
@@ -3873,9 +4388,14 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
                         <li>
                             <a
                                 href="{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -3883,9 +4403,30 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
                         <li>
                             <a
                                 href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -3893,76 +4434,113 @@
 
                     </ul>
                 </li>
-            </ul>
-        </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
+            {% else %}
                 <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
                         </li>
-
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
                         <li>
                             <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
                         </li>
 
                     </ul>
                 </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
-
-                            </ul>
-                        </li>
-
-                    </ul>
-                </li>
+            {% endif %}
             </ul>
         </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
+
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
+
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
         <li class="{% if request.path == bank %}
                             active
                             {% endif %}">
@@ -4041,6 +4619,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.gst_enabled == 'Yes' %}
                 <li>
                     <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -4049,6 +4628,7 @@
                                 href="{% url 'gst:gstr_2A' company_pk=company.pk period_selected_pk=period_selected.pk %}">GST
                                 Overview</a>
                         </li>
+
                         <li>
                             <a
                                 href="{% url 'gst:gstr_1' company_pk=company.pk period_selected_pk=period_selected.pk %}">GSTR-1</a>
@@ -4064,6 +4644,7 @@
 
                     </ul>
                 </li>
+            {% endif %}
                 <li>
                     <a href="#">Income Tax Reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -4300,10 +4881,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -4314,10 +4902,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                   {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -4381,6 +4976,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -4395,6 +4991,23 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -4409,95 +5022,113 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
-                <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
 
-                    </ul>
-                </li>
-            </ul>
-        </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
 
         <li class="{% if request.path == bank %}
                             active
@@ -4681,6 +5312,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                <{% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -4695,6 +5327,22 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
 
@@ -4819,6 +5467,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -4833,6 +5482,22 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
 
@@ -4946,10 +5611,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -4960,10 +5632,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -5219,10 +5898,17 @@
                 <li>
                     <a href="#">Debit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -5233,10 +5919,17 @@
                 <li>
                     <a href="#">Credit Note<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
+                    {% if company.maintain == 'Accounts with Inventory' %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
                         </li>
+                    {% else %}
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:creditcreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                        </li>
+                    {% endif %}
                         <li>
                             <a
                                 href="{% url 'stock_keeping:creditlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
@@ -5300,6 +5993,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Invoice- Entry &amp; info</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Sales Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -5314,6 +6008,23 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Sales Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:salescreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
+                {% if company.maintain == 'Accounts with Inventory' %}
                 <li>
                     <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -5328,96 +6039,113 @@
 
                     </ul>
                 </li>
+            {% else %}
+                <li>
+                    <a href="#">Purchase Invoice<span class="fa arrow"></span></a>
+                    <ul class="nav nav-third-level">
+                        <li>
+                            <a
+                                href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                        </li>
+                        <li>
+                            <a
+                                href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                        </li>
+
+                    </ul>
+                </li>
+            {% endif %}
             </ul>
         </li>
-        <li class="{% if request.path == stgrp_create %}
-                            active
-                            {% elif request.path == stgrp_list %}
-                            active
-                            {% elif request.path == stitm_create %}
-                            active
-                            {% elif request.path == stitm_lst %}
-                            active
-                            {% endif %}">
-            <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
-                    class="fa arrow"></span></a>
-            <ul class="nav nav-second-level collapse">
-                <li>
-                    <a href="#">Stock Groups<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+        {% if company.maintain == 'Accounts with Inventory' %}
+            <li class="{% if request.path == stgrp_create %}
+                                active
+                                {% elif request.path == stgrp_list %}
+                                active
+                                {% elif request.path == stitm_create %}
+                                active
+                                {% elif request.path == stitm_lst %}
+                                active
+                                {% endif %}">
+                <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Stock- Entry &amp; info</span><span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a href="#">Stock Groups<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgroupcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockgrouplist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock items<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
-                        </li>
-                        <li>
-                            <a
-                                href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock items<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatacreate' company_pk=company.pk period_selected_pk=period_selected.pk %}">Create</a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'stock_keeping:stockdatalist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                            </li>
 
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
-                    <ul class="nav nav-third-level">
-                        <li>
-                            <a href="#">Simple Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Stock Units Mgt<span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="#">Simple Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplecreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:simplelist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Complex Unit<span class="fa arrow"></span></a>
-                            <ul class="nav nav-third-level">
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
-                                            class="fa arrow"></span></a>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Complex Unit<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Create<span
+                                                class="fa arrow"></span></a>
 
-                                </li>
-                                <li>
-                                    <a
-                                        href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
-                                </li>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{% url 'stock_keeping:compoundlist' company_pk=company.pk period_selected_pk=period_selected.pk  %}">Display</a>
+                                    </li>
 
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
 
-                    </ul>
-                </li>
-            </ul>
-        </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="{% if request.path == st_sumary %}
-                            active
-                            {% endif %}">
-            <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
-                    class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
-        </li>
-
+            <li class="{% if request.path == st_sumary %}
+                                active
+                                {% endif %}">
+                <a href="{% url 'stock_keeping:closingstock' company_pk=company.pk period_selected_pk=period_selected.pk %}"><i
+                        class="fa fa-pie-chart"></i> <span class="nav-label">Stock Summary</span> </a>
+            </li>
+        {% endif %}
         <li class="{% if request.path == bank %}
                             active
                             {% endif %}">
@@ -5496,6 +6224,7 @@
             <a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Tax Analysis</span><span
                     class="fa arrow"></span></a>
             <ul class="nav nav-second-level collapse">
+                {% if company.gst_enabled == 'Yes' %}
                 <li>
                     <a href="pages/tables/Purchase_Invoice.html">GST reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">
@@ -5520,6 +6249,7 @@
 
                     </ul>
                 </li>
+            {% endif %}
                 <li>
                     <a href="#">Income Tax Reports<span class="fa arrow"></span></a>
                     <ul class="nav nav-third-level">

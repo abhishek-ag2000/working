@@ -87,13 +87,15 @@ Sales Invoice
                 {% endif %}
                 {{sale_voucher.Party_ac.Address}}<br>
 
-                <abbr><strong>GSTIN/UIN:</strong></abbr>{% if sale_voucher.party_ac.gst_no %}
-                {{ sale_voucher.party_ac.gst_no }} {% endif %}
+                {% if sale_voucher.party_ac.registration_type != 'Unregistered' and sale_voucher.party_ac.registration_type != 'Consumer' %}
+                  <abbr><strong>GSTIN/UIN:</strong></abbr>{% if sale_voucher.party_ac.gst_no %}
+                  {{ sale_voucher.party_ac.gst_no }} {% endif %}
 
-                <br>
+                  <br>
 
-                <abbr><strong>PAN/IT No:</strong></abbr>{% if sale_voucher.party_ac.pan_no %}
-                {{ sale_voucher.party_ac.pan_no }} {% endif %}
+                  <abbr><strong>PAN/IT No:</strong></abbr>{% if sale_voucher.party_ac.pan_no %}
+                  {{ sale_voucher.party_ac.pan_no }} {% endif %}
+                {% endif %}
 
                 <br>
                 <strong>State</strong>: {{sale_voucher.party_ac.state.state_name }}&nbsp; <strong>Code</strong> :
@@ -140,7 +142,7 @@ Sales Invoice
                   <td>{{ forloop.counter }}</td>
                   <td><em>{{extra.ledger.ledger_name}}</em></td>
                   <td><em>{{extra.ledger.hsn_no}}</em></td>
-                  <td>{{extra.total|abs|floatformat:2|intcomma}}</td>
+                  <td>{{extra.total|floatformat:2|intcomma}}</td>
                 </tr>
                 {% endif %}
                 {% endfor %}
@@ -157,27 +159,27 @@ Sales Invoice
               <table class="table invoice-total">
                 <tbody>
                   <tr>
-                    <td><strong>Sub total For Goods(&#8377;) :</strong></td>
-                    <td>{{sale_voucher.sub_total|abs|floatformat:2|intcomma}}</td>
+                    <td><strong>Sub total :</strong></td>
+                    <td>{{sale_voucher.sub_total|floatformat:2|intcomma}}</td>
                   </tr>
                   {% if sale_voucher.tax_total != 0 %}
                   <tr>
                     <td><strong>Tax(&#8377;) :</strong></td>
-                    <td>{{sale_voucher.tax_total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{sale_voucher.tax_total|floatformat:2|intcomma}}</td>
                   </tr>
                   {% else %}
                   {% for tax in extra_gst_sale %}
                   {% if tax.total != 0 %}
                   <tr>
                     <td><strong>{{ tax.ledger.ledger_name }}(&#8377;) :</strong></td>
-                    <td>{{tax.total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{tax.total|floatformat:2|intcomma}}</td>
                   </tr>
                   {% endif %}
                   {% endfor %}
                   {% endif %}
                   <tr>
                     <td><strong>total(&#8377;) :</strong></td>
-                    <td>{{sale_voucher.total|abs|floatformat:2|intcomma}}</td>
+                    <td>{{total|floatformat:2|intcomma}}</td>
                   </tr>
                 </tbody>
               </table>

@@ -17,12 +17,10 @@
             </li>
         </ol>
         <br>
-        {% if profile_details.user_type == 'Bussiness User' or profile_details.user_type == 'Data Operators' %}
-        <a href="{% url 'user_profile:ProfessionalVerify' %}" id="mousehvr" class="btn btn-warning" role="button">Upgrade<span
-                onmouseover="Upgrade to professional" class="glyphicon glyphicon-info-sign"></span>
-
-        </a>
+        {% if not profile_details.user_type == 'Professional' %}
+        <a href="{% url 'user_profile:pro_request_list' %}" class="btn btn-warning" role="button">Upgrade to Professional</a>
         {% else %}
+        <a href="{% url 'user_profile:pro_request_list' %}" class="btn btn-success" role="button">Professional Request</a>
         <a href="{% url 'user_profile:service_create' %}" class="btn btn-warning" role="button">Create Services </a>
         <a href="{% url 'user_profile:case_create' %}" class="btn btn-warning" role="button">Create Achievements</a>
         {% endif %}
@@ -49,7 +47,7 @@
                 {% if profile_details.image %}
                 <img src="{{ profile_details.image.url }}/" class="rounded-circle circle-border m-b-md" alt="profile">
                 {% else %}
-                <img src="{% static 'userprofile/download (1).jpg' %}" class="rounded-circle circle-border m-b-md"
+                <img src="{% static 'user_profile/download.jpg' %}" class="rounded-circle circle-border m-b-md"
                     alt="profile">
                 {% endif %}
             </div>
@@ -186,25 +184,25 @@
                             {% for consultancy in consultancy_user %}
                             <div class="feed-element">
                                 <a href="#" class="float-left">
-                                    {% if consultancy.User.profile.image %}
+                                    {% if consultancy.user.profile.image %}
                                     <img alt="image" class="rounded-circle"
-                                        src="{{ consultancy.User.profile.image.url }}/">
+                                        src="{{ consultancy.user.profile.image.url }}/">
                                     {% else %}
                                     <img alt="image" class="rounded-circle"
-                                        src="{% static 'userprofile/download (1).jpg' %}">
+                                        src="{% static 'user_profile/download.jpg' %}">
                                     {% endif %}
                                 </a>
                                 <div class="media-body ">
 
-                                    <strong>{{ consultancy.User }}</strong> Asked a query
+                                    <strong>{{ consultancy.user }}</strong> Asked a query
                                     <small
-                                        class="text-muted">{{ consultancy.Date|date:'h' }}:{{ consultancy.Date|date:'i' }}
-                                        {{ consultancy.Date|date:'A' }} - {{ consultancy.Date|timesince }} ago</small>
+                                        class="text-muted">{{ consultancy.date|date:'h' }}:{{ consultancy.date|date:'i' }}
+                                        {{ consultancy.date|date:'A' }} - {{ consultancy.date|timesince }} ago</small>
                                     <div class="well">
-                                        {{ consultancy.Questions }}
+                                        {{ consultancy.question }}
                                     </div>
                                     <div class="float-right">
-                                        <a href="{% url 'consultancy:consultancydetail' pk=consultancy.pk %}"
+                                        <a href="{% url 'consultancy:consultancydetail' consultancy_pk=consultancy.pk %}"
                                             class="btn btn-xs btn-primary">View Query</a>
 
                                     </div>
@@ -215,27 +213,27 @@
                             {% for blog in blog_user %}
                             <div class="feed-element">
                                 <a href="#" class="float-left">
-                                    {% if blog.User.profile.image %}
-                                    <img alt="image" class="rounded-circle" src="{{ blog.User.profile.image.url }}/">
+                                    {% if blog.user.profile.image %}
+                                    <img alt="image" class="rounded-circle" src="{{ blog.user.profile.image.url }}/">
                                     {% else %}
                                     <img alt="image" class="rounded-circle"
-                                        src="{% static 'userprofile/download (1).jpg' %}">
+                                        src="{% static 'user_profile/download.jpg' %}">
                                     {% endif %}
                                 </a>
                                 <div class="media-body ">
-                                    <small class="float-right">{{ blog.Date|timesince}} ago</small>
+                                    <small class="float-right">{{ blog.date|timesince}} ago</small>
                                     <strong>{{ blog.User }}</strong> Posted a blog <br>
-                                    <small class="text-muted">At {{ blog.Date|date:'h' }}:{{ blog.Date|date:'i' }}
-                                        {{ blog.Date|date:'A' }}</small>
+                                    <small class="text-muted">At {{ blog.date|date:'h' }}:{{ blog.date|date:'i' }}
+                                        {{ blog.date|date:'A' }}</small>
                                     <div class="photos">
-                                        <h3><strong>{{ blog.Blog_title }}</strong></h3>
-                                        {% if blog.Blog_image %}
-                                        <img alt="image" src="{{ blog.Blog_image.url }}/" height="150" width="350">
+                                        <h3><strong>{{ blog.blog_title }}</strong></h3>
+                                        {% if blog.blog_image %}
+                                        <img alt="image" src="{{ blog.blog_image.url }}/" height="150" width="350">
                                         {% endif %}
-                                        <p>{{ blog.Description|safe|truncatewords:"30"|linebreaks}}</p>
+                                        <p>{{ blog.description|safe|truncatewords:"30"|linebreaks}}</p>
                                     </div>
                                     <div class="float-right">
-                                        <a href="{% url 'blog:blogdetail' pk=blog.pk %}"
+                                        <a href="{% url 'blog:blogdetail' blog_pk=blog.pk %}"
                                             class="btn btn-xs btn-primary">Read More</a>
 
                                     </div>
@@ -340,6 +338,13 @@
     </div>
 
 </div>
+{% endblock %}
 
-
+{% block script %}
+<script>
+$('a[data-toggle="tooltip"]').tooltip({
+    animated: 'fade',
+    placement: 'bottom',
+});
+</script>
 {% endblock %}

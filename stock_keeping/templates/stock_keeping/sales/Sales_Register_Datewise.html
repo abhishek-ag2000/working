@@ -104,6 +104,29 @@
                                 </tr>
                                 {% endfor %}
 
+                                {% for s in result_accounts %}
+                                <tr>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:salesdetail' sales_pk=s.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ s.voucher_date }}</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:salesdetail' sales_pk=s.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ s.party_ac }}</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:salesdetail' sales_pk=s.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">Sales</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:salesdetail' sales_pk=s.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ s.id }}</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:salesdetail' sales_pk=s.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">{{ s.total }}</a>
+                                    </td>
+                                    <td><a
+                                            href="{% url 'accounts_mode_voucher:salesdetail' sales_pk=s.pk company_pk=company.pk period_selected_pk=period_selected.pk %}"></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
                             </tbody>
 
                             <tfoot>
@@ -112,7 +135,7 @@
                                     <td></td>
                                     <th>Grand Total</th>
                                     <th></th>
-                                    <th>{{ total_purchase }}</th>
+                                    <th>{{ total_sales }}</th>
                                     <td></td>
                                 </tr>
                             </tfoot>

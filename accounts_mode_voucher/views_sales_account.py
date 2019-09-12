@@ -4,6 +4,7 @@ Views for Sale Voucher
 import calendar
 import collections
 import dateutil
+from itertools import zip_longest
 from num2words import num2words
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
@@ -19,6 +20,7 @@ from messaging.models import Message
 from ecommerce_integration.decorators import product_1_activation
 from accounting_entry.models import PeriodSelected
 from accounting_entry.mixins import ProductExistsRequiredMixin
+from stock_keeping.models_sale import SaleVoucher
 from .models_sale_accounts import SaleVoucherAccounts, SaleTermAccounts, SaleTaxAccounts
 from .forms_sale_accounts import SaleAccountsForm, SALE_TERM_FORM_SET, SALE_TAX_FORM_SET
 
@@ -44,7 +46,10 @@ class SalesListAccountsView(ProductExistsRequiredMixin, LoginRequiredMixin, List
         period_selected = get_object_or_404(
             PeriodSelected, pk=self.kwargs['period_selected_pk'])
         context['period_selected'] = period_selected
-        context['sales_list'] = self.get_queryset()
+
+        context['sales_accounts_list'] = SaleVoucherAccounts.objects.filter(company=self.kwargs['company_pk'], voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).order_by('-voucher_date')
+        context['sales_inventory_list'] = SaleVoucher.objects.filter(company=self.kwargs['company_pk'], voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).order_by('-voucher_date')
+
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -95,6 +100,7 @@ class SalesDetailsView(ProductExistsRequiredMixin, UserPassesTestMixin, LoginReq
             if g.ledger != None:
                 g.save()
                 g.ledger.save()
+                sale_voucher.save()
 
         context['extra_charge_sale_total'] = extra_charge_sale.aggregate(
             the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
@@ -108,7 +114,7 @@ class SalesDetailsView(ProductExistsRequiredMixin, UserPassesTestMixin, LoginReq
                 g.save()
                 g.ledger.save()
                 
-            # saving the party ledger
+        # saving the party ledger
         sale_voucher.party_ac.save()
         # saving the party ledger group
         sale_voucher.party_ac.ledger_group.save()
@@ -122,10 +128,22 @@ class SalesDetailsView(ProductExistsRequiredMixin, UserPassesTestMixin, LoginReq
         extra_gst_sales_integrated = SaleTaxAccounts.objects.filter(
             sale_voucher=sale_voucher.pk, ledger__tax_type='Integrated Tax').count()
 
+        tax_invoice_total = sale_voucher.sale_voucher_tax_accounts.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        extra_total = sale_voucher.sale_voucher_term_accounts.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+
+        if tax_invoice_total or extra_total:
+            total = tax_invoice_total + extra_total
+
+        sale_voucher.total = total
+        sale_voucher.save()
+
         context['extra_gst_sales_central'] = extra_gst_sales_central
         context['extra_gst_sales_state'] = extra_gst_sales_state
         context['extra_gst_sales_integrated'] = extra_gst_sales_integrated
         context['in_word'] = num2words(sale_voucher.total, lang='en_IN')
+        context['total'] = total
         context['extra_charge_sales'] = extra_charge_sale
         context['extra_gst_sale'] = extra_gst_sale
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
@@ -170,11 +188,12 @@ class SalesCreateView(ProductExistsRequiredMixin, LoginRequiredMixin, CreateView
             extra_charges.instance = self.object
             extra_charges.save()
 
-            extra_gst = context['extra_gst'] 
-            self.object = form.save()
-            if extra_gst.is_valid():
-                extra_gst.instance = self.object
-                extra_gst.save()
+            if company.gst_enabled == 'Yes':
+                extra_gst = context['extra_gst'] 
+                self.object = form.save()
+                if extra_gst.is_valid():
+                    extra_gst.instance = self.object
+                    extra_gst.save()
 
         return super(SalesCreateView, self).form_valid(form)
 
@@ -197,13 +216,15 @@ class SalesCreateView(ProductExistsRequiredMixin, LoginRequiredMixin, CreateView
         if self.request.POST:
             context['extra_charges'] = SALE_TERM_FORM_SET(
                 self.request.POST, form_kwargs={'company': company.pk})
-            context['extra_gst'] = SALE_TAX_FORM_SET(
-                self.request.POST, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = SALE_TAX_FORM_SET(
+                    self.request.POST, form_kwargs={'company': company.pk})
         else:
             context['extra_charges'] = SALE_TERM_FORM_SET(
                 form_kwargs={'company': company.pk})
-            context['extra_gst'] = SALE_TAX_FORM_SET(
-                form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = SALE_TAX_FORM_SET(
+                    form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -219,7 +240,7 @@ class SalesUpdateView(ProductExistsRequiredMixin, UserPassesTestMixin, LoginRequ
     """
     model = SaleVoucherAccounts
     form_class = SaleAccountsForm
-    template_name = 'accounts_mode_voucher/sales/sales_form.html'
+    template_name = 'sales/sales_form.html'
 
     def get_success_url(self, **kwargs):
         company = get_object_or_404(Company, pk=self.kwargs['company_pk'])
@@ -253,14 +274,16 @@ class SalesUpdateView(ProductExistsRequiredMixin, UserPassesTestMixin, LoginRequ
             #context['stocksales'] = SaleStockFormSet(self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
             context['extra_charges'] = SALE_TERM_FORM_SET(
                 self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
-            context['extra_gst'] = SALE_TAX_FORM_SET(
-                self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = SALE_TAX_FORM_SET(
+                    self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
         else:
             #context['stocksales'] = SaleStockFormSet(instance=sales_particular, form_kwargs={'company': company.pk})
             context['extra_charges'] = SALE_TERM_FORM_SET(
                 instance=sales_particular, form_kwargs={'company': company.pk})
-            context['extra_gst'] = SALE_TAX_FORM_SET(
-                instance=sales_particular, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = SALE_TAX_FORM_SET(
+                    instance=sales_particular, form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -284,9 +307,10 @@ class SalesUpdateView(ProductExistsRequiredMixin, UserPassesTestMixin, LoginRequ
         with transaction.atomic():
             extra_charges.save()
 
-            extra_gst = context['extra_gst'] # TODO: this formset should be validated as stocksales formset
-            if extra_gst.is_valid():
-                extra_gst.save()
+            if company.gst_enabled == 'Yes':
+                extra_gst = context['extra_gst'] # TODO: this formset should be validated as stocksales formset
+                if extra_gst.is_valid():
+                    extra_gst.save()
 
         return super(SalesUpdateView, self).form_valid(form)
 

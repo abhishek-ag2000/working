@@ -73,21 +73,21 @@
                                   </tr>
                                 {% endif %}
 
-                                {% if stockgroup_details.taxability != 'Unknown' %}
+                                {% if stockgroup_details.taxability and stockgroup_details.taxability != 'Unknown' %}
                                   <tr>
                                     <th>Taxability</th>
                                     <th>{{ stockgroup_details.taxability }}</th>
                                   </tr>
                                 {% endif %}
 
-                                {% if stockgroup_details.reverse_charge != 'No' %}
+                                {% if stockgroup_details.reverse_charge and stockgroup_details.reverse_charge != 'No' %}
                                   <tr>
                                     <th>Is reverse charge applicable?</th>
                                     <th>{{ stockgroup_details.reverse_charge }}</th>
                                   </tr>
                                 {% endif %}
 
-                                {% if stockgroup_details.input_credit != 'No' %}
+                                {% if stockgroup_details.input_credit and stockgroup_details.input_credit != 'No' %}
                                   <tr>
                                     <th>Is ineligible for input credit?</th>
                                     <th>{{ stockgroup_details.input_credit }}</th>

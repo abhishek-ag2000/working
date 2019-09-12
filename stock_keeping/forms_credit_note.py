@@ -44,8 +44,7 @@ class CreditNoteForm(forms.ModelForm):
             Q(company=self.company),
             Q(ledger_group__group_base__name__exact='Sundry Debtors') |
             Q(ledger_group__group_base__name__exact='Bank Accounts') |
-            Q(ledger_group__group_base__name__exact='Cash-in-Hand') |
-            Q(ledger_group__group_base__name__exact='Sundry Creditors'))
+            Q(ledger_group__group_base__name__exact='Cash-in-Hand'))
         self.fields['party_ac'].widget.attrs = {
             'class': 'select2_demo_2 form-control', }
         self.fields['doc_ledger'].queryset = LedgerMaster.objects.filter(
@@ -166,6 +165,21 @@ class CreditNoteForm(forms.ModelForm):
                 "This nature of transaction in not valid for the given Place of Supply")
         return supply_place
 
+    def clean_ref_no(self):
+        """
+        Clean function to raise Validation Error if Invoice Number already exist in a company.
+        """
+        ref_no = self.cleaned_data['ref_no']
+        master_id = 0
+
+        if self.instance:
+            # master id is used to exclude current master so that it is not checked as duplicate
+            master_id = self.instance.id
+
+        if CreditNoteVoucher.objects.filter(company=self.company, ref_no__iexact=ref_no).exclude(id=master_id).exists():
+            raise forms.ValidationError("This Invoice Number already exists")
+        return ref_no
+
 
 class CreditNoteStockForm(forms.ModelForm):
     """
@@ -182,11 +196,11 @@ class CreditNoteStockForm(forms.ModelForm):
         self.fields['stock_item'].queryset = StockItem.objects.filter(
             company=self.company)
         self.fields['stock_item'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', }
+            'class': 'select2_demo_2 form-control', 'onchange': 'stock_based_value(this)'}
         self.fields['quantity'].widget.attrs = {'class': 'form-control', 'onchange': 'calcProductTotal(this)'}
         self.fields['rate'].widget.attrs = {
             'class': 'form-control', 'onchange': 'calcProductTotal(this)','step': 'any'}
-        self.fields['disc'].widget.attrs = {'class': 'form-control', 'onchange': 'calcProductTotal(this)'}
+        self.fields['disc'].widget.attrs = {'class': 'form-control','step': 'any', 'onchange': 'calcProductTotal(this)'}
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'onchange': 'calcProductRate(this)','step': 'any'}
 
@@ -210,9 +224,9 @@ class CreditNoteTermForm(forms.ModelForm):
             Q(company=self.company),
             Q(ledger_group__group_base__is_revenue__exact='Yes'))
         self.fields['ledger'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', }
+            'class': 'select2_demo_2 form-control', 'onchange': 'additional_ledger_value(this)'}
         self.fields['rate'].widget.attrs = {
-            'class': 'form-control', 'step': 'any'}
+            'class': 'form-control', 'step': 'any','onchange': 'additional_ledger_changed_rate(this)',}
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
 
@@ -236,7 +250,7 @@ class CreditNoteTaxForm(forms.ModelForm):
             Q(company=self.company),
             Q(ledger_group__group_base__name__exact='Duties & Taxes'))
         self.fields['ledger'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', }
+            'class': 'select2_demo_2 form-control', 'onchange': 'additional_gst_value(this)',}
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
 

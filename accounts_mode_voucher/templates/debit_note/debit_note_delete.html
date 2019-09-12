@@ -1,0 +1,74 @@
+{% extends "clouderp/base.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Delete Debit Note{% endblock %}
+
+{% block content %}
+
+            {% include "snippet_shortcut/shortcut_snippet.html" %}
+
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h3>Debit Note</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        
+                        <a href="{% url 'company:list' %}">Company list</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}">Debit Note List</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <a href="{% url 'accounts_mode_voucher:debitdetail' debit_note_pk=debitnoteaccountsvoucher.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">Debit Note Details</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Delete Debit Note</strong>
+                    </li>
+                </ol>
+           <br>
+                <a href="{% url 'stock_keeping:debitlist' company_pk=company.pk period_selected_pk=period_selected.pk %}" class="btn btn-success" role="button">Select Debit Note</a>
+          
+                <a href="{% url 'accounts_mode_voucher:debitcreate' company_pk=company.pk period_selected_pk=period_selected.pk  %}" class="btn btn-warning" role="button">Create Debit Note</a>
+           
+                </div>
+            </div>
+
+
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <h1>
+                              <strong>Delete {{ debitnoteaccountsvoucher.party_ac }}?</strong>
+                            </h1>
+                        <form method="post">
+                          {% csrf_token %}
+
+                          <input type="submit" class="btn btn-danger" value="Delete">
+                          <a class='btn btn-default' href="{% url 'accounts_mode_voucher:debitdetail' debit_note_pk=debitnoteaccountsvoucher.pk company_pk=company.pk period_selected_pk=period_selected.pk %}">Cancel</a>
+
+                        </form>
+                        
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+{% endblock %}

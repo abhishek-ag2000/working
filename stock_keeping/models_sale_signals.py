@@ -24,44 +24,44 @@ def update_total_tax_sales(sender, instance, *args, **kwargs):
         instance.tax_total = total_tax_stock + total_tax_term
 
 
-@receiver(pre_save, sender=SaleVoucher)
-@prevent_signal_call_on_bulk_load
-def update_total_sales(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the sub total of every goods in a particular voucher
-    """
-    total_goods = instance.sale_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
-    if total_goods:
-        instance.sub_total = total_goods
+# @receiver(pre_save, sender=SaleVoucher)
+# @prevent_signal_call_on_bulk_load
+# def update_total_sales(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the sub total of every goods in a particular voucher
+#     """
+#     total_goods = instance.sale_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+#     if total_goods:
+#         instance.sub_total = total_goods
 
 
-@receiver(pre_save, sender=SaleVoucher)
-@prevent_signal_call_on_bulk_load
-def update_totalgst_sales(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the GST totals of a particular voucher
-    """
-    total_cgst_stock = instance.sale_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
-    total_sgst_stock = instance.sale_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
-    total_igst_stock = instance.sale_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+# @receiver(pre_save, sender=SaleVoucher)
+# @prevent_signal_call_on_bulk_load
+# def update_totalgst_sales(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the GST totals of a particular voucher
+#     """
+#     total_cgst_stock = instance.sale_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+#     total_sgst_stock = instance.sale_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+#     total_igst_stock = instance.sale_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
 
-    total_cgst_extra = instance.sale_voucher_term.aggregate(
-        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
-    total_sgst_extra = instance.sale_voucher_term.aggregate(
-        the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
-    total_igst_extra = instance.sale_voucher_term.aggregate(
-        the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+#     total_cgst_extra = instance.sale_voucher_term.aggregate(
+#         the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+#     total_sgst_extra = instance.sale_voucher_term.aggregate(
+#         the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+#     total_igst_extra = instance.sale_voucher_term.aggregate(
+#         the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
 
-    if total_cgst_extra or total_cgst_stock:
-        instance.cgst_total = total_cgst_stock + total_cgst_extra
-    if total_sgst_extra or total_sgst_stock:
-        instance.sgst_total = total_sgst_stock + total_sgst_extra
-    if total_igst_stock or total_igst_extra:
-        instance.igst_total = total_igst_stock + total_igst_extra
+#     if total_cgst_extra or total_cgst_stock:
+#         instance.cgst_total = total_cgst_stock + total_cgst_extra
+#     if total_sgst_extra or total_sgst_stock:
+#         instance.sgst_total = total_sgst_stock + total_sgst_extra
+#     if total_igst_stock or total_igst_extra:
+#         instance.igst_total = total_igst_stock + total_igst_extra
 
 
 # @receiver(pre_save, sender=SaleVoucher)
@@ -81,19 +81,20 @@ def user_created_sales(sender, instance, created, **kwargs):
     """
     c = JournalVoucher.objects.filter(
         user=instance.user, company=instance.company).count() + 1
-    JournalVoucher.objects.update_or_create(
-        voucher_id=instance.id,
-        voucher_type="Sales",
-        url_hash=instance.url_hash,
-        defaults={
-            'counter': c,
-            'user': instance.user,
-            'company': instance.company,
-            'voucher_date': instance.voucher_date,
-            'dr_ledger': instance.party_ac,
-            'cr_ledger': instance.doc_ledger,
-            'amount': instance.sub_total}
-    )
+    if instance.doc_ledger:
+        JournalVoucher.objects.update_or_create(
+            voucher_id=instance.id,
+            voucher_type="Sales",
+            url_hash=instance.url_hash,
+            defaults={
+                'counter': c,
+                'user': instance.user,
+                'company': instance.company,
+                'voucher_date': instance.voucher_date,
+                'dr_ledger': instance.party_ac,
+                'cr_ledger': instance.doc_ledger,
+                'amount': instance.sub_total}
+        )
 
 
 @receiver(post_save, sender=SaleTerm)
@@ -182,8 +183,9 @@ def delete_related_party_ledger_sales(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=SaleVoucher)
 def delete_related_sales_ledger(sender, instance, **kwargs):
-    instance.doc_ledger.save()
-    instance.doc_ledger.ledger_group.save()
+    if instance.doc_ledger:
+        instance.doc_ledger.save()
+        instance.doc_ledger.ledger_group.save()
 
 
 @receiver(post_delete, sender=SaleVoucher)

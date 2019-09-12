@@ -6,34 +6,31 @@
 
 {% block content %}
 
-            {% include "snippet_shortcut/shortcut_snippet.html" %}
+{% include "snippet_shortcut/shortcut_snippet.html" %}
 
-            <div class="row wrapper border-bottom white-bg page-heading">
-                <div class="col-lg-12">
-                    <h3>Trial Balance</h3>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        
-                        <a href="{% url 'company:list' %}">Company list</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Trial Balance</strong>
-                    </li>
-                </ol>
-           <br>
-                <a href="{% url 'accounting_entry:PandLcond' company_pk=company.pk period_selected_pk=period_selected.pk %}" class="btn btn-success" role="button">Profit & Loss Overview</a>
-          
-                <a href="{% url 'accounting_entry:blsht' company_pk=company.pk period_selected_pk=period_selected.pk %}" class="btn btn-warning" role="button">Balance Sheet Overview</a>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-12">
+    <h3>Trial Balance</h3>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+      </li>
+      <li class="breadcrumb-item">
 
-                <a href="{% url 'stock_keeping:trialbal' company_pk=company.pk period_selected_pk=period_selected.pk  %}" class="btn btn-warning" role="button">Trial Balance Expanded View</a>
+        <a href="{% url 'company:list' %}">Company list</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a
+          href="{% url 'company:Dashboard' company_pk=company.pk period_selected_pk=period_selected.pk %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Trial Balance</strong>
+      </li>
+    </ol>
+    <br>
 
-      <button class="btn btn-info show-form-update pull-right"
+
+    <button class="btn btn-info show-form-update pull-right"
       data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
       <span class="glyphicon glyphicon-pencil"></span>
       Update Period
@@ -45,369 +42,199 @@
       <strong>To</strong>
       {{ period_selected.end_date|date }} &nbsp;
     </a>
-           
-                </div>
-            </div>
 
-        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
-
-
-
-            
-            
-                <div class="row">
-                <div class="col-lg-12">
-                    <div class="ibox">
-                    <div id="printableArea">
-                      <div class="ibox-title">
-                            <h2><center><strong>Trial Balance</strong></center></h2>
-                        </div>
-                        <div class="ibox-content">
-
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered table-hover" data-page-size="15" id="book-table">
-                                <thead>
-
-                                <tr>
-                                <th></th>
-                                  <th colspan="2"><center>Opening Balance:</center></th>
-                   
-                                  <th colspan="2"><center>Closing Balance:</center></th>
-                                </tr>
-
-                                <tr>
-
-                                 <th><center>Particulars</center></th>
-                                 <th>Debit</th>
-                                  <th>Credit</th>
-                                  <th>Debit</th>
-                                   <th>Credit</th> 
-                                    
-                                </tr>
-                                </thead>
-                               
-
-                            <tbody>   
-
-                                    {% for group in groups_list %}
-
-                                      {% if group.group_name == 'Current Assets' %}
-                                        {% if group.positive_closing != 0 or group.negative_closing != 0 or qo2 != 0 %}
-                                          {% if group.positive_closing != None or group.negative_closing != None %}
-                                            
-                                              <tr>
-                                                <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                                {% if group.positive_opening == 0 %}
-                                                  {% if qo2 >= 0 %}
-                                                  <th>{{ qo2|abs|floatformat:2|intcomma }}</th>
-                                                  {% else %}
-                                                    <th></th>
-                                                  {% endif %}
-                                                {% else %}
-                                                {% if qo2 >= 0 %}
-                                                  <th>{{ group.positive_opening|add:qo2|abs|floatformat:2|intcomma }}</th>
-                                                {% else %}
-                                                  <th>{{ group.positive_opening|abs|floatformat:2|intcomma }}</th>
-                                                {% endif %}
-                                                {% endif %}
-
-                                                {% if group.negative_opening == 0 %}
-                                                  {% if qo2 < 0 %}
-                                                    <th>{{ qo2|abs|floatformat:2|intcomma }}</th>
-                                                    {% else %}
-                                                      <th></th>
-                                                    {% endif %}
-                                                {% else %}
-                                                  {% if qo2 < 0 %}
-                                                    <th>{{ group.negative_opening|add:qo2|abs|floatformat:2|intcomma }}</th>
-                                                  {% else %}
-                                                      <th>{{ group.negative_opening|abs|floatformat:2|intcomma }}</th>
-                                                  {% endif %}
-                                                {% endif %}
-
-                                                {% if group.positive_closing == 0 %}
-                                                  {% if qo2 >= 0 %}
-                                                    <th>{{ qo2|abs|floatformat:2|intcomma }}</th>
-                                                  {% else %}
-                                                    <th></th>
-                                                  {% endif %}
-                                                  
-                                                {% else %}
-                                                  {% if qo2 >= 0 %}
-                                                    <th>{{ group.positive_closing|add:qo2|abs|floatformat:2|intcomma }}</th>
-                                                  {% else %}
-                                                    <th>{{ group.positive_closing|abs|floatformat:2|intcomma }}</th>
-                                                  {% endif %}
-                                                {% endif %}
-
-                                                {% if group.negative_closing == 0 %}
-                                                  {% if qo2 < 0 %}
-                                                    <th>{{ qo2|abs|floatformat:2|intcomma }}</th>
-                                                  {% else %}
-                                                    <th></th>
-                                                  {% endif %}
-                                                {% else %}
-                                                  {% if qo2 < 0 %}
-                                                    <th>{{ group.negative_closing|add:qo2|abs|floatformat:2|intcomma }}</th>
-                                                  {% else %}
-                                                    <th>{{ group.negative_closing|abs|floatformat:2|intcomma }}</th>
-                                                  {% endif %}
-                                                {% endif %}
-                                              </tr>
-                                          {% endif %}
-                                        {% endif %}
-                                      {% else %}
-                                        {% if group.positive_closing != 0 or group.negative_closing != 0 %}
-                                          {% if group.positive_closing != None or group.negative_closing != None %}
-                                            
-                                              <tr>
-                                                <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                                {% if group.positive_opening == 0 %}
-                                                  <th></th>
-                                                {% else %}
-                                                  <th>{{ group.positive_opening|abs|floatformat:2|intcomma }}</th>
-                                                {% endif %}
-                                                {% if group.negative_opening == 0 %}
-                                                  <th></th>
-                                                {% else %}
-                                                  <th>{{ group.negative_opening|abs|floatformat:2|intcomma }}</th>
-                                                {% endif %}
-
-                                                {% if group.positive_closing == 0 %}
-                                                  <th></th>
-                                                {% else %}
-                                                  <th>{{ group.positive_closing|abs|floatformat:2|intcomma }}</th>
-                                                {% endif %}
-
-                                                {% if group.negative_closing == 0 %}
-                                                  <th></th>
-                                                {% else %}
-                                                  <th>{{ group.negative_closing|abs|floatformat:2|intcomma }}</th>
-                                                {% endif %}
-                                              </tr>
-                                          {% endif %}
-                                        {% endif %}
-                                      {% endif %}
-                                      
-                                      
-                                    
-                                    {% endfor %}
-
-                                      {% if gs_purchase_total != 0 %}
-                                        {% for group in gs_purchase %}
-                                          <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                            {% if group.positive_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <td>{{ group.positive_opening|abs|floatformat:2|intcomma }}</td>
-                                            {% endif %}
-                                            {% if group.negative_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <td>{{ group.negative_opening|abs|floatformat:2|intcomma }}</td>
-                                            {% endif %}
-                                            <th>{{ gs_purchase_total|abs|floatformat:2|intcomma }}</th>
-                                            <th></th>
-                                          </tr>
-                                            
-                                        {% endfor %}
-                                      {% endif %}
-
-                                      {% if gs_sales_total != 0 %}
-                                        {% for group in gs_sales %}
-                                          <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                            {% if group.positive_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <td>{{ group.positive_opening|abs|floatformat:2|intcomma }}</td>
-                                            {% endif %}
-                                            {% if group.negative_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <td>{{ group.negative_opening|abs|floatformat:2|intcomma }}</td>
-                                            {% endif %}
-                                            <td></td>
-                                            <th>{{ gs_sales_total|abs|floatformat:2|intcomma }}</th>
-                                          </tr>
-
-                                          
-                                        {% endfor %}
-                                      {% endif %}
-
-                                      {% if gs_directexp_total != 0 %}
-                                        {% for group in gs_directexp %}
-                                          <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                            {% if group.positive_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.positive_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            {% if group.negative_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.negative_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            <th>{{ gs_directexp_total|abs|floatformat:2|intcomma }}</th>
-                                            <th></th>
-                                            
-                                          </tr>
-
-                                        
-                                        {% endfor %}
-                                      {% endif %}
-
-                                      {% if gs_directinc_total != 0 %}
-                                        {% for group in gs_directinc %}
-                                          <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                            {% if group.positive_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.positive_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            {% if group.negative_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.negative_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            <td></td>
-                                            <th>{{ gs_directinc_total|abs|floatformat:2|intcomma }}</th>
-                                          </tr>
-                                          
-                                        {% endfor %}
-                                      {% endif %}
-
-                                      {% if gs_indirectexp_total != 0 %}
-                                        {% for group in gs_indirectexp %}
-                                          <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                            {% if group.positive_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.positive_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            {% if group.negative_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.negative_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            <th>{{ gs_indirectexp_total|abs|floatformat:2|intcomma }}</th>
-                                            <td></td>
-                                          </tr>
-                                          
-                                        {% endfor %}
-                                      {% endif %}
-
-                                      {% if gs_indirectinc_total != 0 %}
-                                        {% for group in gs_indirectinc %}
-                                          <tr>
-                                            <th><center><a href="{% url 'accounting_entry:groupdetailsummary' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.group_name}}</a></center></th>
-                                             {% if group.positive_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.positive_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            {% if group.negative_opening == 0 %}
-                                              <th></th>
-                                            {% else %}
-                                              <th>{{ group.negative_opening|abs|floatformat:2|intcomma }}</th>
-                                            {% endif %}
-                                            <td></td>
-                                            <th>{{ gs_indirectinc_total|abs|floatformat:2|intcomma }}</th>
-                                          </tr>
-
-                                          
-                                        {% endfor %}
-                                      {% endif %}
-
-                                          {% if ledger_pl_closing != 0 %}
-                                            <tr>
-                                              <th><center><a href="{% url 'accounting_entry:ledgerdetailmonthly_2' company_pk=company.pk ledger_master_pk=ledger_pl.pk period_selected_pk=period_selected.pk %}"><em>{{ ledger_pl.name }}</em></a></center></th>
-                                              {% if ledger_pl_closing < 0 %}
-                                                <td>{{ ledger_pl_closing|abs|floatformat:2|intcomma }}</td>
-                                                <td></td>
-                                              {% else %}
-                                                <td></td>
-                                                <td>{{ ledger_pl_closing|abs|floatformat:2|intcomma }}</td>
-                                              {% endif %}
-                                              {% if ledger_pl_closing < 0 %}
-                                                <td>{{ ledger_pl_closing|abs|floatformat:2|intcomma }}</td>
-                                                <td></td>
-                                              {% else %}
-                                                <td></td>
-                                                <td>{{ ledger_pl_closing|abs|floatformat:2|intcomma }}</td>
-                                              {% endif %}
-                                            </tr>
-                                          {% endif %}
-
-
-
-                                           <tr>
-                                            <th><center>Difference in Opening Balance</center></th> 
-                                            {% if gs_deb_opening > gs_cre_opening %}
-                                              <th></th>  
-                                              <th>{{ dif_ob|abs|floatformat:2|intcomma }}</th>
-                                            {% else %}
-                                              <th>{{ dif_ob|abs|floatformat:2|intcomma }}</th>  
-                                              <th></th>
-                                            {% endif %}
-                                            {% if gs_debit > gs_credit %}
-                                              <th></th>
-                                              <th>{{ difference_ob|abs|floatformat:2|intcomma }}</th>
-                                            {% else %}
-                                              <th>{{ difference_ob|abs|floatformat:2|intcomma }}</th>
-                                              <th></th>
-                                            {% endif %} 
-                                          </tr>
-
-
-                                      <tr>
-                                      <th><center>Grand Total</center></th>
-                                      <th>{{ total_deb|abs|floatformat:2|intcomma }}</th>
-                                      <th>{{ total_ceb|abs|floatformat:2|intcomma }}</th>
-                                      <th>{{ total_debit|abs|floatformat:2|intcomma }}</th>
-                                      <th>{{ total_credit|abs|floatformat:2|intcomma }}</th>
-                                      </tr>
-                    
-
-                                </tbody>
-
-                            </table>
-                            
-
-                        </div>
-
-                        </div>
-                        </div>
-                        <div class="ibox-content">
-                          <input class='btn btn-info' type="button" onclick="printDiv('printableArea')" value="Print" />
-                        </div>
-                    
-                </div>
-            </div>
-            </div>
-
-        </div>
-
-<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content animated flipInY"></div>
+  </div>
 </div>
 
-<script type="text/javascript">
-  
-  function printDiv(divName) {
-     var printContents = document.getElementById(divName).innerHTML;
-     var originalContents = document.body.innerHTML;
+<div class="wrapper wrapper-content animated fadeInRight ecommerce">
 
-     document.body.innerHTML = printContents;
 
-     window.print();
 
-     document.body.innerHTML = originalContents;
-  }
-</script> 
-{% endblock %}
+
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div id="printableArea">
+          <div class="ibox-title">
+            <h2>
+              <center><strong>Trial Balance</strong></center>
+            </h2>
+          </div>
+          <div class="ibox-content">
+
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover" data-page-size="15" id="book-table">
+                <thead>
+
+                  <tr>
+                    <th></th>
+                    <th colspan="2">
+                      <center>Opening Balance:</center>
+                    </th>
+
+                    <th colspan="2">
+                      <center>Closing Balance:</center>
+                    </th>
+                  </tr>
+
+                  <tr>
+
+                    <th>
+                      <center>Particulars</center>
+                    </th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+
+                  </tr>
+                </thead>
+
+
+                <tbody>
+                  {% for grps in groups %}
+                    {% if grps.group_name == 'Current Assets' %}
+                      <tr>
+                        {% if total_current_asset_closing_debit != 0 or total_current_asset_closing_credit != 0 %}
+                          <th><center>{{ grps.group_name }}</center></th>
+                          <th><center>{{ total_current_asset_opening_debit|abs|floatformat:2 }}</center></th>
+                          <th><center>{{ total_current_asset_opening_credit|abs|floatformat:2 }}</center></th>
+                          <th><center>{{ total_current_asset_closing_debit|abs|floatformat:2 }}</center></th>
+                          <th><center>{{ total_current_asset_closing_credit|abs|floatformat:2 }}</center></th>
+                        {% endif %}
+                      </tr>
+                    {% else %}
+                      <tr>
+                        {% if grps.total_debit_closing_final != 0 or grps.total_credit_closing_final != 0 %}
+                          <th><center>{{ grps.group_name }}</center></th>
+
+                          {% if grps.total_credit_opening_final < 0 %}
+                            <th><center>{{ grps.total_debit_opening_final|sub:grps.total_credit_opening_final|abs|floatformat:2 }}</center></th>
+                          {% elif grps.total_debit_opening_final > 0 %}
+                            <th><center>{{ grps.total_debit_opening_final|abs|floatformat:2 }}</center></th>
+                          {% else %}
+                            <th><center></center></th>
+                          {% endif %}
+
+                          {% if grps.total_debit_opening_final < 0 %}
+                            <th><center>{{ grps.total_credit_opening_final|sub:grps.total_debit_opening_final|abs|floatformat:2 }}</center></th>
+                          {% elif grps.total_credit_opening_final > 0 %}
+                            <th><center>{{ grps.total_credit_opening_final|abs|floatformat:2 }}</center></th>
+                          {% else %}
+                            <th><center></center></th>
+                          {% endif %}
+
+                          {% if grps.total_credit_closing_final < 0 %}
+                            <th><center>{{ grps.total_debit_closing_final|sub:grps.total_credit_closing_final|abs|floatformat:2 }}</center></th>
+                          {% elif grps.total_debit_closing_final > 0 %}
+                            <th><center>{{ grps.total_debit_closing_final|abs|floatformat:2 }}</center></th>
+                          {% else %}
+                            <th><center></center></th>
+                          {% endif %}
+
+                          {% if grps.total_debit_closing_final < 0 %}
+                            <th><center>{{ grps.total_credit_closing_final|sub:grps.total_debit_closing_final|abs|floatformat:2  }}</center></th>
+                          {% elif grps.total_credit_closing_final > 0 %}
+                            <th><center>{{ grps.total_credit_closing_final|abs|floatformat:2  }}</center></th>
+                          {% else %}
+                            <th><center></center></th>
+                          {% endif %}
+                        {% endif %}
+                      </tr>
+                    {% endif %}
+                    
+                  {% endfor %}
+
+                  <tr>
+                    <th>
+                      <center>Diffrence in opening Balance</center>
+                    </th>
+                    {% if grand_total_debit_opening_with_stock > grand_total_credit_opening_with_stock %}
+                      <th>
+                        <center></center>
+                      </th>
+
+                      <th><center>{{ difference_in_opening_balance|abs|floatformat:2 }}</center></th>
+                      <th>
+                      <center></center>
+                    </th>
+                    <th>
+                      <center>{{ difference_in_opening_balance|abs|floatformat:2 }}</center>
+                    </th>
+                    {% else %}
+                      <th>
+                        <center>{{ difference_in_opening_balance|abs|floatformat:2 }}</center>
+                      </th>
+
+                      <th><center></center></th>
+                    <th>
+                      <center>{{ difference_in_opening_balance|abs|floatformat:2 }}</center>
+                    </th>
+                    <th>
+                      <center></center>
+                    </th>
+                    {% endif %}  
+                  </tr>
+
+
+
+                  <tr>
+                    <th>
+                      <center>Grand Total</center>
+                    </th>
+                    <th>
+                      <center>{{ grand_total_debit_opening_final|abs|floatformat:2 }}</center>
+                    </th>
+
+                    <th><center>{{ grand_total_credit_opening_final|abs|floatformat:2 }}</center></th>
+
+
+                    <th>
+                      <center>{{ grand_total_debit_closing_final|floatformat:2 }}</center>
+                    </th>
+
+                    <th>
+                      <center>{{ grand_total_credit_closing_final|abs|floatformat:2 }}</center>
+                    </th>
+                  </tr>
+
+
+                </tbody>
+
+              </table>
+
+
+            </div>
+
+          </div>
+        </div>
+        <div class="ibox-content">
+          <input class='btn btn-info' type="button" onclick="printDiv('printableArea')" value="Print" />
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content animated flipInY"></div>
+  </div>
+
+  <script type="text/javascript">
+
+    function printDiv(divName) {
+      var printContents = document.getElementById(divName).innerHTML;
+      var originalContents = document.body.innerHTML;
+
+      document.body.innerHTML = printContents;
+
+      window.print();
+
+      document.body.innerHTML = originalContents;
+    }
+  </script>
+  {% endblock %}

@@ -24,7 +24,7 @@
                         </li>
                     </ol>
                     <br>
-                    <a href="{% url 'company:list' %}" class="btn btn-primary" role="button">Accounts </a>
+                    <a href="{% url 'CRM:crm_accounts' organisation_pk=organisation.pk %}" class="btn btn-primary" role="button">Accounts </a>
                     <a href="{% url 'CRM:crm_contacts' organisation_pk=organisation.pk %}" class="btn btn-default" role="button">Contacts </a>
                     <a href="{% url 'company:list' %}" class="btn btn-warning" role="button">Leads </a>
                     <a href="{% url 'company:list' %}" class="btn btn-primary" role="button">Opportunities </a>

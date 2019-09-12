@@ -2,7 +2,7 @@
 Forms
 """
 from django import forms
-from .models import Achievement, Post, PostComment, ProfessionalServices, ProfessionalVerify, Profile
+from .models import Achievement, Post, PostComment, ProfessionalServices, ProfessionalVerify, ProfessionalVerifyDoc, Profile
 
 
 class ProfileForm(forms.ModelForm):
@@ -14,8 +14,8 @@ class ProfileForm(forms.ModelForm):
         super(ProfileForm, self).__init__(*args, **kwargs)
 
         self.fields['email'].widget.attrs = {'class': 'form-control', }
-        self.fields['user_type'].required = False
-        self.fields['user_type'].widget.attrs['disabled'] = 'disabled'
+        # self.fields['user_type'].required = False
+        # self.fields['user_type'].widget.attrs['disabled'] = 'disabled'
         self.fields['phone_no'].widget.attrs = {'class': 'form-control', }
         self.fields['basic_info'].widget.attrs = {'class': 'form-control', }
         self.fields['full_name'].widget.attrs = {'class': 'form-control', }
@@ -26,7 +26,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('full_name', 'user_type', 'email', 'permanent_address',
+        fields = ('full_name', 'email', 'permanent_address',
                   'state', 'city', 'country', 'phone_no', 'basic_info', 'image')
 
 
@@ -44,8 +44,25 @@ class ProVerifyForm(forms.ModelForm):
 
     class Meta:
         model = ProfessionalVerify
-        fields = ['product', 'phone_no', 'email',
-                  'upload_1', 'upload_2', 'upload_3']
+        fields = ['product', 'phone_no', 'email']
+
+
+class ProVerifyDocUploadForm(forms.ModelForm):
+    """
+    Professional Verification Upload Doc Form
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(ProVerifyDocUploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['doc_type'].widget.attrs = {'class': 'select2_demo_2 form-control', 'onchange':'doc_type_change(this)'}
+        self.fields['manual_doc_type'].widget.attrs = {'class': 'form-control', 'placeholder':'Enter Document Type Here'}
+        self.fields['manual_doc_type'].widget.attrs['required'] = True
+        self.fields['doc_image'].widget.attrs = {'class': 'form-control'}
+
+    class Meta:
+        model = ProfessionalVerifyDoc
+        fields = ['doc_type', 'manual_doc_type', 'doc_image']
 
 
 class PostForm(forms.ModelForm):

@@ -1,6 +1,6 @@
 {% load mathfilters %}
 {% load humanize %}
-{% for ledger in ledgermaster_list %}
+{% for ledger in ledger_list %}
 <tr>
 
     <td><a
@@ -15,23 +15,23 @@
             href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.ledger_group}}</a>
     </td>
 
-    {% if ledger.balance_opening < 0 %}
+    {% if ledger.opening_balance_generated < 0 %}
     <td><a
-            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.balance_opening|abs}})</a>
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.opening_balance_generated|abs}})</a>
     </td>
     {% else %}
     <td><a
-            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.balance_opening|abs}}</a>
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.opening_balance_generated|abs}}</a>
     </td>
     {% endif %}
 
-    {% if ledger.closing_balance < 0 %}
+    {% if ledger.closing_balance_generated < 0 %}
     <td><a
-            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.closing_balance|abs}})</a>
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">({{ledger.closing_balance_generated|abs}})</a>
     </td>
     {% else %}
     <td><a
-            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.closing_balance|abs}}</a>
+            href="{% url 'accounting_entry:ledgerdetail' company_pk=company.pk ledger_master_pk=ledger.pk period_selected_pk=period_selected.pk %}">{{ledger.closing_balance_generated|abs}}</a>
     </td>
     {% endif %}
 

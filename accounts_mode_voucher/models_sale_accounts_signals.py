@@ -21,38 +21,38 @@ def update_total_tax_sales(sender, instance, *args, **kwargs):
         instance.tax_total = total_tax_term
 
 
-@receiver(pre_save, sender=SaleVoucherAccounts)
-@prevent_signal_call_on_bulk_load
-def update_total_sales(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the sub total of every goods in a particular voucher
-    """
-    total_service = instance.sale_voucher_term_accounts.aggregate(
-        the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
-    if total_service:
-        instance.sub_total = total_service
+# @receiver(pre_save, sender=SaleVoucherAccounts)
+# @prevent_signal_call_on_bulk_load
+# def update_total_sales(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the sub total of every goods in a particular voucher
+#     """
+#     total_service = instance.sale_voucher_term_accounts.aggregate(
+#         the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+#     if total_service:
+#         instance.sub_total = total_service
 
 
-@receiver(pre_save, sender=SaleVoucherAccounts)
-@prevent_signal_call_on_bulk_load
-def update_totalgst_sales(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the GST totals of a particular voucher
-    """
+# @receiver(pre_save, sender=SaleVoucherAccounts)
+# @prevent_signal_call_on_bulk_load
+# def update_totalgst_sales(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the GST totals of a particular voucher
+#     """
 
-    total_cgst_extra = instance.sale_voucher_term_accounts.aggregate(
-        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
-    total_sgst_extra = instance.sale_voucher_term_accounts.aggregate(
-        the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
-    total_igst_extra = instance.sale_voucher_term_accounts.aggregate(
-        the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+#     total_cgst_extra = instance.sale_voucher_term_accounts.aggregate(
+#         the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+#     total_sgst_extra = instance.sale_voucher_term_accounts.aggregate(
+#         the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+#     total_igst_extra = instance.sale_voucher_term_accounts.aggregate(
+#         the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
 
-    if total_cgst_extra :
-        instance.cgst_total = total_cgst_extra
-    if total_sgst_extra:
-        instance.sgst_total = total_sgst_extra
-    if total_igst_extra:
-        instance.igst_total = total_igst_extra
+#     if total_cgst_extra :
+#         instance.cgst_total = total_cgst_extra
+#     if total_sgst_extra:
+#         instance.sgst_total = total_sgst_extra
+#     if total_igst_extra:
+#         instance.igst_total = total_igst_extra
 
 
 # @receiver(pre_save, sender=SaleVoucherAccounts)

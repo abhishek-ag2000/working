@@ -11,45 +11,45 @@ from .models import StockItem
 from .models_purchase import PurchaseVoucher, PurchaseTerm, PurchaseTax
 
 
-@receiver(pre_save, sender=PurchaseVoucher)
-@prevent_signal_call_on_bulk_load
-def update_subtotal(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the sub total of every goods in a particular voucher
-    """
-    total_stock = instance.purchase_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+# @receiver(pre_save, sender=PurchaseVoucher)
+# @prevent_signal_call_on_bulk_load
+# def update_subtotal(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the sub total of every goods in a particular voucher
+#     """
+#     total_stock = instance.purchase_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
 
-    if total_stock:
-        instance.sub_total = total_stock
+#     if total_stock:
+#         instance.sub_total = total_stock
 
 
-@receiver(pre_save, sender=PurchaseVoucher)
-@prevent_signal_call_on_bulk_load
-def update_totalgst(sender, instance, *args, **kwargs):
-    """
-    Signal to calculate the GST totals of a particular voucher
-    """
-    total_cgst_stock = instance.purchase_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
-    total_sgst_stock = instance.purchase_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
-    total_igst_stock = instance.purchase_voucher_stock.aggregate(
-        the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+# @receiver(pre_save, sender=PurchaseVoucher)
+# @prevent_signal_call_on_bulk_load
+# def update_totalgst(sender, instance, *args, **kwargs):
+#     """
+#     Signal to calculate the GST totals of a particular voucher
+#     """
+#     total_cgst_stock = instance.purchase_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+#     total_sgst_stock = instance.purchase_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+#     total_igst_stock = instance.purchase_voucher_stock.aggregate(
+#         the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
 
-    total_cgst_extra = instance.purchase_voucher_term.aggregate(
-        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
-    total_sgst_extra = instance.purchase_voucher_term.aggregate(
-        the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
-    total_igst_extra = instance.purchase_voucher_term.aggregate(
-        the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+#     total_cgst_extra = instance.purchase_voucher_term.aggregate(
+#         the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+#     total_sgst_extra = instance.purchase_voucher_term.aggregate(
+#         the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+#     total_igst_extra = instance.purchase_voucher_term.aggregate(
+#         the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
 
-    if total_cgst_stock or total_cgst_extra:
-        instance.cgst_total = total_cgst_stock + total_cgst_extra
-    if total_sgst_stock or total_sgst_extra:
-        instance.sgst_total = total_sgst_stock + total_sgst_extra
-    if total_igst_stock or total_igst_extra:
-        instance.igst_total = total_igst_stock + total_igst_extra
+#     if total_cgst_stock or total_cgst_extra:
+#         instance.cgst_total = total_cgst_stock + total_cgst_extra
+#     if total_sgst_stock or total_sgst_extra:
+#         instance.sgst_total = total_sgst_stock + total_sgst_extra
+#     if total_igst_stock or total_igst_extra:
+#         instance.igst_total = total_igst_stock + total_igst_extra
 
 
 @receiver(pre_save, sender=PurchaseVoucher)
@@ -181,20 +181,20 @@ def delete_related_journal(sender, instance, **kwargs):
         user=instance.user, company=instance.company, voucher_id=instance.id).delete()
 
 
-@receiver(pre_delete, sender=PurchaseVoucher)
-def delete_related_party_ledger_purchase(sender, instance, **kwargs):
-    instance.party_ac.save()
-    instance.party_ac.ledger_group.save()
+# @receiver(pre_delete, sender=PurchaseVoucher)
+# def delete_related_party_ledger_purchase(sender, instance, **kwargs):
+#     instance.party_ac.save()
+#     instance.party_ac.ledger_group.save()
 
 
-@receiver(pre_delete, sender=PurchaseVoucher)
-def delete_related_purchase_ledger(sender, instance, **kwargs):
-    instance.doc_ledger.save()
-    instance.doc_ledger.ledger_group.save()
+# @receiver(pre_delete, sender=PurchaseVoucher)
+# def delete_related_purchase_ledger(sender, instance, **kwargs):
+#     instance.doc_ledger.save()
+#     instance.doc_ledger.ledger_group.save()
 
 
-@receiver(post_delete, sender=PurchaseVoucher)
-def delete_related_stock_for_purchase(sender, instance, *args, **kwargs):
-    purchase_stock = StockItem.objects.filter(company=instance.company)
-    for obj in purchase_stock:
-        obj.save()
+# @receiver(post_delete, sender=PurchaseVoucher)
+# def delete_related_stock_for_purchase(sender, instance, *args, **kwargs):
+#     purchase_stock = StockItem.objects.filter(company=instance.company)
+#     for obj in purchase_stock:
+#         obj.save()

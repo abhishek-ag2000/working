@@ -121,17 +121,17 @@
                     <div class="row">
                         <div class="col-4">
                             <small class="stats-label">Total Dues to collect</small>
-                            <h4>{{ total_dues_to_collect|abs|floatformat:2 }}</h4>
+                            <h4>{{ total_dues_to_collect|abs|format_number}}</h4>
 
                         </div>
 
                         <div class="col-4">
                             <small class="stats-label">Total Dues to pay</small>
-                            <h4>{{ total_dues_to_pay|abs|floatformat:2 }}</h4>
+                            <h4>{{ total_dues_to_pay|abs|format_number }}</h4>
                         </div>
                         <div class="col-4">
                             <small class="stats-label">Working Capital</small>
-                            <h4>{{ working_capital|abs|floatformat:2 }}</h4>
+                            <h4>{{ working_capital|abs|format_number }}</h4>
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                         </div>
                         <div class="col-4">
                             <small class="stats-label">Cost of goods sold</small>
-                            <h4>{{ cost_goods_sold|abs|floatformat:2 }}</h4>
+                            <h4>{{ cost_goods_sold|abs|format_number }}</h4>
                         </div>
                     </div>
                 </div>
@@ -156,7 +156,7 @@
                     <div class="row">
                         <div class="col-4">
                             <small class="stats-label">Operating Cost</small>
-                            <h4>{{ operating_cost|abs|floatformat:2 }}</h4>
+                            <h4>{{ operating_cost|abs|format_number }}</h4>
                         </div>
                         <div class="col-4">
                             <small class="stats-label">ROI(%)</small>
@@ -170,7 +170,7 @@
 
                     </div>
                 </div>
-                <div class="ibox-content">
+<!--                 <div class="ibox-content">
                     <div class="row">
                         <div class="col-4">
                             <small class="stats-label">Total tax liability</small>
@@ -187,7 +187,7 @@
                         </div>
 
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -196,12 +196,13 @@
         <div class="col-lg-2">
             <div class="ibox ">
                 <div class="ibox-title">
-                    <span class="label label-success pull-right"><sub>on
-                            {{ period_selected.end_date }}</sub></span>
+                    
                     <h5>Asset</h5>
+                    <span class="label label-success"><sub>on
+                            {{ period_selected.end_date }}</sub></span>
                 </div>
                 <div class="ibox-content">
-                    <h3 class="no-margins">{{ company_details.asset|abs|floatformat:2|intcomma }}</h3>
+                    <h3 class="no-margins">{{ total_asset|abs }}</h3>
                     <!-- <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div> -->
                     <small>Fixed Assets + Current Assets</small>
                 </div>
@@ -210,11 +211,12 @@
         <div class="col-lg-2">
             <div class="ibox ">
                 <div class="ibox-title">
-                    <span class="label label-info pull-right"><sub>on {{ period_selected.end_date }}</sub></span>
+                    
                     <h5>Capital</h5>
+                    <sub><span class="label label-info">on {{ period_selected.end_date }}</span></sub>
                 </div>
                 <div class="ibox-content">
-                    <h3 class="no-margins">{{ company_details.capital|abs|floatformat:2|intcomma }}</h3>
+                    <h3 class="no-margins">{{ capital_ac_total|abs }}</h3>
                     <!-- <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div> -->
                     <small>Total Owners Equity</small>
                 </div>
@@ -225,7 +227,7 @@
             <div class="ibox ">
                 <div class="ibox-title">
                     <span class="label label-primary float-right">Today</span>
-                    {% if company_details.pl > 0 %}
+                    {% if company.pl > 0 %}
                     <h5>Net Profit</h5>
                     {% else %}
                     <h5>Net Loss</h5>
@@ -235,9 +237,9 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <h3 class="no-margins">{{ company_details.pl|abs|floatformat:2|intcomma }}</h3>
+                            <h3 class="no-margins">{{ nett_profit_total|abs }}</h3>
 
-                            {% if company_details.pl > 0 %}
+                            {% if company.pl > 0 %}
                             <div class="font-bold text-navy">{{ nett_profit|abs|floatformat:2 }}% <i
                                     class="fa fa-level-up"></i> <small>&nbsp; Average</small></div>
                             {% else %}
@@ -357,20 +359,19 @@
                                                     <td>{{ forloop.counter }}</td>
                                                     <td>{{ ledger.ledger_name }}</td>
                                                     {% for sales in ledger.party_ledger_sales.all|slice:":1" %}
-                                                    <td>{{ sales.billname }}</td>
-                                                    <td>{{ sales.Address }}</td>
-                                                    {% if total_ledger != 0 %}
-                                                    <td><span
-                                                            class="pie">{{ sales.sub_total }}/{{ total_ledger }}</span>
-                                                    </td>
-                                                    <td>{{ sales.sub_total|div:total_ledger|mul:100|abs|floatformat:2 }}%
-                                                    </td>
-                                                    {% else %}
-                                                    <td><span class="pie">No sales</span></td>
-                                                    <td>No sales</td>
-                                                    {% endif %}
-                                                    <td>{{ sales.date }}</td>
-
+                                                        <td>{{ sales.party_ac.ledger_name }}</td>
+                                                        <td>{{ sales.party_ac.address }}</td>
+                                                        {% if total_ledger != 0 %}
+                                                            <td><span
+                                                                    class="pie">{{ sales.sub_total }}/{{ total_ledger }}</span>
+                                                            </td>
+                                                            <td>{{ sales.sub_total|div:total_ledger|mul:100|abs|floatformat:2 }}%
+                                                            </td>
+                                                        {% else %}
+                                                            <td><span class="pie">No sales</span></td>
+                                                            <td>No sales</td>
+                                                            {% endif %}
+                                                            <td>{{ sales.voucher_date }}</td>
                                                     {% endfor %}
                                                     <td>{{ ledger.total|abs|floatformat:2 }}</td>
                                                 </tr>
@@ -401,22 +402,23 @@
                                                 {% for ledger in top_ledger_purchase %}
                                                 <tr>
                                                     <td>{{ forloop.counter }}</td>
-                                                    <td>{{ ledger.name }}</td>
+                                                    <td>{{ ledger.ledger_name }}</td>
                                                     {% for purchase in ledger.party_ledger_purchase.all|slice:":1" %}
-                                                    <td>{{ purchase.billname }}</td>
-                                                    <td>{{ purchase.Address }}</td>
-                                                    {% if total_ledger_purchase != 0 %}
-                                                    <td><span
-                                                            class="pie">{{ purchase.sub_total }}/{{ total_ledger_purchase }}</span>
-                                                    </td>
-                                                    <td>{{ purchase.sub_total|div:total_ledger_purchase|mul:100|abs|floatformat:2 }}%
-                                                    </td>
-                                                    {% else %}
-                                                    <td><span class="pie">No sales</span></td>
-                                                    <td>No sales</td>
-                                                    {% endif %}
-                                                    <td>{{ purchase.date }}</td>
-
+                                                        {% if total_ledger_purchase != 0 %}
+                                                            <td>{{ purchase.party_ac.ledger_name }}</td>
+                                                            <td>{{ purchase.party_ac.address }}</td>
+                                                            <td><span
+                                                                    class="pie">{{ purchase.sub_total }}/{{ total_ledger_purchase }}</span>
+                                                            </td>
+                                                            <td>{{ purchase.sub_total|div:total_ledger_purchase|mul:100|abs|floatformat:2 }}%
+                                                            </td>
+                                                        {% else %}
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td><span class="pie">No sales</span></td>
+                                                            <td>No purchase</td>
+                                                        {% endif %}
+                                                        <td>{{ purchase.voucher_date }}</td>
                                                     {% endfor %}
                                                     <td>{{ ledger.total|abs|floatformat:2 }}</td>
                                                 </tr>
@@ -448,20 +450,20 @@
                                                 <tr>
                                                     <td>{{ forloop.counter }}</td>
                                                     <td>{{ stock.stock_name }}</td>
-                                                    <td>{{ stock.Avg_purchase|abs|floatformat:2|intcomma }}</td>
-                                                    <td>{{ stock.Avg_sales|abs|floatformat:2|intcomma }}</td>
-                                                    <td>{{ stock.Avg_sales|sub:stock.Avg_purchase|abs|floatformat:2|intcomma }}
+                                                    <td>{{ stock.Avg_purchase|abs|floatformat:2 }}</td>
+                                                    <td>{{ stock.Avg_sales|abs|floatformat:2 }}</td>
+                                                    <td>{{ stock.Avg_sales|sub:stock.Avg_purchase|abs|floatformat:2 }}
                                                     </td>
                                                     {% if top_stock_total != 0 %}
-                                                    <td><span class="pie">{{ stock.total }}/{{ top_stock_total }}</span>
+                                                    <td><span class="pie">{{ stock.total_sales }}/{{ top_stock_total }}</span>
                                                     </td>
-                                                    <td>{{ stock.total|div:top_stock_total|mul:100|abs|floatformat:2 }}%
+                                                    <td>{{ stock.total_sales|div:top_stock_total|mul:100|abs|floatformat:2 }}%
                                                     </td>
                                                     {% else %}
                                                     <td><span class="pie">No sales</span></td>
                                                     <td>No sales</td>
                                                     {% endif %}
-                                                    <td>{{ stock.total|abs|floatformat:2 }}</td>
+                                                    <td>{{ stock.total_sales|abs|floatformat:2 }}</td>
                                                     <td></td>
                                                 </tr>
                                                 {% endfor %}
@@ -492,15 +494,15 @@
                                                     <td>{{ stock.stock_name }}</td>
                                                     <td>{{ stock.quantity }}</td>
                                                     {% if top_stock_total != 0 %}
-                                                    <td><span class="pie">{{ stock.total }}/{{ top_stock_total }}</span>
+                                                    <td><span class="pie">{{ stock.total_sales }}/{{ top_stock_total }}</span>
                                                     </td>
-                                                    <td>{{ stock.total|div:top_stock_total|mul:100|abs|floatformat:2 }}%
+                                                    <td>{{ stock.total_sales|div:top_stock_total|mul:100|abs|floatformat:2 }}%
                                                     </td>
                                                     {% else %}
                                                     <td><span class="pie">No sales</span></td>
                                                     <td>No sales</td>
                                                     {% endif %}
-                                                    <td>{{ stock.total|abs|floatformat:2 }}</td>
+                                                    <td>{{ stock.total_sales|abs|floatformat:2 }}</td>
                                                     <td></td>
                                                 </tr>
                                                 {% endfor %}
@@ -521,7 +523,7 @@
         <div class="col-lg-4">
             <div class="ibox ">
                 <div class="ibox-title">
-                    {% if company_details.pl > 0 %}
+                    {% if company.pl > 0 %}
                     <h5>Net Profit</h5>
                     {% else %}
                     <h5>Net Loss</h5>
@@ -564,3 +566,43 @@
 
 
 {% endblock %}
+
+{% block script %}
+
+    <script>
+        //xyz
+        $(document).ready(function () {
+            var lineData = {
+                labels: [{% for key, value in results %}'{{ key.0|month_name }},{{ key.1 }}', {% endfor %}],
+            datasets: [
+                {
+                    label: "Purchases",
+                    backgroundColor: "rgba(26,179,148,0.5)",
+                    borderColor: "rgba(26,179,148,0.7)",
+                    pointBackgroundColor: "rgba(26,179,148,1)",
+                    pointBorderColor: "#fff",
+                    data: [{% for key, value in results %}{{ value.1 }}, {% endfor %}]
+                    },
+            {
+                label: "Sales",
+                backgroundColor: "rgba(220,220,220,0.5)",
+                borderColor: "rgba(220,220,220,1)",
+                pointBackgroundColor: "rgba(220,220,220,1)",
+                pointBorderColor: "#fff",
+                data: [{% for key, value in results %}{{ value.0 }}, {% endfor %}]
+                    }
+            ]
+        };
+
+        var lineOptions = {
+            responsive: true
+        };
+
+
+        var ctx = document.getElementById("lineChart_2").getContext("2d");
+        new Chart(ctx, { type: 'bar', data: lineData, options: lineOptions });
+    });
+    </script>
+
+
+{% endblock script %}

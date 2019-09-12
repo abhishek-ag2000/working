@@ -65,6 +65,8 @@ urlpatterns = [
     url(r'^case/(?P<case_pk>\d+)/details/$', views.case_detail_view, name='case_details'),
     url(r'^case/(?P<case_pk>\d+)/delete$', views.case_delete_view, name='casedelete'),
 
-    url(r'^ProfessionalVeriry/create/$',
-        views.ProVerifyCreateView.as_view(), name='ProfessionalVerify'),
+    url(r'^professional/request/list/$', views.ProVerifyListView.as_view(), name='pro_request_list'),
+    url(r'^professional/request/create/$', views.ProVerifyCreateView.as_view(), name='pro_new_request'),
+    url(r'^professional/document/upload/$', views.ProUploadCreateView.as_view(), name='pro_upload_doc'),
+    url(r'^professional/document/list/$', views.ProUploadListView.as_view(), name='pro_doc_list'),
 ]

@@ -130,7 +130,7 @@ class StockItemForm(forms.ModelForm):
         self.fields['set_or_alter_gst'].widget.attrs = {
             'class': 'form-control', 'onchange': 'change_setgst_option(this)',}
         self.fields['is_non_gst'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', 'onchange': 'change_non_gst(this)', }
+            'class': 'form-control', 'onchange': 'change_non_gst(this)', }
         self.fields['taxability'].widget.attrs = {
             'class': 'form-control', 'onchange': 'change_taxability_stock(this)', }
         self.fields['reverse_charge'].widget.attrs = {

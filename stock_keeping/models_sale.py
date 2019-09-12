@@ -41,7 +41,7 @@ class SaleVoucher(models.Model):
         StateMaster, related_name="sales_consignee_state", on_delete=models.DO_NOTHING, blank=True, null=True)
     consignee_country = models.ForeignKey(
         CountryMaster, default=12, related_name="sales_consignee_country", on_delete=models.DO_NOTHING, blank=True)
-    other_details = models.CharField(max_length=20, null=True, blank=True)
+    other_details = models.CharField(max_length=20, null=True, blank=True) 
 
     transaction_types_sales = (
         ('Not Applicable', 'Not Applicable'),
@@ -62,11 +62,11 @@ class SaleVoucher(models.Model):
          'Interstate Sales to Embassy / UN Body Nil Rated'),
         ('Interstate Sales to Embassy / UN Body Taxable',
          'Interstate Sales to Embassy / UN Body Taxable'),
-        ('Intrastate Deemed Exports Exempt', 'Intrastate Deemed Exports Exempt'),
-        ('Intrastate Deemed Exports Nil Rated',
-         'Intrastate Deemed Exports Nil Rated'),
-        ('Intrastate Deemed Exports Taxable',
-         'Intrastate Deemed Exports Taxable'),
+        ('Interstate Deemed Exports Exempt', 'Interstate Deemed Exports Exempt'),
+        ('Interstate Deemed Exports Nil Rated',
+         'Interstate Deemed Exports Nil Rated'),
+        ('Interstate Deemed Exports Taxable',
+         'Interstate Deemed Exports Taxable'),
         ('Sales Exempt', 'Sales Exempt'),
         ('Sales Nil Rated', 'Sales Nil Rated'),
         ('Intrastate Sales Taxable', 'Intrastate Sales Taxable'),
@@ -79,7 +79,7 @@ class SaleVoucher(models.Model):
         ('Sales to SEZ - Taxable', 'Sales to SEZ - Taxable'),
     )
     nature_transactions_sales = models.CharField(
-        max_length=100, choices=transaction_types_sales, default='Not Applicable')
+        max_length=100, choices=transaction_types_sales, default='Not Applicable',blank=True)
 
     despatch_no = models.CharField(max_length=132, blank=True)
     despatch_info = models.CharField(max_length=132, blank=True)
@@ -148,6 +148,45 @@ class SaleVoucher(models.Model):
             the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
         if tax_invoice_total or extra_total or stock_total:
             self.total = tax_invoice_total + extra_total + stock_total
+            self.sub_total = stock_total
+
+        total_cgst_stock = self.sale_voucher_stock.aggregate(
+        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+        total_sgst_stock = self.sale_voucher_stock.aggregate(
+            the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+        total_igst_stock = self.sale_voucher_stock.aggregate(
+            the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+
+        if not total_cgst_stock:
+            total_cgst_stock = 0
+
+        if not total_sgst_stock:
+            total_sgst_stock = 0
+
+        if not total_igst_stock:
+            total_igst_stock = 0
+
+        total_cgst_extra = self.sale_voucher_term.aggregate(
+            the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+        total_sgst_extra = self.sale_voucher_term.aggregate(
+            the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+        total_igst_extra = self.sale_voucher_term.aggregate(
+            the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+
+        if not total_cgst_extra:
+            total_cgst_extra = 0
+
+        if not total_sgst_extra:
+            total_sgst_extra = 0
+
+        if not total_igst_extra:
+            total_igst_extra = 0
+
+        self.cgst_total = total_cgst_stock + total_cgst_extra
+
+        self.sgst_total = total_sgst_stock + total_sgst_extra
+           
+        self.igst_total = total_igst_stock + total_igst_extra
 
         if not self.url_hash:
             if self.user.profile.user_type == 'Bussiness user':
@@ -200,646 +239,933 @@ class SaleStock(models.Model):
             self.total = self.rate * self.quantity * (1 - (self.disc/100))
 
         if self.stock_item:
-            if self.sale_voucher.company.gst_registration_type == 'Regular':
-                if self.sale_voucher.company.organisation.state == self.sale_voucher.supply_place and self.sale_voucher.nature_transactions_sales == 'Not Applicable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
+            if self.stock_item.is_non_gst != 'Yes' and self.stock_item.taxability != 'Exempt' and self.stock_item.taxability != 'Nil Rated' and self.stock_item.taxability != 'Unknown':
+                if self.sale_voucher.company.gst_registration_type == 'Regular':
+                    if self.sale_voucher.company.organisation.state == self.sale_voucher.supply_place and self.sale_voucher.nature_transactions_sales == 'Not Applicable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
 
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
 
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state != self.sale_voucher.supply_place and self.sale_voucher.nature_transactions_sales == 'Not Applicable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.company.integrated_tax
+
+                    elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+
+                    elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+
+                    elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+
+                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.company.integrated_tax
+
+                    elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.company.integrated_tax
+
+                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.company.integrated_tax
+
+                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.company.integrated_tax
+
+                    elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.company.integrated_tax
+
+                    elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+                            self.sgst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+                    elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.sale_voucher.company.central_tax
+                            self.sgst = self.sale_voucher.company.state_tax
+                            self.igst = 0
 
                     else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-
-                elif self.sale_voucher.company.organisation.state != self.sale_voucher.supply_place and self.sale_voucher.nature_transactions_sales == 'Not Applicable':
-                    if self.sale_voucher.doc_ledger.integrated_tax != 0:
                         self.cgst = 0
                         self.sgst = 0
-                        self.igst = self.sale_voucher.doc_ledger.integrated_tax
-
-                    elif self.stock_item.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.integrated_tax
-
-                    elif self.stock_item.stock_group.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.stock_group.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.company.integrated_tax
-
-                elif self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
                         self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-
-                elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-
-                elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-
-                elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
-                    if self.sale_voucher.doc_ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.doc_ledger.integrated_tax
-
-                    elif self.stock_item.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.integrated_tax
-
-                    elif self.stock_item.stock_group.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.stock_group.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.company.integrated_tax
-
-                elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
-                    if self.sale_voucher.doc_ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.doc_ledger.integrated_tax
-
-                    elif self.stock_item.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.integrated_tax
-
-                    elif self.stock_item.stock_group.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.stock_group.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.company.integrated_tax
-
-                elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
-                    if self.sale_voucher.doc_ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.doc_ledger.integrated_tax
-
-                    elif self.stock_item.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.integrated_tax
-                    elif self.stock_item.stock_group.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.stock_group.integrated_tax
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.company.integrated_tax
-                elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
-                    if self.sale_voucher.doc_ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.doc_ledger.integrated_tax
-
-                    elif self.stock_item.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.integrated_tax
-
-                    elif self.stock_item.stock_group.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.stock_group.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.company.integrated_tax
-
-                elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
-                    if self.sale_voucher.doc_ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.doc_ledger.integrated_tax
-
-                    elif self.stock_item.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.integrated_tax
-
-                    elif self.stock_item.stock_group.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.stock_item.stock_group.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.sale_voucher.company.integrated_tax
-
-                elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-                        self.sgst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                        self.sgst = 0
-
-                elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-
-                elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-                elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-
-                elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
-                        self.cgst = self.sale_voucher.doc_ledger.central_tax
-                        self.sgst = self.sale_voucher.doc_ledger.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                        self.cgst = self.stock_item.central_tax
-                        self.sgst = self.stock_item.state_tax
-                        self.igst = 0
-
-                    elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                        self.cgst = self.stock_item.stock_group.central_tax
-                        self.sgst = self.stock_item.stock_group.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.sale_voucher.company.central_tax
-                        self.sgst = self.sale_voucher.company.state_tax
-                        self.igst = 0
-
                 else:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = 0
+                    self.tax = self.stock_item.integrated_tax
             else:
-                self.tax = self.stock_item.integrated_tax
+                if self.sale_voucher.company.gst_registration_type == 'Regular':
+                    if self.sale_voucher.company.organisation.state == self.sale_voucher.supply_place and self.sale_voucher.nature_transactions_sales == 'Not Applicable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-            if self.sale_voucher.company.gst_registration_type == 'Regular':
-                if self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.company.organisation.state != self.sale_voucher.supply_place and self.sale_voucher.nature_transactions_sales == 'Not Applicable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
 
-                elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
 
-                elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
-                    self.cgst_total = 0
-                    self.sgst_total = 0
-                    self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
-                    self.cgst_total = 0
-                    self.sgst_total = 0
-                    self.igst_total = self.igst * self.total / 100
+                    elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
 
-                elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
-                    self.cgst_total = 0
-                    self.sgst_total = 0
-                    self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
-                    self.cgst_total = 0
-                    self.sgst_total = 0
-                    self.igst_total = self.igst * self.total / 100
+                    elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
 
-                elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
-                    self.cgst_total = 0
-                    self.sgst_total = 0
-                    self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
 
-                elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
 
-                elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
 
-                elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
 
-                elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
+                        if self.sale_voucher.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.sale_voucher.doc_ledger.integrated_tax
 
-                elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
 
-                elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                    self.cgst_total = self.cgst * self.total / 100
-                    self.sgst_total = self.sgst * self.total / 100
-                    self.igst_total = 0
+                    elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                        if self.sale_voucher.doc_ledger.central_tax != 0 or self.sale_voucher.doc_ledger.state_tax != 0:
+                            self.cgst = self.sale_voucher.doc_ledger.central_tax
+                            self.sgst = self.sale_voucher.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = 0
+
+                    else:
+                        self.cgst = 0
+                        self.sgst = 0
+                        self.igst = 0
                 else:
-                    self.igst_total = self.igst * self.total / 100
+                    self.tax = self.stock_item.integrated_tax
+
+
+        if self.sale_voucher.company.gst_registration_type == 'Regular':
+            if self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.nature_transactions_sales == 'Interstate Deemed Exports Taxable':
+                self.cgst_total = 0
+                self.sgst_total = 0
+                self.igst_total = self.igst * self.total / 100
+
+            elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
+                self.cgst_total = 0
+                self.sgst_total = 0
+                self.igst_total = self.igst * self.total / 100
+
+            elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
+                self.cgst_total = 0
+                self.sgst_total = 0
+                self.igst_total = self.igst * self.total / 100
+
+            elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
+                self.cgst_total = 0
+                self.sgst_total = 0
+                self.igst_total = self.igst * self.total / 100
+
+            elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
+                self.cgst_total = 0
+                self.sgst_total = 0
+                self.igst_total = self.igst * self.total / 100
+
+            elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Andaman & Nicobar Islands' and self.sale_voucher.party_ac.state == 'Andaman & Nicobar Islands' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Chandigarh' and self.sale_voucher.party_ac.state == 'Chandigarh' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Dadra and Nagar Haveli' and self.sale_voucher.party_ac.state == 'Dadra and Nagar Haveli' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Daman and Diu' and self.sale_voucher.party_ac.state == 'Daman and Diu' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
+
+            elif self.sale_voucher.company.organisation.state == 'Lakshadweep' and self.sale_voucher.party_ac.state == 'Lakshadweep' and self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                self.cgst_total = self.cgst * self.total / 100
+                self.sgst_total = self.sgst * self.total / 100
+                self.igst_total = 0
             else:
-                self.sgst_total = self.tax * self.total / 100
-                self.tax_total = self.tax * self.total / 100
+                self.cgst_total = 0
+                self.sgst_total = 0
+                self.igst_total = 0
+        else:
+            self.sgst_total = self.tax * self.total / 100
+            self.tax_total = self.tax * self.total / 100
         super(SaleStock, self).save()
 
 
@@ -848,8 +1174,8 @@ class SaleTerm(models.Model):
     Sale Term Model
     """
     sale_voucher = models.ForeignKey(SaleVoucher, on_delete=models.CASCADE, related_name='sale_voucher_term')
-    ledger = models.ForeignKey(LedgerMaster, on_delete=models.CASCADE, related_name='sale_term_ledger')
-    rate = models.DecimalField(default=00, max_digits=10, decimal_places=2)
+    ledger = models.ForeignKey(LedgerMaster, on_delete=models.CASCADE, related_name='sale_term_ledger',blank=True)
+    rate = models.DecimalField(default=00, max_digits=10, decimal_places=2,blank=True)
     tax = models.DecimalField(default=00, max_digits=10, decimal_places=2)
     cgst = models.DecimalField(default=00, max_digits=10, decimal_places=2)
     sgst = models.DecimalField(default=00, max_digits=10, decimal_places=2)
@@ -871,265 +1197,333 @@ class SaleTerm(models.Model):
         return str(self.ledger)
 
     def save(self, **kwargs):
-        # if self.total == 0:
-        #     if self.rate != 0:
-        #         self.total = self.sale_voucher.sub_total * (self.rate / 100)
+        if not self.total:
+            self.total = 0
+        if not self.rate:
+            self.rate = 0
+            
+        if self.total == 0:
+            if self.rate != 0:
+                self.total = self.sale_voucher.sub_total * (self.rate / 100)
 
         if self.ledger:
-            if self.sale_voucher.company.gst_registration_type == 'Regular':
-                if self.sale_voucher.nature_transactions_sales == 'Not Applicable':
-                    if self.ledger.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                            self.cgst = self.ledger.central_tax
-                            self.sgst = self.ledger.state_tax
-                            self.igst = 0
+            if self.ledger.ledger_group.group_base.name != 'Indirect Expenses' and self.ledger.ledger_group.group_base.name != 'Direct Expenses' and self.ledger.ledger_group.group_base.name != 'Purchase Accounts':
+                if self.sale_voucher.company.gst_registration_type == 'Regular':
+                    if self.sale_voucher.nature_transactions_sales == 'Not Applicable':
+                        if self.ledger.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place.id == self.sale_voucher.company.organisation.state.id:
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
 
-                        else:
-                            self.cgst = self.sale_voucher.company.central_tax
-                            self.sgst = self.sale_voucher.company.state_tax
-                            self.igst = 0
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
 
-                    elif self.ledger.nature_transactions_sales == 'Intrastate Sales Taxable':
-                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                            self.cgst = self.ledger.central_tax
-                            self.sgst = self.ledger.state_tax
-                            self.igst = 0
+                        elif self.ledger.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place.id != self.sale_voucher.company.organisation.state.id:
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
 
-                        else:
-                            self.cgst = self.sale_voucher.company.central_tax
-                            self.sgst = self.sale_voucher.company.state_tax
-                            self.igst = 0
+                        elif self.ledger.nature_transactions_sales == 'Deemed Exports Taxable':
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
 
-                    elif self.ledger.nature_transactions_sales == 'sales to Consumer - Taxable':
-                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                            self.cgst = self.ledger.central_tax
-                            self.sgst = self.ledger.state_tax
-                            self.igst = 0
-                        else:
-                            self.cgst = self.sale_voucher.company.central_tax
-                            self.sgst = self.sale_voucher.company.state_tax
-                            self.igst = 0
-                    elif self.ledger.nature_transactions_sales == 'Deemed Exports Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.ledger.nature_transactions_sales == 'Exports Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.ledger.nature_transactions_sales == 'Interstate Sales - Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.ledger.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
 
+                        elif self.ledger.nature_transactions_sales == 'Intrastate Sales Taxable':
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
+
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
+
+                        elif self.ledger.nature_transactions_sales == 'sales to Consumer - Taxable':
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
+                        elif self.ledger.nature_transactions_sales == 'Interstate Deemed Exports Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.ledger.nature_transactions_sales == 'Exports Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.ledger.nature_transactions_sales == 'Interstate Sales - Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.ledger.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.ledger.nature_transactions_sales == 'Sales to SEZ - Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
                         else:
                             self.cgst = 0
+                            self.igst = 0
                             self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.ledger.nature_transactions_sales == 'Sales to SEZ - Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
                             self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
                     else:
-                        self.cgst = 0
-                        self.igst = 0
-                        self.sgst = 0
-                        self.sgst = 0
+                        if self.sale_voucher.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place.id == self.sale_voucher.company.organisation.state.id:
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
+
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
+
+                        elif self.sale_voucher.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place.id != self.sale_voucher.company.organisation.state.id:
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+
+                        elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
+
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
+
+                        elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
+
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
+
+                        elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                            if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                                self.cgst = self.ledger.central_tax
+                                self.sgst = self.ledger.state_tax
+                                self.igst = 0
+                            else:
+                                self.cgst = self.sale_voucher.company.central_tax
+                                self.sgst = self.sale_voucher.company.state_tax
+                                self.igst = 0
+                        elif self.sale_voucher.nature_transactions_sales == 'Interstate Deemed Exports Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
+                            if self.ledger.integrated_tax != 0:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.ledger.integrated_tax
+                            else:
+                                self.cgst = 0
+                                self.sgst = 0
+                                self.igst = self.sale_voucher.company.integrated_tax
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+                            self.sgst = 0
+
                 else:
-                    if self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                            self.cgst = self.ledger.central_tax
-                            self.sgst = self.ledger.state_tax
-                            self.igst = 0
+                    self.tax = self.ledger.integrated_tax
 
-                        else:
-                            self.cgst = self.sale_voucher.company.central_tax
-                            self.sgst = self.sale_voucher.company.state_tax
-                            self.igst = 0
+        if self.ledger:  
+            if self.ledger.ledger_group.group_base.name != 'Direct Expenses' and self.ledger.ledger_group.group_base.name != 'Indirect Expenses' and self.ledger.ledger_group.group_base.name != 'Purchase Accounts': 
+                if self.sale_voucher.company.gst_registration_type == 'Regular':
+                    if self.sale_voucher.nature_transactions_sales == 'Not Applicable':
 
-                    elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                            self.cgst = self.ledger.central_tax
-                            self.sgst = self.ledger.state_tax
-                            self.igst = 0
+                        if self.ledger.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place == self.sale_voucher.company.organisation.state:
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
 
-                        else:
-                            self.cgst = self.sale_voucher.company.central_tax
-                            self.sgst = self.sale_voucher.company.state_tax
-                            self.igst = 0
+                        elif self.ledger.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place != self.sale_voucher.company.organisation.state:
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
 
-                    elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                            self.cgst = self.ledger.central_tax
-                            self.sgst = self.ledger.state_tax
-                            self.igst = 0
-                        else:
-                            self.cgst = self.sale_voucher.company.central_tax
-                            self.sgst = self.sale_voucher.company.state_tax
-                            self.igst = 0
-                    elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
+                        elif self.ledger.nature_transactions_sales == 'Deemed Exports Taxable':
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
 
+                        elif self.ledger.nature_transactions_sales == 'Intrastate Sales Taxable':
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
+
+                        elif self.ledger.nature_transactions_sales == 'sales to Consumer - Taxable':
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
+
+                        elif self.ledger.nature_transactions_sales == 'Interstate Deemed Exports Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
+
+                        elif self.ledger.nature_transactions_sales == 'Exports Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
+
+                        elif self.ledger.nature_transactions_sales == 'Interstate Sales - Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
+
+                        elif self.ledger.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
+
+                        elif self.ledger.nature_transactions_sales == 'Sales to SEZ - Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
                         else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
-                    elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
-                        if self.ledger.integrated_tax != 0:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.ledger.integrated_tax
-                        else:
-                            self.cgst = 0
-                            self.sgst = 0
-                            self.igst = self.sale_voucher.company.integrated_tax
+                            self.igst_total = self.igst * self.total / 100
                     else:
-                        self.cgst = 0
-                        self.igst = 0
-                        self.sgst = 0
-                        self.sgst = 0
+                        if self.sale_voucher.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place == self.sale_voucher.company.organisation.state:
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
 
-            else:
-                self.tax = self.ledger.integrated_tax
+                        elif self.sale_voucher.nature_transactions_sales == 'Not Applicable' and self.sale_voucher.supply_place != self.sale_voucher.company.organisation.state:
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
 
-        if self.ledger: 
-            if self.sale_voucher.company.gst_registration_type == 'Regular':
-                if self.sale_voucher.nature_transactions_sales == 'Not Applicable':
-                    if self.ledger.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                        self.cgst_total = self.cgst * self.total / 100
-                        self.sgst_total = self.sgst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
 
-                    elif self.ledger.nature_transactions_sales == 'Intrastate Sales Taxable':
-                        self.cgst_total = self.cgst * self.total / 100
-                        self.sgst_total = self.sgst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
 
-                    elif self.ledger.nature_transactions_sales == 'sales to Consumer - Taxable':
-                        self.cgst_total = self.cgst * self.total / 100
-                        self.sgst_total = self.sgst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
+                            self.cgst_total = self.cgst * self.total / 100
+                            self.sgst_total = self.sgst * self.total / 100
 
-                    elif self.ledger.nature_transactions_sales == 'Deemed Exports Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'Interstate Deemed Exports Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
 
-                    elif self.ledger.nature_transactions_sales == 'Exports Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
 
-                    elif self.ledger.nature_transactions_sales == 'Interstate Sales - Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
 
-                    elif self.ledger.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
 
-                    elif self.ledger.nature_transactions_sales == 'Sales to SEZ - Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
-                    else:
-                        self.igst_total = self.igst * self.total / 100
+                        elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
+                            self.cgst_total = 0
+                            self.sgst_total = 0
+                            self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.igst_total = self.igst * self.total / 100
+
                 else:
-                    if self.sale_voucher.nature_transactions_sales == 'Intrastate Deemed Exports Taxable':
-                        self.cgst_total = self.cgst * self.total / 100
-                        self.sgst_total = self.sgst * self.total / 100
-
-                    elif self.sale_voucher.nature_transactions_sales == 'Intrastate Sales Taxable':
-                        self.cgst_total = self.cgst * self.total / 100
-                        self.sgst_total = self.sgst * self.total / 100
-
-                    elif self.sale_voucher.nature_transactions_sales == 'sales to Consumer - Taxable':
-                        self.cgst_total = self.cgst * self.total / 100
-                        self.sgst_total = self.sgst * self.total / 100
-
-                    elif self.sale_voucher.nature_transactions_sales == 'Deemed Exports Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
-
-                    elif self.sale_voucher.nature_transactions_sales == 'Exports Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
-
-                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales - Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
-
-                    elif self.sale_voucher.nature_transactions_sales == 'Interstate Sales to Embassy / UN Body Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
-
-                    elif self.sale_voucher.nature_transactions_sales == 'Sales to SEZ - Taxable':
-                        self.cgst_total = 0
-                        self.sgst_total = 0
-                        self.igst_total = self.igst * self.total / 100
-                    else:
-                        self.igst_total = self.igst * self.total / 100
-
-            else:
-                self.tax_total = self.tax * self.total / 100
+                    self.tax_total = self.tax * self.total / 100
         super(SaleTerm, self).save()
 
 

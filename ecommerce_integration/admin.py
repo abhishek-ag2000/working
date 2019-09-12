@@ -2,7 +2,8 @@
 Admin
 """
 from django.contrib import admin
-from ecommerce_integration.models import Coupon, Product, ProductReview, Services, API, RoleBasedProduct
+from ecommerce_integration.models import Product, ProductReview, Services, API, RoleBasedProduct
+from ecommerce_integration.models import ProductFeature, PriceModel, ProductSubscription, CashBackWallet
 
 
 class ProductReviewAdmin(admin.TabularInline):
@@ -34,9 +35,12 @@ class RoleBasedProductAdmin(admin.ModelAdmin):
     search_fields = ['title', 'price']
 
 
-admin.site.register(Coupon)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductReview)
 admin.site.register(Services)
 admin.site.register(API)
 admin.site.register(RoleBasedProduct, RoleBasedProductAdmin)
+admin.site.register(ProductFeature)
+admin.site.register(PriceModel)
+admin.site.register(ProductSubscription)
+admin.site.register(CashBackWallet)

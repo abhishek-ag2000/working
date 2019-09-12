@@ -2,7 +2,7 @@
 <tr>
 
   <td><a
-      href="{% url 'accounting_entry:groupdetail' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{forloop.counter}}</a>
+      href="{% url 'accounting_entry:groupdetail' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.counter}}</a>
   </td>
 
   <td><a
@@ -13,6 +13,11 @@
       href="{% url 'accounting_entry:groupdetail' company_pk=company.pk ledger_group_pk=group.pk period_selected_pk=period_selected.pk %}">{{group.self_group}}</a>
   </td>
 
+{% if group.counter >= 1 and group.counter <= 29 %}
+<td></td>
+
+{% else %}
+
   <td>
     <center>
       <button class="btn btn-danger show-form-delete"
@@ -22,6 +27,7 @@
     </center>
 
   </td>
+{% endif %}
 
 </tr>
 

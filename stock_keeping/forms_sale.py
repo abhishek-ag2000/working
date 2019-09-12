@@ -39,8 +39,6 @@ class SaleForm(forms.ModelForm):
         self.fields['consignee_address'].widget.attrs = {'class': 'form-control', }
         self.fields['consignee_pan'].widget.attrs = {'class': 'form-control', }
         self.fields['consignee_gstin'].widget.attrs = {'class': 'form-control', }
-        self.fields['consignee_pan'].widget.attrs['disabled'] = True
-        self.fields['consignee_gstin'].widget.attrs['disabled'] = True
         self.fields['consignee_contact'].widget.attrs = {
             'class': 'form-control', }
         self.fields['consignee_country'].widget.attrs = {
@@ -63,10 +61,9 @@ class SaleForm(forms.ModelForm):
         self.fields['nature_transactions_sales'].widget.attrs = {
             'class': 'select2_demo_2 form-control col-lg-8', 'onchange': 'gst_change(this)', }
         self.fields['supply_place'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', }
+            'class': 'select2_demo_2 form-control', 'onchange': 'place_details_value(this)',}
         self.fields['supply_place'].initial = self.company.organisation.state.id
         self.fields['consignee_state'].widget.attrs = {'class': 'form-control', }
-        self.fields['consignee_state'].widget.attrs['disabled'] = True
         self.fields['consignee_state'].initial = self.company.organisation.state.id
         self.fields['supplier_ref'].widget.attrs = {'class': 'form-control', }
         self.fields['gst_details'].widget.attrs = {
@@ -98,7 +95,7 @@ class SaleForm(forms.ModelForm):
         nature_transactions_sales = self.cleaned_data['nature_transactions_sales']
         supply_place = self.cleaned_data['supply_place']
 
-        if self.company.organisation.state == supply_place and nature_transactions_sales == 'Interstate Sales   - Taxable':
+        if self.company.organisation.state == supply_place and nature_transactions_sales == 'Interstate Sales - Taxable':
             raise ValidationError(
                 "This nature of transaction in not valid for the given Place of Supply")
         if self.company.organisation.state == supply_place and nature_transactions_sales == 'Deemed Exports Exempt':
@@ -165,6 +162,21 @@ class SaleForm(forms.ModelForm):
             raise ValidationError(
                 "This nature of transaction in not valid for the given Place of Supply")
         return supply_place
+
+    def clean_ref_no(self):
+        """
+        Clean function to raise Validation Error if Invoice Number already exist in a company.
+        """
+        ref_no = self.cleaned_data['ref_no']
+        master_id = 0
+
+        if self.instance:
+            # master id is used to exclude current master so that it is not checked as duplicate
+            master_id = self.instance.id
+
+        if SaleVoucher.objects.filter(company=self.company, ref_no__iexact=ref_no).exclude(id=master_id).exists():
+            raise forms.ValidationError("This Invoice Number already exists")
+        return ref_no
 
 
 class SaleFormAdmin(forms.ModelForm):
@@ -267,6 +279,24 @@ class SaleStockForm(forms.ModelForm):
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'step': 'any', 'onchange': 'calcProductRate(this)', }
 
+    # def clean(self):
+
+    #     cleaned_data = super().clean()
+    #     stock_item = cleaned_data.get("stock_item")
+    #     quantity = cleaned_data.get("quantity")
+    #     rate = cleaned_data.get("rate")
+
+
+    #     if not stock_item:
+    #         msg = "Product must be selected."
+    #         self.add_error('stock_item', msg)
+    #     if quantity <= 0:
+    #         msg = "Quantity cannot be zero or negative."
+    #         self.add_error('quantity', msg)
+    #     if  rate <= 0:
+    #         msg = "Rate cannot be zero or negative."
+    #         self.add_error('rate', msg)
+
     def clean_stock_item(self):
         stock_item = self.cleaned_data['stock_item']
         print(self.company)
@@ -276,7 +306,7 @@ class SaleStockForm(forms.ModelForm):
 
     def clean_quantity(self):
         quantity = self.cleaned_data['quantity']
-        if quantity <= 0:
+        if quantity < 0:
             raise forms.ValidationError("Quantity cannot be zero or negative")
         print(quantity)
         return quantity
@@ -313,7 +343,8 @@ class SaleStockFormSet(forms.BaseInlineFormSet):
                 # if not stock_item:
                 #     raise forms.ValidationError("Please choose a product", "error")
 
-        if form_changed_count == 0:
+        if form.changed_data and form_changed_count == 0:
+            print('Form Changed')
             raise forms.ValidationError("At least one stock details must be supplied", "error")
 
 
@@ -344,16 +375,30 @@ class SaleTermForm(forms.ModelForm):
 
         self.fields['ledger'].queryset = LedgerMaster.objects.filter(
             Q(company=self.company),
-            Q(ledger_group__group_base__is_revenue__exact='Yes'))
+            Q(ledger_group__group_base__name__exact='Sales Accounts') |
+            Q(ledger_group__group_base__name__exact='Direct Incomes') |
+            Q(ledger_group__group_base__name__exact='Indirect Incomes') |
+            Q(ledger_group__group_base__name__exact='Indirect Expenses') |
+            Q(ledger_group__group_base__name__exact='Direct Expenses'))
         self.fields['ledger'].widget.attrs = {
             'class': 'select2_demo_2 form-control', 'onchange': 'additional_ledger_value(this)'}
         self.fields['rate'].widget.attrs = {
-            'class': 'form-control', 'step': 'any'}
+            'class': 'form-control', 'step': 'any','onchange': 'additional_ledger_changed_rate(this)',}
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
 
 
-SALE_TERM_FORM_SET = inlineformset_factory(SaleVoucher, SaleTerm, form=SaleTermForm, extra=2)
+
+SALE_TERM_FORM_SET = inlineformset_factory(
+    SaleVoucher,
+    SaleTerm,
+    form=SaleTermForm,
+    extra=1,
+    min_num=1,
+    max_num=100,
+    validate_max=True,
+    can_delete=True
+    )
 
 
 class SaleTaxForm(forms.ModelForm):
@@ -377,4 +422,14 @@ class SaleTaxForm(forms.ModelForm):
             'class': 'form-control', 'step': 'any'}
 
 
-SALE_TAX_FORM_SET = inlineformset_factory(SaleVoucher, SaleTax, form=SaleTaxForm, extra=2)
+
+SALE_TAX_FORM_SET = inlineformset_factory(
+    SaleVoucher,
+    SaleTax,
+    form=SaleTaxForm,
+    extra=2,
+    min_num=1,
+    max_num=100,
+    validate_max=True,
+    can_delete=True
+)

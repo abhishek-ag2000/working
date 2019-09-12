@@ -7,14 +7,16 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import (
-    CreateView, UpdateView, DetailView, TemplateView, View)
+    CreateView, UpdateView, DetailView, TemplateView, View,DeleteView)
 # from common.models import User, Comment, Attachments
+
+from bracketline.models import BracketlineUser
 from django.conf import settings    #import user
 from company.models import Company  #import company
-# from common.forms import BillingAddressForm
-from CRMcommon.utils import COUNTRIES
+from CRMcommon.forms import BillingAddressForm
+# from CRMcommon.utils import COUNTRIES
 from .models_contacts import Contact
-from .forms_contacts import (ContactForm, ContactCommentForm, ContactAttachmentForm) 
+from .forms_contacts import (ContactForm) 
 from .models_accounts import Account
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -93,32 +95,37 @@ class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequired
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
-"""
-class CreateContactView(SalesAccessRequiredMixin, LoginRequiredMixin, CreateView):
+
+class CreateContactView(CreateView):
     model = Contact
     form_class = ContactForm
-    template_name = "create_contact.html"
+    template_name = "contacts/create_contact.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if self.request.user.role == 'ADMIN' or self.request.user.is_superuser:
-            self.users = settings.AUTH_USER_MODEL.objects.filter(is_active=True).order_by('email')
-        else:
-            self.users = settings.AUTH_USER_MODEL.objects.filter(role='ADMIN').order_by('email')
-        return super(CreateContactView, self).dispatch(
-            request, *args, **kwargs)
+    # def dispatch(self, request, *args, **kwargs):
+    #     print('wwwwwwwwwwwwwwwwwwwwwwwwwwww')
 
-    def get_form_kwargs(self):
-        kwargs = super(CreateContactView, self).get_form_kwargs()
-        if self.request.user.role == 'ADMIN' or self.request.user.is_superuser:
-            self.users = settings.AUTH_USER_MODEL.objects.filter(is_active=True).order_by('email')
-            kwargs.update({"assigned_to": self.users})
-        return kwargs
+    #     if self.request.user.is_superuser:
+    #         self.users = settings.AUTH_USER_MODEL.objects.filter().order_by('email')
+    #         print(self.users)
+    #     else:
+    #         self.users = settings.AUTH_USER_MODEL.objects.filter().order_by('email')
+    #     return super(UpdateContactView, self).dispatch(
+    #         request, *args, **kwargs)
+
+    # def get_form_kwargs(self):
+    #     kwargs = super(CreateContactView, self).get_form_kwargs()
+    #     if self.request.user.is_superuser:
+    #         self.users = settings.AUTH_USER_MODEL.objects.filter(is_active=True).order_by('email')
+    #         kwargs.update({"assigned_to": self.users})
+
+    #     return kwargs
 
     def post(self, request, *args, **kwargs):
         self.object = None
         form = self.get_form()
         address_form = BillingAddressForm(request.POST)
         if form.is_valid() and address_form.is_valid():
+            
             address_obj = address_form.save()
             contact_obj = form.save(commit=False)
             contact_obj.address = address_obj
@@ -133,67 +140,89 @@ class CreateContactView(SalesAccessRequiredMixin, LoginRequiredMixin, CreateView
 
         return self.form_invalid(form)
 
-    def form_valid(self, form):
-        contact_obj = form.save(commit=False)
-        if self.request.POST.getlist('assigned_to', []):
-            contact_obj.assigned_to.add(
-                *self.request.POST.getlist('assigned_to'))
+    # def form_valid(self, form):
+    #     c = Company.objects.get(pk=self.kwargs['organisation_pk'])
+    #     form.instance.company = c
+    #     contact_obj = form.save(commit=False)
+    #     if self.request.POST.getlist('assigned_to', []):
+    #         contact_obj.assigned_to.add(
+    #             *self.request.POST.getlist('assigned_to'))
             # for assigned_to_user in assigned_to_list:
-            #     user = get_object_or_404(User, pk=assigned_to_user)
-            #     mail_subject = 'Assigned to contact.'
-            #     message = render_to_string(
-            #         'assigned_to/contact_assigned.html', {
-            #             'user': user,
-            #             'domain': current_site.domain,
-            #             'protocol': self.request.scheme,
-            #             'contact': contact_obj
-            #         })
-            #     email = EmailMessage(mail_subject, message, to=[user.email])
-            #     email.content_subtype = "html"
-            #     email.send()
-        if self.request.POST.getlist('teams', []):
-            user_ids = Teams.objects.filter(id__in=self.request.POST.getlist('teams')).values_list('users', flat=True)
-            assinged_to_users_ids = contact_obj.assigned_to.all().values_list('id', flat=True)
-            for user_id in user_ids:
-                if user_id not in assinged_to_users_ids:
-                    contact_obj.assigned_to.add(user_id)
+                # user = get_object_or_404(User, pk=assigned_to_user)
+                # mail_subject = 'Assigned to contact.'
+                # message = render_to_string(
+                #     'assigned_to/contact_assigned.html', {
+                #         'user': user,
+                #         'domain': current_site.domain,
+                #         'protocol': self.request.scheme,
+                #         'contact': contact_obj
+                #     })
+                # email = EmailMessage(mail_subject, message, to=[user.email])
+                # email.content_subtype = "html"
+                # email.send()
+        # if self.request.POST.getlist('teams', []):
+        #     user_ids = Teams.objects.filter(id__in=self.request.POST.getlist('teams')).values_list('users', flat=True)
+        #     assinged_to_users_ids = contact_obj.assigned_to.all().values_list('id', flat=True)
+        #     for user_id in user_ids:
+        #         if user_id not in assinged_to_users_ids:
+        #             contact_obj.assigned_to.add(user_id)
 
-        assigned_to_list = list(contact_obj.assigned_to.all().values_list('id', flat=True))
-        current_site = get_current_site(self.request)
-        recipients = assigned_to_list
-        send_email_to_assigned_user.delay(recipients, contact_obj.id, domain=current_site.domain,
-            protocol=self.request.scheme)
+        # assigned_to_list = list(contact_obj.assigned_to.all().values_list('id', flat=True))
+        # current_site = get_current_site(self.request)
+        # recipients = assigned_to_list
+        # send_email_to_assigned_user.delay(recipients, contact_obj.id, domain=current_site.domain,
+        #     protocol=self.request.scheme)
 
-        if self.request.FILES.get('contact_attachment'):
-            attachment = Attachments()
-            attachment.created_by = self.request.user
-            attachment.file_name = self.request.FILES.get(
-                'contact_attachment').name
-            attachment.contact = contact_obj
-            attachment.attachment = self.request.FILES.get(
-                'contact_attachment')
-            attachment.save()
 
-        if self.request.is_ajax():
-            return JsonResponse({'error': False})
-        if self.request.POST.get("savenewform"):
-            return redirect("contacts:add_contact")
+        # if self.request.FILES.get('contact_attachment'):
+        #     attachment = Attachments()
+        #     attachment.created_by = self.request.user
+        #     attachment.file_name = self.request.FILES.get(
+        #         'contact_attachment').name
+        #     attachment.contact = contact_obj
+        #     attachment.attachment = self.request.FILES.get(
+        #         'contact_attachment')
+        #     attachment.save()
 
-        return redirect('contacts:list')
+        # if self.request.is_ajax():
+        #     return JsonResponse({'error': False})
+        # if self.request.POST.get("savenewform"):
+        #     return redirect("contacts:add_contact")
 
-    def form_invalid(self, form):
-        address_form = BillingAddressForm(self.request.POST)
-        if self.request.is_ajax():
-            return JsonResponse({'error': True, 'contact_errors': form.errors,
-                                 'address_errors': address_form.errors})
-        return self.render_to_response(
-            self.get_context_data(form=form, address_form=address_form))
+        # return redirect('contacts:list')
+    def get_success_url(self, **kwargs):
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+        return reverse('CRM:crm_contacts', kwargs={'organisation_pk': organisation.pk})
+
+    def form_valid(self, form):
+        print("befor save")
+        c = Company.objects.get(pk=self.kwargs['organisation_pk'])
+        form.instance.company = c
+        form.instance.created_by = self.request.user
+        
+        
+        return super(CreateContactView, self).form_valid(form)
+
+    # def form_invalid(self, form):
+    #     address_form = BillingAddressForm(self.request.POST)
+    #     if self.request.is_ajax():
+    #         return JsonResponse({'error': True, 'contact_errors': form.errors,
+    #                              'address_errors': address_form.errors})
+    #     return self.render_to_response(
+    #         self.get_context_data(form=form, address_form=address_form))
 
     def get_context_data(self, **kwargs):
         context = super(CreateContactView, self).get_context_data(**kwargs)
+
+        
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+        context['organisation'] = organisation
+
         context["contact_form"] = context["form"]
-        context["users"] = self.users
-        context["countries"] = COUNTRIES
+        
+        
         context["assignedto_list"] = [
             int(i) for i in self.request.POST.getlist('assigned_to', []) if i]
         if "address_form" in kwargs:
@@ -205,7 +234,116 @@ class CreateContactView(SalesAccessRequiredMixin, LoginRequiredMixin, CreateView
                 context["address_form"] = BillingAddressForm()
         return context
 
+class UpdateContactView(UpdateView):
+    model = Contact
+    form_class = ContactForm
+    template_name = "contacts/create_contact.html"
 
+    def get_object(self):
+            return get_object_or_404(Contact, pk=self.kwargs['contact_pk'])
+  
+    def get_success_url(self, **kwargs):
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+        return reverse('CRM:crm_contacts', kwargs={'organisation_pk': organisation.pk})
+
+    def form_valid(self, form):
+        print("befor save")
+        c = Company.objects.get(pk=self.kwargs['organisation_pk'])
+        form.instance.company = c
+        form.instance.user = self.request.user
+        print(form.instance.user)
+        return super(UpdateContactView, self).form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        address_obj = self.object.address
+      
+        form = self.get_form()
+        address_form = BillingAddressForm(request.POST, instance=address_obj)
+        if form.is_valid() and address_form.is_valid():
+            addres_obj = address_form.save()
+            contact_obj = form.save(commit=False)
+            contact_obj.address = addres_obj
+            contact_obj.save()
+            return self.form_valid(form)
+        return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateContactView, self).get_context_data(**kwargs)
+        
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+        context['organisation'] = organisation
+
+        context["contact_form"] = context["form"]
+        
+        
+        context["assignedto_list"] = [int(i) for i in self.request.POST.getlist('assigned_to', []) if i]
+        # if "address_form" in kwargs:
+        #     context["address_form"] = kwargs["address_form"]
+        # else:
+            # if self.request.POST:
+        address_obj = self.get_object().address
+        
+        context["address_form"] = BillingAddressForm(instance=address_obj)
+            # else:
+            #     context["address_form"] = BillingAddressForm()
+        return context
+
+
+class DeleteContactView(DeleteView):
+    model = Contact
+    template_name = "contacts/contact_confirm_delete.html"
+    
+
+    
+
+    def get_object(self):
+        contact_pk = self.kwargs['contact_pk']
+        contact = get_object_or_404(Contact, pk=contact_pk)
+        return contact
+  
+    def get_success_url(self, **kwargs):
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+        return reverse('CRM:crm_contacts', kwargs={'organisation_pk': organisation.pk})
+
+
+    def get_context_data(self, **kwargs):
+        context = super(DeleteContactView, self).get_context_data(**kwargs)
+
+        
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+        context['organisation'] = organisation
+
+        # context["contact_form"] = context["form"]
+
+        return context
+
+class DetailContactView(DetailView):
+    model = Contact
+    template_name = "contacts/contact_detail.html"
+
+    def get_object(self):
+            return get_object_or_404(Contact, pk=self.kwargs['contact_pk'])
+
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailContactView, self).get_context_data(**kwargs)
+        organisation = get_object_or_404(
+            Organisation, pk=self.kwargs['organisation_pk'])
+
+        context['organisation'] = organisation
+        contact_details=get_object_or_404(
+            Contact, pk=self.kwargs['contact_pk'])
+        context['contact_details']=contact_details
+
+        
+
+        return context
+"""
 class ContactDetailView(SalesAccessRequiredMixin, LoginRequiredMixin, DetailView):
     model = Contact
     context_object_name = "contact_record"

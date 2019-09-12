@@ -98,7 +98,8 @@ class LedgerMaster(models.Model):
     party_name = models.CharField(max_length=100, blank=True)
     address = models.TextField(blank=True)
     city = models.CharField(max_length=100, blank=True)
-    country = models.ForeignKey(CountryMaster, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='ledger_master_country')
+    country = models.ForeignKey(
+        CountryMaster, default=12, related_name="ledger_master_country", on_delete=models.DO_NOTHING, blank=True)
     state = models.ForeignKey(StateMaster, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='ledger_master_state')
     pin_code = models.CharField(max_length=6, blank=True)
     pan_no = models.CharField(max_length=10, blank=True)
@@ -301,6 +302,7 @@ class LedgerMaster(models.Model):
     central_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2, blank=True)
     state_tax = models.DecimalField(default=0.00, max_digits=20, decimal_places=2, blank=True)
     cess = models.DecimalField(default=0.00, max_digits=20, decimal_places=2, blank=True)
+    assessee_of_other_teritory = models.CharField(max_length=3, choices=yes_no_choice, default='No', blank=True)
 
     def __str__(self):
         return self.ledger_name
@@ -325,7 +327,9 @@ class LedgerMaster(models.Model):
 
     def save(self, *args, **kwargs):
         if self.country != 'India':
-            self.state.state_name = "Other Territory"
+            if self.state:
+                self.state.state_name = "Other Territory"
+
         if not self.url_hash:
             if self.user.profile.user_type == 'Bussiness User':
                 self.url_hash = 'BU' + '-' + str(self.user.id) + '-' + 'P' + '-' + '1' + '-' + 'C' + str(
@@ -465,7 +469,7 @@ class PaymentVoucherRows(models.Model):
     """
     payment = models.ForeignKey(PaymentVoucher, on_delete=models.CASCADE, related_name='payment_payment_voucher_row')
     particular = models.ForeignKey(LedgerMaster, on_delete=models.DO_NOTHING, related_name='ledger_paryment_voucher_row')
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    amount = models.DecimalField(max_digits=20, decimal_places=2,default=0)
 
     def __str__(self):
         return str(self.payment + " -> " + self.particular)
@@ -504,7 +508,7 @@ class ReceiptVoucherRows(models.Model):
     """
     receipt = models.ForeignKey(ReceiptVoucher, on_delete=models.CASCADE, related_name='receipt_receipt_voucher_row')
     particular = models.ForeignKey(LedgerMaster, on_delete=models.CASCADE, related_name='ledger_receipt_voucher_row')
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    amount = models.DecimalField(max_digits=20, decimal_places=2,default=0)
 
     def __str__(self):
         return str(self.receipt + " -> " + self.particular)
@@ -543,7 +547,7 @@ class ContraVoucherRows(models.Model):
     """
     contra = models.ForeignKey(ContraVoucher, on_delete=models.CASCADE, related_name='contra_contra_voucher_row')
     particular = models.ForeignKey(LedgerMaster, on_delete=models.DO_NOTHING, related_name='ledger_contra_voucher_row')
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    amount = models.DecimalField(max_digits=20, decimal_places=2,default=0)
 
     def __str__(self):
         return str(self.contra + " -> " + self.particular)

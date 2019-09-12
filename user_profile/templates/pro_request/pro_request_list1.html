@@ -1,0 +1,95 @@
+{% extends "clouderp/base_2.html" %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% block title %}Professional Requests{% endblock %}
+
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h3>Professional Request</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'user_profile:profiledetail' %}">Profile</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Professional Request</strong>
+            </li>
+        </ol>
+
+        <br>
+        <a href="{% url 'user_profile:pro_new_request' %}" class="btn btn-warning" role="button">Create New Request</a>
+        <a href="{% url 'user_profile:pro_doc_list' %}" class="btn btn-success" role="button">Upload Document</a>
+        <br>
+
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight ecommerce">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example"
+                            id="book-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <center>Sl.</center>
+                                    </th>
+                                    <th>
+                                        <center>Product</center>
+                                    </th>
+                                    <th>
+                                        <center>Phone</center>
+                                    </th>
+                                    <th>
+                                        <center>Phone Verified</center>
+                                    </th>
+                                    <th>
+                                        <center>Email</center>
+                                    </th>
+                                    <th>
+                                        <center>Email Verified</center>
+                                    </th>
+                                    <th>
+                                        <center>Request Date</center>
+                                    </th>
+                                    <th>
+                                        <center>Status</center>
+                                    </th>
+                                    <th>
+                                        <center>Remark</center>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% include "pro_request/pro_request_list2.html" %}
+
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <td colspan="6">
+                                        <ul class="pagination float-right"></ul>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

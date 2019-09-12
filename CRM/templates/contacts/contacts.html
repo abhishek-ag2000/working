@@ -55,10 +55,13 @@
 
         <div class="table_container_row row marl ">
             <div class="col-md-12">
+
               <div class="card">
+
                 <div class="card-body">
                   <div class="card-title text-right">
                     <span class="float-left">Contacts - {{contact_obj_list|length}}</span>
+                    <a href="{% url 'CRM:crm_contact_create' organisation_pk=organisation.pk %}" class="btn btn-info">add contact</a>
                   </div>
                   <div class="table-responsive">
                     <table class="table">
@@ -83,7 +86,12 @@
                               data-target="#exampleModalCenter_contact{{contact.id}}">{{contact.first_name}}
                               {{contact.last_name}}</a></td>
                           <td>
-                                {{contact.assigned_to}}
+                            <ul>
+                              {% for usr in contact.assigned_to.all %}
+                                <li>{{usr.profile.full_name}}</li>
+                              {% endfor %}
+                              </ul>
+                            
                           </td>
                           
                           <td>
@@ -91,12 +99,12 @@
                           </td>
                           <td title="{{contact.created_on}}">{{contact.created_on}}</td>
                           <td class="actions">
-                            <a href="" class="btn btn-info view"><i
+                            <a href="{% url 'CRM:crm_contact_detail' organisation_pk=organisation.pk contact_pk=contact.pk %}" class="btn btn-info view"><i
                                 class="glyphicon glyphicon-eye-open"></i></a>
-                            <a href="" class="btn btn-success edit"><i
+                            <a href="{% url 'CRM:crm_contact_update' organisation_pk=organisation.pk contact_pk=contact.pk %}" class="btn btn-success edit"><i
                                 class="glyphicon glyphicon-pencil"></i></a>
                             {% if request.user == contact.created_by or request.user.role == "ADMIN" or request.user.is_superuser %}
-                            <a href=""
+                            <a href="{% url 'CRM:crm_contact_delete' organisation_pk=organisation.pk contact_pk=contact.pk %}"
                               class="btn btn-danger delete remove_account"><i class="glyphicon glyphicon-trash"></i></a>
                             {% endif %}
                           </td>

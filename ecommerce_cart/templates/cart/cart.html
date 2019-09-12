@@ -6,188 +6,275 @@
 
 {% block content %}
 
-            <div class="row wrapper border-bottom white-bg page-heading">
-                <div class="col-lg-10">
-                    <h2>Cart</h2>
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                        <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Cart</strong>
-                    </li>
-                    </ol>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Cart</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ecommerce_integration:productlist' %}">Products</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Cart</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-md-9">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Items in your cart</h5>
                 </div>
-                <div class="col-lg-2">
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table shoping-cart-table">
 
-                </div>
-            </div>
-
-        <div class="wrapper wrapper-content animated fadeInRight">
-
-
-
-            <div class="row">
-                <div class="col-md-9">
-
-                    <div class="ibox">
-                        <div class="ibox-title">
-                            
-                            <h5>Items in your cart</h5>
-                        </div>
-                        <div class="ibox-content">
-
-
-                            <div class="table-responsive">
-                                <table class="table shoping-cart-table">
-
-                                    <tbody>
-                                    {% for item in order.get_cart_items %}
-                                    <tr>
-                                        <td width="90">
-                                            <div>
-                                            {% if item.product.image %}
-                                             <img class="product_img" src="{{ item.product.image.url }}/" alt="product picture" height="80" width="100">
+                            <tbody>
+                                {% for item in order.get_cart_items %}
+                                <tr>
+                                    <td width="90px">
+                                        <div>
+                                            {% if item.price_model.product.image %}
+                                            <img class="product_img" src="{{ item.price_model.product.image.url }}/"
+                                                alt="Product Picture" height="80" width="100">
                                             {% else %}
-                                            <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}" height="200" width="100">
+                                            <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}"
+                                                height="200" width="100">
                                             {% endif %}
-                                            </div>
-                                        </td>
-                                        <td class="desc">
-                                            <h3>
-                                            <a href="#" class="text-navy">
-                                                {{ item.product.title }}
+                                        </div>
+                                    </td>
+                                    <td class="desc">
+                                        <h3>
+                                            <a href="{% url 'ecommerce_integration:productdetail' product_pk=item.price_model.product.pk %}"
+                                                class="text-navy">
+                                                {{ item.price_model.product.title }}
                                             </a>
-                                            </h3>
-                                            <p class="small">
-                                                {{ item.product.summary }}
-                                            </p>
-                                            <dl class="small m-b-none">
-                                                <dt>Description lists</dt>
-                                                <dd>{{ item.product.description|safe|truncatewords:"9" }}</dd>
-                                            </dl>
+                                        </h3>
+                                        <h4>
+                                            {{ item.price_model.product_feature.feature_name }}
+                                        </h4>
+                                        <p class="small">
+                                            {{ item.price_model.product.summary }}
+                                        </p>
+                                        <dl class="small m-b-none">
+                                            <dt>Description:</dt>
+                                            <dd>{{ item.price_model.product.description|safe|truncatewords:"12" }}</dd>
+                                        </dl>
+                                        <div>
+                                            <hr>
+                                            Subscription Period: <strong>{{ item.month_count }}</strong> month<br />
 
-                                            <div class="m-t-sm">
-                                            
-                                                <a href="{% url 'ecommerce_cart:delete_item' item.id %}" data-balloon="remove this item from cart" class="text-muted" onclick="return confirm_delete();"><i class="fa fa-trash"></i> Remove item</a>
-                                            </div>
-                                        </td>
-
-                                        
-                                        <td>
-                                            <h4>
-                                               <strong>{{ item.product.price }}/-</strong>
-                                            </h4>
-                                        </td>
-                                    </tr>
-
-                                     {% empty %}
-
-                                          <tr>
-                                            <td colspan= 3> You have not added any items yet.</td>
-                                          </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <hr>
-
-                            <form>
-                                <h3><center><strong>Offers</strong></center></h3>
-                                <div class="form-group row"><label class="col-lg-2 col-form-label">Coupon Code</label>
-
-                                    <div class="col-lg-10"><input type="" class="form-control"  placeholder="CODE1">
-                                    </div>
-                                </div>
-                                <div class="form-group row"><label class="col-lg-2 col-form-label">Professional referral code</label>
-
-                                    <div class="col-lg-10"><input  class="form-control" placeholder="REFERRAL1"></div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="col-lg-offset-2 col-lg-10">
-                                        <div class="i-checks"><label> <input type="checkbox"><i></i> Remember me </label></div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="col-lg-offset-2 col-lg-10">
-                                        <center><button class="btn btn-sm btn-success" type="submit">Apply</button></center>
-                                    </div>
-                                </div>
-                            </form>
-
-                        </div>
-
-                         
-                            
-
-                        <div class="ibox-content">
-
-                            <a href="{% url 'ecommerce_integration:productlist' %}" class="btn btn-white"><i class="fa fa-arrow-left"></i> {% if order.get_cart_items %}Add more Products{% else %}Add Items to Cart {% endif %}</a>
-
-                        </div>
-                    </div>
-
-                </div>
-                <div class="col-md-3">
-
-                    <div class="ibox">
-                        <div class="ibox-title">
-                            <h5>Cart Summary</h5>
-                        </div>
-                        <div class="ibox-content">
-                        
-                        <table class="table">
-
-                            {% if order.get_cart_total != None %}
-                              <tr>
-                                <th style="width:50%">Subtotal:(&#8377;)</th>
-                                 <td><strong></strong>{{ order.get_cart_total }}</td>
-                              </tr>
-                              {% if company_details.State == purchase_details.State %}
-                                <tr>
-                                  <th style="width:50%">CGST:(&#8377;)</th>
-                                  <td>9.0%</td>
+                                            {% if item.renewal_discount_percent > 0 %}
+                                            Renewal Discount: <strong>{{ item.renewal_discount_percent }}</strong> %
+                                            {% endif %}
+                                        </div>
+                                        <div class="m-t-sm">
+                                            <hr />
+                                            <a href="{% url 'ecommerce_cart:delete_item' item.id %}"
+                                                data-balloon="remove this item from cart" class="text-muted"
+                                                onclick="return confirm_delete();"><i class="fa fa-trash"></i> Remove
+                                                item</a>
+                                        </div>
+                                        <hr />
+                                    </td>
+                                    <td>
+                                        <h4>
+                                            {% if item.renewal_discount_percent > 0 %}
+                                            <s>{{ item.get_item_gross_price|floatformat:2 }}/-</s>
+                                            <strong>{{ item.get_item_net_price|floatformat:2 }}/-</strong>
+                                            {% else %}
+                                            <strong>{{ item.get_item_net_price|floatformat:2 }}/-
+                                                {% endif %}
+                                        </h4>
+                                    </td>
                                 </tr>
+                                {% empty %}
                                 <tr>
-                                  <th style="width:50%">SGST:(&#8377;)</th>
-                                  <td>9.0%</td>
+                                    <td colspan=3>You have not added any items yet.</td>
                                 </tr>
-                              {% else %}
-                                <tr>
-                                  <th style="width:50%">IGST:(&#8377;)</th>
-                                  <td></td>
-                                </tr>
-                              {% endif %}
-                              <tr>
-                                <th style="width:50%">Total:(&#8377;)</th>
-                                <td>{{ order.get_cart_total|mul:18|div:100|add:order.get_cart_total|floatformat:2 }}</td>
-                              </tr>
-                            {% endif %}
-
-
+                                {% endfor %}
+                            </tbody>
                         </table>
-                            
-                            
-                            <div class="m-t-sm">
-                                <div class="btn-group">
-                                <a href="{% url 'ecommerce_cart:checkout' %}" class="btn btn-primary btn-sm"><i class="fa fa-shopping-cart"></i>&nbsp;Checkout</a>
-                                
-                                </div>
-                            </div>
-                        </div>
                     </div>
-
+                    <hr>
+                    <h3>
+                        <center><strong>Offers</strong></center>
+                    </h3>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label">Referral Code</label>
+                        <form method='POST' class="form-horizontal referral_form" id="ref_apply"
+                            action=" {% url 'ecommerce_cart:apply_ref_code_cart_json' %}">
+                            <div class="input-group input-group-sm">
+                                {% csrf_token %}
+                                {% if order.referral_code %}
+                                <input class="form-control" name="referral_code" value="{{ order.referral_code }}"
+                                    placeholder="REF#" maxlength="15" disabled>
+                                <div class="input-group-append"><button type="submit" class="btn btn-info pull-right"
+                                        disabled>Applied</button></div>
+                                <div class="col-lg-6 col-form-label">Referred by
+                                    <strong>{{ order.referrer.full_name }}</strong></div>
+                                {% else %}
+                                <input class="form-control" name="referral_code" value="" placeholder="REF#"
+                                    maxlength="15" required>
+                                <div class="input-group-append"><button type="submit"
+                                        class="btn btn-info pull-right">Apply</button></div>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <a href="{% url 'ecommerce_integration:productlist' %}" class="btn btn-white">
+                        <i class="fa fa-arrow-left"></i> {% if order.get_cart_items %}Add more Products{% else %}Add
+                        Items to Cart {% endif %}</a>
                 </div>
             </div>
-
-
-
-
         </div>
+        <div class="col-md-3">
+            {% if wallet_balance > 0 %}
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Wallet Balance</h5>
+                </div>
+                <div class="ibox-content">
 
-  <script>
-  function confirm_delete(){
-    return confirm("Do you want to remove this item from cart?");
-  }
-  </script>
+                    <table class="table">
+                        <tr>
+                            <th style="width:50%">You Have: (&#8377;)</th>
+                            <td>{{ wallet_balance|floatformat:2 }}</td>
+                        </tr>
+                        {% if wallet_apply_amount > 0 %}
+                        <tr>
+                            <th style="width:50%">Applied: (&#8377;)</th>
+                            <td>-{{ wallet_apply_amount|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:50%">Balance: (&#8377;)</th>
+                            <td>{{ wallet_balance|sub:wallet_apply_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    {% if wallet_apply_amount == 0 %}
+                    <div class="m-t-sm">
+                        <div class="btn-group">
+                            <a href="{% url 'ecommerce_cart:order_summary' 'APPLY_WALLET' %}" class="btn btn-primary btn-sm"><i
+                                    class="fa fa-money"></i>&nbsp;Apply Wallet Balance</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Cart Summary</h5>
+                </div>
+                <div class="ibox-content">
+
+                    <table class="table">
+                        <tr>
+                            <th style="width:50%">Subtotal: (&#8377;)</th>
+                            <td>{{ order.get_cart_total_product_value|floatformat:2 }}</td>
+                        </tr>
+
+                        {% if order.get_cart_total_renewal_discount > 0 %}
+                        <tr>
+                            <th style="width:50%">Renewal Disc.: (&#8377;)</th>
+                            <td>-{{ order.get_cart_total_renewal_discount|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+
+                        {% if order.get_cart_total_referral_discount > 0 %}
+                        <tr>
+                            <th style="width:50%">Referral Disc.: (&#8377;)</th>
+                            <td>-{{ order.get_cart_total_referral_discount|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+
+                        {% if company_details.State == purchase_details.State %}
+                        <tr>
+                            <th style="width:50%">CGST:</th>
+                            <td>{{ order.get_common_tax_percent|div:2|floatformat:1 }}%</td>
+                        </tr>
+                        <tr>
+                            <th style="width:50%">SGST:</th>
+                            <td>{{ order.get_common_tax_percent|div:2|floatformat:1 }}%</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <th style="width:50%">IGST:</th>
+                            <td>{{ order.get_common_tax_percent|floatformat:1 }}%</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th style="width:50%">Total: (&#8377;)</th>
+                            <td>{{ order_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% if wallet_apply_amount > 0 %}
+                        <tr>
+                            <th style="width:50%">Wallet: (&#8377;)</th>
+                            <td>-{{ wallet_apply_amount|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:50%">Pay: (&#8377;)</th>
+                            <td>{{ order_amount|sub:wallet_apply_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    <div class="m-t-sm">
+                        <div class="btn-group">
+                            <a href="{% url 'ecommerce_cart:checkout' %}" class="btn btn-primary btn-sm"><i
+                                    class="fa fa-shopping-cart"></i>&nbsp;Checkout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    function confirm_delete() {
+        return confirm("Do you want to remove this item from cart?");
+    }
+
+    $(document).ready(function (event) {
+        $(document).on('submit', '.referral_form', function (event) {
+            event.preventDefault();
+            //console.log($(this).serialize())
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                datatype: 'json',
+                success: function (data) {
+                    jQuery.noConflict()
+                    if (data.is_error) {
+                        swal({
+                            title: "Warning!",
+                            text: data.error_message,
+                            type: "warning"
+                        });
+                        console.log("Error: " + data.error_message)
+                    }
+                    else {
+                        //console.log("Reload the page for the changed to take effect")
+                        window.location.reload();
+                    }
+                },
+                error: function (rs, e) {
+                    console.log(rs, responseText);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

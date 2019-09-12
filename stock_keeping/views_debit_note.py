@@ -19,7 +19,7 @@ from accounting_entry.mixins import ProductExistsRequiredMixin
 from .mixins import CompanyAccountsWithInventoryMixin
 from .models_debit_note import DebitNoteVoucher, DebitNoteStock, DebitNoteTerm, DebitNoteTax
 from .forms_debit_note import DEBIT_NOTE_TAX_FORM_SET, DEBIT_NOTE_TERM_FORM_SET, DEBIT_NOTE_STOCK_FORM_SET, DebitNoteForm
-
+from accounts_mode_voucher.models_debit_note import DebitNoteAccountsVoucher
 
 class DebitNoteListview(ProductExistsRequiredMixin,  LoginRequiredMixin, ListView):
     """
@@ -42,6 +42,11 @@ class DebitNoteListview(ProductExistsRequiredMixin,  LoginRequiredMixin, ListVie
         period_selected = get_object_or_404(
             PeriodSelected, pk=self.kwargs['period_selected_pk'])
         context['period_selected'] = period_selected
+
+        context['debit_note_inv'] = DebitNoteVoucher.objects.filter(company=self.kwargs['company_pk'], voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).order_by('-voucher_date')
+        context['debit_note_accounts'] = DebitNoteAccountsVoucher.objects.filter(company=self.kwargs['company_pk'], voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).order_by('-voucher_date')
+
+
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -86,6 +91,7 @@ class DebitNoteDetailsView(ProductExistsRequiredMixin,  UserPassesTestMixin, Log
             if obj.stock_item:
                 obj.save()
                 obj.stock_item.save()
+                debits_details.save()
         context['stocklist'] = qsjb
 
         # saving the extra_charges
@@ -104,14 +110,19 @@ class DebitNoteDetailsView(ProductExistsRequiredMixin,  UserPassesTestMixin, Log
             if g.ledger != None:
                 g.save()
                 g.ledger.save()
-        # saving the sales ledger
-        debits_details.doc_ledger.save()
-        # saving the sales ledger group
-        debits_details.doc_ledger.ledger_group.save()
-        # saving the party ledger
-        debits_details.party_ac.save()
-        # saving the party ledger group
-        debits_details.party_ac.ledger_group.save()
+
+        gst_total = debits_details.debit_note_gst.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        extra_total = debits_details.debit_note_extra.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        stock_total = debits_details.debit_note_voucher.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+
+        if gst_total or extra_total or stock_total:
+            total = gst_total + extra_total + stock_total
+
+        debits_details.total = total
+        debits_details.save()
 
         extra_gst_debit_central = DebitNoteTax.objects.filter(
             debit_note=debits_details.pk, ledger__tax_type='Central Tax').count()
@@ -127,6 +138,7 @@ class DebitNoteDetailsView(ProductExistsRequiredMixin,  UserPassesTestMixin, Log
         context['extra_gst_debit_integrated'] = extra_gst_debit_integrated
         context['in_word'] = num2words(debits_details.total, lang='en_IN')
         context['debits_details'] = debits_details
+        context['total'] = total
         context['extra_charge_debit'] = extra_charge_debit
         context['extra_gst_debit'] = extra_gst_debit
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
@@ -174,12 +186,13 @@ class DebitNoteCreateview(ProductExistsRequiredMixin,  LoginRequiredMixin, Creat
             if extra_charges.is_valid():
                 extra_charges.instance = self.object
                 extra_charges.save()
-        extra_gst = context['extra_gst']
-        with transaction.atomic():
-            self.object = form.save()
-            if extra_gst.is_valid():
-                extra_gst.instance = self.object
-                extra_gst.save()
+        if company.gst_enabled == 'Yes':
+            extra_gst = context['extra_gst']
+            with transaction.atomic():
+                self.object = form.save()
+                if extra_gst.is_valid():
+                    extra_gst.instance = self.object
+                    extra_gst.save()
         return super(DebitNoteCreateview, self).form_valid(form)
 
     def get_form_kwargs(self):
@@ -202,15 +215,17 @@ class DebitNoteCreateview(ProductExistsRequiredMixin,  LoginRequiredMixin, Creat
                 'company': company.pk})
             context['extra_charges'] = DEBIT_NOTE_TERM_FORM_SET(
                 self.request.POST, form_kwargs={'company': company.pk})
-            context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
-                self.request.POST, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
+                    self.request.POST, form_kwargs={'company': company.pk})
         else:
             context['stockdebit'] = DEBIT_NOTE_STOCK_FORM_SET(
                 form_kwargs={'company': company.pk})
             context['extra_charges'] = DEBIT_NOTE_TERM_FORM_SET(
                 form_kwargs={'company': company.pk})
-            context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
-                form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
+                    form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -262,15 +277,17 @@ class DebitNoteUpdateView(ProductExistsRequiredMixin,  UserPassesTestMixin, Logi
                 self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
             context['extra_charges'] = DEBIT_NOTE_TERM_FORM_SET(
                 self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
-            context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
-                self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
+                    self.request.POST, instance=sales_particular, form_kwargs={'company': company.pk})
         else:
             context['stockdebit'] = DEBIT_NOTE_STOCK_FORM_SET(
                 instance=sales_particular, form_kwargs={'company': company.pk})
             context['extra_charges'] = DEBIT_NOTE_TERM_FORM_SET(
                 instance=sales_particular, form_kwargs={'company': company.pk})
-            context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
-                instance=sales_particular, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = DEBIT_NOTE_TAX_FORM_SET(
+                    instance=sales_particular, form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -290,9 +307,10 @@ class DebitNoteUpdateView(ProductExistsRequiredMixin,  UserPassesTestMixin, Logi
         extra_charges = context['extra_charges']
         if extra_charges.is_valid():
             extra_charges.save()
-        extra_gst = context['extra_gst']
-        if extra_gst.is_valid():
-            extra_gst.save()
+        if company.gst_enabled == 'Yes':
+            extra_gst = context['extra_gst']
+            if extra_gst.is_valid():
+                extra_gst.save()
         return super(DebitNoteUpdateView, self).form_valid(form)
 
     def get_form_kwargs(self):

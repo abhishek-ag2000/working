@@ -8,7 +8,7 @@ import dateutil
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.db.models.functions import Coalesce
-from django.db.models import Case, When, Value, Sum, Count, F
+from django.db.models import Case, When, Value, Sum, Count, F, Subquery, OuterRef, ExpressionWrapper, FloatField
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse
@@ -395,14 +395,14 @@ def stock_item_month_view(request, company_pk, stock_item_pk, period_selected_pk
             else:
                 h = month_partial_sale - month_partial_credit
 
-        w = w + e - f
+        w = w + e - f 
 
         x = x + e
 
         y = y + g
 
         if x == 0:
-            z = ((y + opening_balance) * (w + opening_quantity))
+            z = y + opening_balance
         else:
             z = ((y + opening_balance) / (x + opening_quantity)
                  * (w + opening_quantity))
@@ -610,7 +610,6 @@ class ClosingListView(ProductExistsRequiredMixin,  LoginRequiredMixin, ListView)
 
     def get_context_data(self, **kwargs):
         context = super(ClosingListView, self).get_context_data(**kwargs)
-        context['profile_details'] = Profile.objects.all()
         company = get_object_or_404(Company, pk=self.kwargs['company_pk'])
         context['company'] = company
         period_selected = get_object_or_404(
@@ -618,6 +617,63 @@ class ClosingListView(ProductExistsRequiredMixin,  LoginRequiredMixin, ListView)
         context['period_selected'] = period_selected
         context['stock_journal'] = StockBalance.objects.filter(
             company=company.pk).order_by('-closing_stock')
+
+
+        purchase_stock = PurchaseStock.objects.filter(purchase_voucher__company=company,stock_item=OuterRef('pk'),purchase_voucher__voucher_date__gte=period_selected.start_date, purchase_voucher__voucher_date__lte=period_selected.end_date).values('stock_item')
+        purchase_stock_total = PurchaseStock.objects.filter(purchase_voucher__company=company,stock_item=OuterRef('pk'),purchase_voucher__voucher_date__gte=period_selected.start_date, purchase_voucher__voucher_date__lte=period_selected.end_date).values('stock_item')
+        sales_stock = SaleStock.objects.filter(sale_voucher__company=company,stock_item=OuterRef('pk'),sale_voucher__voucher_date__gte=period_selected.start_date, sale_voucher__voucher_date__lte=period_selected.end_date).values('stock_item')
+        debit_note_stock = DebitNoteStock.objects.filter(debit_note__company=company,stock_item=OuterRef('pk'),debit_note__voucher_date__gte=period_selected.start_date, debit_note__voucher_date__lte=period_selected.end_date).values('stock_item')
+        credit_note_stock = CreditNoteStock.objects.filter(credit_note__company=company,stock_item=OuterRef('pk'),credit_note__voucher_date__gte=period_selected.start_date, credit_note__voucher_date__lte=period_selected.end_date).values('stock_item')
+
+        total_purchase_quantity = purchase_stock.annotate(
+        quantity_total=Coalesce(Sum('quantity'), Value(0))).values('quantity_total')
+
+        total_purchase_value = purchase_stock_total.annotate(
+        total=Coalesce(Sum('total'), Value(0))).values('total')
+
+        total_sales_quantity = sales_stock.annotate(
+        quantity_total=Coalesce(Sum('quantity'), Value(0))).values('quantity_total')
+
+        total_debit_note_quantity = debit_note_stock.annotate(
+        quantity_total=Coalesce(Sum('quantity'), Value(0))).values('quantity_total')
+
+        total_credit_note_quantity = credit_note_stock.annotate(
+        quantity_total=Coalesce(Sum('quantity'), Value(0))).values('quantity_total')
+
+        stock_list = StockItem.objects.filter(company=company).annotate(
+            purchase_quantity = Coalesce(Subquery(total_purchase_quantity,output_field=FloatField()), Value(0)),
+            sales_quantity = Coalesce(Subquery(total_sales_quantity,output_field=FloatField()), Value(0)),
+            debit_note_quantity = Coalesce(Subquery(total_debit_note_quantity,output_field=FloatField()), Value(0)),
+            credit_note_quantity = Coalesce(Subquery(total_credit_note_quantity,output_field=FloatField()), Value(0)),
+            purchase_value = Coalesce(Subquery(total_purchase_value,output_field=FloatField()), Value(0)),
+        )
+
+        stock_quantities = stock_list.annotate(
+          total_purchase_quantity_final = ExpressionWrapper(F('purchase_quantity') - F('debit_note_quantity'), output_field=FloatField()),
+          total_sales_quantity_final = ExpressionWrapper(F('sales_quantity') - F('credit_note_quantity'), output_field=FloatField()),
+        )
+
+        stock_closing_quantity = stock_quantities.annotate(
+          closing_quantity = ExpressionWrapper(F('quantity') + F('total_purchase_quantity_final') - F('total_sales_quantity_final'), output_field=FloatField()),
+          grand_total_purchase_quantity = ExpressionWrapper(F('quantity') + F('total_purchase_quantity_final'), output_field=FloatField()),
+          grand_total_purchase = ExpressionWrapper(F('purchase_value') + F('opening'), output_field=FloatField()), 
+        )
+
+        closing_balance_only_purchase = stock_closing_quantity.annotate(
+            purchase_closing_balance = Case(
+                When(grand_total_purchase_quantity__gt=0, then=F('grand_total_purchase') / F('grand_total_purchase_quantity')),
+                default=0,
+                output_field=FloatField()
+                )
+        )
+
+        closing_balance_final = closing_balance_only_purchase.annotate(
+            closing_balance = ExpressionWrapper(F('purchase_closing_balance') * F('closing_quantity'), output_field=FloatField()),
+        )
+
+        context['closing_stock'] = closing_balance_final
+
+
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(
             the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -634,7 +690,6 @@ class StockItemListview(LoginRequiredMixin, ListView):
     context_object_name = 'stock_item_list'
     model = StockItem
     template_name = 'stock_keeping/stock_item/stockdata_list.html'
-    paginate_by = 15
 
     def get_queryset(self):
         return self.model.objects.filter(company=self.kwargs['company_pk'])
@@ -703,7 +758,10 @@ class StockItemCreateview(ProductExistsRequiredMixin,  LoginRequiredMixin, Creat
         company = get_object_or_404(Company, pk=self.kwargs['company_pk'])
         period_selected = get_object_or_404(
             PeriodSelected, pk=self.kwargs['period_selected_pk'])
-        return reverse('stock_keeping:stockdatalist', kwargs={'company_pk': company.pk, 'period_selected_pk': period_selected.pk})
+        stock_list = StockItem.objects.filter(company=company.pk).order_by('-id')
+        for stock in stock_list:
+            if stock:
+                return reverse('stock_keeping:stockdatadetail', kwargs={'company_pk': company.pk, 'stock_item_pk': stock.pk, 'period_selected_pk': period_selected.pk})
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -775,7 +833,6 @@ class StockItemUpdateview(ProductExistsRequiredMixin,  UserPassesTestMixin, Logi
     def get_context_data(self, **kwargs):
         context = super(StockItemUpdateview, self).get_context_data(**kwargs)
 
-        context['profile_details'] = Profile.objects.all()
         company = get_object_or_404(Company, pk=self.kwargs['company_pk'])
         context['company'] = company
         period_selected = get_object_or_404(

@@ -64,7 +64,7 @@ class LedgerGroupListView(ProductExistsRequiredMixin, UserPassesTestMixin, Login
     paginate_by = 15
 
     def get_queryset(self):
-        return self.model.objects.filter(company=self.kwargs['company_pk']).order_by('group_name')
+        return self.model.objects.filter(company=self.kwargs['company_pk']).order_by('counter')
 
     def test_func(self):
         company = get_object_or_404(Company, pk=self.kwargs['company_pk'])

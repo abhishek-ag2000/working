@@ -45,6 +45,9 @@ Update Purchase Invoice
         <a href="{% url 'stock_keeping:purchaselist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
             class="btn btn-success" role="button">Select Purchase Invoice</a>
 
+        <a href="{% url 'accounts_mode_voucher:purchasecreate' company_pk=company.pk period_selected_pk=period_selected.pk %}"
+            class="btn btn-warning" role="button">Purchase For Accounts</a>
+
         <button class="btn btn-info show-form-update pull-right"
             data-url="{% url 'accounting_entry:dateupdate' period_selected_pk=period_selected.pk %}">
             <span class="glyphicon glyphicon-pencil"></span>
@@ -365,8 +368,13 @@ Update Purchase Invoice
                                         Details / Ship To</a></label>
                                 <label class="btn btn-sm btn-white"><a href="#despatch" data-toggle="collapse">Receipt
                                         Details</a></label>
+                            {% if company.gst_enabled == 'Yes' %}
                                 <label class="btn btn-sm btn-white" id="export_details" style="display: none;"><a
                                         href="#export" data-toggle="collapse">Import Details</a></label>
+                            {% else %}
+                                <label class="btn btn-sm btn-white" id="export_details" style="display: block;"><a
+                                        href="#export" data-toggle="collapse">Import Details</a></label>
+                            {% endif %}
 
                             </div>
                         </div>
@@ -405,16 +413,7 @@ Update Purchase Invoice
                                         {{form.party_ac }}
                                     </div>
 
-                                    <label for="Seller2" class="col-lg-2 control-label">Purchase Ledger<i
-                                            class="material-icons" style="font-size:16px;color:red">*</i></label>
-                                    <div class="col-lg-4">
-                                        {{ form.doc_ledger.errors }}
-                                        {{form.doc_ledger }}
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group row">
+                                {% if company.gst_enabled == 'Yes' %}
                                     <label for="Seller2" class="col-lg-2 control-label">Nature of Transaction<i
                                             class="material-icons" style="font-size:16px;color:red">*</i></label>
                                     <div class="col-lg-4">
@@ -423,7 +422,22 @@ Update Purchase Invoice
                                         {{ form.nature_transactions_purchase }}
                                         {{ form.supply_state.errors }}
                                     </div>
+                                {% endif %}
+                                    
+                                </div>
 
+                            
+                                <div class="form-group row">
+
+                                <label for="Seller2" class="col-lg-2 control-label">Purchase Ledger<i
+                                            class="material-icons" style="font-size:16px;color:red">*</i></label>
+                                    <div class="col-lg-4">
+                                        {{ form.doc_ledger.errors }}
+                                        {{form.doc_ledger }}
+                                    </div>
+                                   
+
+                                {% if company.gst_enabled == 'Yes' %}
                                     {% if form.instance.nature_transactions_purchase == 'Imports Exempt' or form.instance.nature_transactions_purchase == 'Imports Nil Rated' or form.instance.nature_transactions_purchase == 'Imports Taxable' %}
                                     <label for="State1" id="supply_state" class="col-lg-2 control-label"
                                         style="display: none;">Place of Supply<i class="material-icons"
@@ -442,7 +456,9 @@ Update Purchase Invoice
                                             {{ form.supply_state }}
                                             {{ form.supply_state.errors }}
                                         </div>
+                                {% endif %}
                                     </div>
+                                
 
 
                                     <div id="div_extra" style="display:none;">
@@ -528,12 +544,19 @@ Update Purchase Invoice
 
                                     <div id="con_gst_pan">
                                         <div class="form-group row">
-                                            <label for="Seller2" class="col-lg-2 control-label">Consignee
-                                                GSTIN/UIN</label>
-                                            <div class="col-lg-4">
+                                            {% if company.gst_enabled == 'Yes' %}
+                                              <label for="Seller2" class="col-lg-2 control-label" style="display: block;">Consignee GSTIN/UIN</label>
+                                              <div class="col-lg-4" style="display: block;">
                                                 {{ form.consignee_gstin.errors }}
                                                 {{form.consignee_gstin }}
-                                            </div>
+                                              </div>
+                                            {% else %}
+                                              <label for="Seller2" class="col-lg-2 control-label" style="display: none;">Consignee GSTIN/UIN</label>
+                                              <div class="col-lg-4" style="display: none;">
+                                                {{ form.consignee_gstin.errors }}
+                                                {{form.consignee_gstin }}
+                                              </div>
+                                            {% endif %}
                                             <label for="Seller2" class="col-lg-2 control-label">Consignee PAN/IT
                                                 No</label>
                                             <div class="col-lg-4">
@@ -683,8 +706,10 @@ Update Purchase Invoice
                                                 data-toggle="collapse">Stock Details</a></label>
                                         <label class="btn btn-sm btn-white"><a href="#add_ledgers"
                                                 data-toggle="collapse">Additional Ledgers</a></label>
+                                    {% if company.gst_enabled == 'Yes' %}
                                         <label class="btn btn-sm btn-white"><a href="#gst_details"
                                                 data-toggle="collapse">GST Details</a></label>
+                                    {% endif %}
 
                                     </div>
                                 </div>
@@ -785,6 +810,7 @@ Update Purchase Invoice
 
                                         </div>
 
+                                    {% if company.gst_enabled == 'Yes' %}
                                         <div class="panel-collapse collapse" id="gst_details"
                                             data-parent="#mobile-info">
                                             <br>
@@ -821,6 +847,7 @@ Update Purchase Invoice
                                                 </table>
                                             </div>
                                         </div>
+                                    {% endif %}
 
                                         <a href="{% url 'stock_keeping:saleslist' company_pk=company.pk period_selected_pk=period_selected.pk %}"
                                             class="btn btn-default" role="button">Cancel </a>
@@ -853,7 +880,8 @@ Update Purchase Invoice
     $('.formset_row').formset({
         addText: 'add stock',
         deleteText: 'remove',
-        prefix: 'saletotal'
+        prefix: '{{ stocks.prefix }}',
+        formCssClass: 'dynamic-formset1'
     });
 </script>
 
@@ -861,7 +889,8 @@ Update Purchase Invoice
     $('.formset_row_1').formset({
         addText: 'add ledgers',
         deleteText: 'remove',
-        prefix: 'salesextra'
+        prefix: '{{ extra_charges.prefix }}',
+        formCssClass: 'dynamic-formset2'
     });
 </script>
 
@@ -869,7 +898,8 @@ Update Purchase Invoice
     $('.formset_row_2').formset({
         addText: 'add charges',
         deleteText: 'remove',
-        prefix: 'salesgst'
+        prefix: '{{ extra_gst.prefix }}',
+        formCssClass: 'dynamic-formset3'
     });
 </script>
 
@@ -879,180 +909,14 @@ Update Purchase Invoice
 
 
 <script>
-    function gst_details_value(sel) {
-        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
-        var txt = sel.options[sel.selectedIndex].text;
+    function calcProductTotalPurchase(ctrl) {
 
-        if (txt == "Yes") {
-            document.getElementById("div_gst").style = "display:block;";
-
-        } else {
-            document.getElementById("div_gst").style = "display:none;";
-
-        }
-    }
-
-    function country_details_value(sel) {
-        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
-        var txt = sel.options[sel.selectedIndex].text;
-
-        if (txt == "India") {
-            document.getElementById("id_consignee_state").disabled = false;
-            document.getElementById("id_consignee_gstin").disabled = false;
-            document.getElementById("id_consignee_pan").disabled = false;
-            document.getElementById("id_other_details").disabled = true;
-            document.getElementById("id_other_details").value = '';
-        } else {
-            document.getElementById("id_consignee_state").disabled = true;
-            document.getElementById("id_consignee_gstin").disabled = true;
-            document.getElementById("id_consignee_pan").disabled = true;
-            document.getElementById("id_consignee_state").selectedIndex = 0;
-            document.getElementById("id_consignee_pan").value = '';
-            document.getElementById("id_consignee_gstin").value = '';
-            document.getElementById("id_other_details").disabled = false;
-
-        }
-    }
-
-        // function stock_based_value(sel){
-        //     //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
-        //     ctrlIndex = sel.id.replace("id_saletotal-", "")
-        //     i = ctrlIndex.indexOf("-")
-        //     if (i < 0)
-        //       return
-        //     ctrlIndex = ctrlIndex.substr(0, i)
-
-        //     qtyCtrlID = "id_saletotal-" + ctrlIndex +"-Quantity"
-        //     rateCtrlID = "id_saletotal-" + ctrlIndex +"-rate"
-        //     discPerCtrlID = "id_saletotal-" + ctrlIndex +"-Disc"
-        //     totalCtrlID = "id_saletotal-" + ctrlIndex +"-Total"
-
-
-        //     var txt=sel.options[sel.selectedIndex].text;
-
-        //     if(txt=="---------"){
-        //         document.getElementById(qtyCtrlID).value = 0;
-        //         document.getElementById(rateCtrlID).value = 0;
-        //         document.getElementById(discPerCtrlID).value = 0.0;
-        //         document.getElementById(totalCtrlID).value = 0.0;
-        //     }
-        // }
-
-        // function additional_ledger_value(sel){
-        //     //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
-        //     ctrlIndex = sel.id.replace("id_salesextra-", "")
-        //     i = ctrlIndex.indexOf("-")
-        //     if (i < 0)
-        //       return
-        //     ctrlIndex = ctrlIndex.substr(0, i)
-
-        //     rateCtrlID = "id_salesextra-" + ctrlIndex +"-rate"
-        //     totalCtrlID = "id_salesextra-" + ctrlIndex +"-Total"
-
-
-        //     var txt=sel.options[sel.selectedIndex].text;
-
-        //     if(txt=="---------"){
-        //         document.getElementById(rateCtrlID).value = 0;
-        //         document.getElementById(totalCtrlID).value = 0.0;
-        //     }
-        // }
-
-        // function additional_gst_value(sel){
-        //     //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
-        //     ctrlIndex = sel.id.replace("id_gst_tax_sales-", "")
-        //     i = ctrlIndex.indexOf("-")
-        //     if (i < 0)
-        //       return
-        //     ctrlIndex = ctrlIndex.substr(0, i)
-
-        //     totalCtrlID = "id_gst_tax_sales-" + ctrlIndex +"-Total"
-
-
-        //     var txt=sel.options[sel.selectedIndex].text;
-
-        //     if(txt=="---------"){
-        //         document.getElementById(totalCtrlID).value = 0.0;
-        //     }
-        // }
-
-</script>
-
-
-
-
-<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content animated flipInY"></div>
-    </div>
-</div>
-
-
-
-
-{% endblock %}
-
-{% block script %}
-
-<script type="text/javascript">
-
-    function gst_change(sel) {
-        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
-        var txt = sel.options[sel.selectedIndex].text;
-
-        if (txt == "Purchase From SEZ - Exempt" || txt == "Purchase From SEZ - Nil Rated" || txt == "Purchase From SEZ - Taxable" || txt == "Imports Exempt" || txt == "Imports Nil Rated" || txt == "Imports Taxable") {
-            document.getElementById("div_extra").style = "display:block;";
-
-        } else {
-            document.getElementById("div_extra").style = "display:none;";
-            document.getElementById("div_gst").style = "display:none;";
-        }
-
-        if (txt == "Imports Exempt" || txt == "Imports Nil Rated" || txt == "Imports Taxable") {
-            document.getElementById("id_port_code").disabled = false;
-            document.getElementById("export_details").style = "display:block;";
-            document.getElementById("supply_place_field").style = "display:none;";
-            document.getElementById("supply_state").style = "display:none;";
-            var element = document.getElementById("id_supply_state");
-            element.className = element.className.replace('select2_demo_2 form-control select2-hidden-accessible', "form-control");
-            document.getElementById("id_supply_state").selectedIndex = 0;
-
-        } else {
-            document.getElementById("id_port_code").disabled = true;
-            document.getElementById("export_details").style = "display:none;";
-            document.getElementById("supply_place_field").style = "display:block;";
-            document.getElementById("supply_state").style = "display:block;";
-            var element = document.getElementById("id_supply_state");
-            element.className = element.className.replace('form-control', "select2_demo_2 form-control select2-hidden-accessible");
-
-        }
-    }
-
-
-
-    function gst_details_value(sel) {
-        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
-        var txt = sel.options[sel.selectedIndex].text;
-
-        if (txt == "Yes") {
-            document.getElementById("div_gst").style = "display:block;";
-
-        } else {
-            document.getElementById("div_gst").style = "display:none;";
-
-        }
-    }
-
-    function calcProductTotal(ctrl) {
-        //id_saletotal-0-Quantity
-        //id_saletotal-0-rate
-        //id_saletotal-0-Disc
-        //id_saletotal-0-Total
         ctrlIndex = ctrl.id.replace("id_purchase_voucher_stock-", "")
         i = ctrlIndex.indexOf("-")
         if (i < 0)
             return
         ctrlIndex = ctrlIndex.substr(0, i)
+
 
         qtyCtrlID = "id_purchase_voucher_stock-" + ctrlIndex + "-quantity"
         var qty = document.getElementById(qtyCtrlID).value
@@ -1077,6 +941,7 @@ Update Purchase Invoice
 
         totalCtrlID = "id_purchase_voucher_stock-" + ctrlIndex + "-total"
         document.getElementById(totalCtrlID).value = taxableVal.toFixed(2)
+
     }
 
     function calcProductRate(ctrl) {
@@ -1115,260 +980,609 @@ Update Purchase Invoice
     }
 
 
-// $("#id_Party_ac").change(function () {
-//   var ledgerID = $(this).val();
-//   if (ledgerID == "")
-//     return
+    function gst_details_value(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
 
-//   $.ajax({
-//     url: '{% url "stock_keeping:get_registered_ledger_value" %}',
-//     data: {
-//       'ledger_id': ledgerID
-//     },
-//     dataType: 'json',
-//     success: function (data) {
-//       if (data.is_unregistered == true) {
-//         $('#con_gst_pan').hide();
-//       }
-//       else {
-//         $('#con_gst_pan').show();
-//       }
-//     }
-//   });
-// });
+        if (txt == "Yes") {
+            document.getElementById("div_gst").style = "display:block;";
 
+        } else {
+            document.getElementById("div_gst").style = "display:none;";
 
-// $(document).ready(function(){
-//   $( "select[id*='id_saletotal-']" ).each(function(index){
-//     var id = $(this).attr('id');
-//     //select only label with id that has label text in its id
-//     if(id.indexOf('-stockitem') !== -1){
-//       $(this).change(function () {
-//           var stock_id = $(this).val();
-//           if (stock_id == "")
-//             return
+        }
+    }
 
-//           var sales_nature = $('#id_nature_transactions_sales').val(); 
+    function country_details_value(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
 
-//           $.ajax({
-//             url: '{% url "stock_keeping:get_exempt_stock_value" %}',
-//             data: {
-//               'stock_id': stock_id,
-//             },
-//             dataType: 'json',
-//             success: function (data) {
-//               if (data.is_unregistered == true && sales_nature == 'Intrastate Deemed Exports Taxabale' ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a exempt good aganist a Taxable Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('Taxable') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a exempt good aganist a Taxable Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('Nil Rated') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a exempt good aganist a Nil Rated Nature of transaction",
-//                         type: "warning"
-//                     });
-//               } 
-//               else {
-//                 console.log("Not a Error")
-//               }
-//             }
-//           });
-//         });
-//     }
-//   });
-// });
+        if (txt == "India") {
+            document.getElementById("id_consignee_state").disabled = false;
+            document.getElementById("id_consignee_gstin").disabled = false;
+            document.getElementById("id_consignee_pan").disabled = false;
+            document.getElementById("id_other_details").disabled = true;
+            document.getElementById("id_other_details").value = '';
+        } else {
+            document.getElementById("id_consignee_state").disabled = true;
+            document.getElementById("id_consignee_gstin").disabled = true;
+            document.getElementById("id_consignee_pan").disabled = true;
+            document.getElementById("id_consignee_state").selectedIndex = 0;
+            document.getElementById("id_consignee_pan").value = '';
+            document.getElementById("id_consignee_gstin").value = '';
+            document.getElementById("id_other_details").disabled = false;
 
-// $(document).ready(function(){
-//   console.log("ACD")
-//   $( "select[id*='id_saletotal-']" ).each(function(index){
-//     var id = $(this).attr('id');
-//     //select only label with id that has label text in its id
-//     if(id.indexOf('-stockitem') !== -1){
-//       $(this).change(function () {
-//         console.log('ASCD')
-//           var stock_id = $(this).val();
-//           if (stock_id == "")
-//             return
+        }
+    }
 
-//           var sales_nature = $('#id_nature_transactions_sales').val(); 
+    function stock_based_value(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    ctrlIndex = sel.id.replace("id_purchase_voucher_stock-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
 
-//           $.ajax({
-//             url: '{% url "stock_keeping:get_nongst_stock_value" %}',
-//             data: {
-//               'stock_id': stock_id,
-//             },
-//             dataType: 'json',
-//             success: function (data) {
-//               if (data.is_unregistered == true && sales_nature == 'Intrastate Deemed Exports Taxabale' ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a non-gst good aganist a Taxable Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('Taxable') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a non-gst good aganist a Taxable Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('Exempt') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a non-gst good aganist a Exempt Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('Nil Rated') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a non-gst good aganist a Nil Rated Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('LUT/Bond') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a non-gst good aganist a LUT/Bond Nature of transaction",
-//                         type: "warning"
-//                     });
-//               } 
-//               else {
-//                 console.log("Not a Error")
-//               }
-//             }
-//           });
-//         });
-//     }
-//   });
-// });
+    qtyCtrlID = "id_purchase_voucher_stock-" + ctrlIndex + "-quantity"
+    rateCtrlID = "id_purchase_voucher_stock-" + ctrlIndex + "-rate"
+    discPerCtrlID = "id_purchase_voucher_stock-" + ctrlIndex + "-disc"
+    totalCtrlID = "id_purchase_voucher_stock-" + ctrlIndex + "-total"
 
 
-// $(document).ready(function(){
-//   $( "select[id*='id_saletotal-']" ).each(function(index){
-//     var id = $(this).attr('id');
-//     //select only label with id that has label text in its id
-//     if(id.indexOf('-stockitem') !== -1){
-//       $(this).change(function () {
-//         console.log("ASDFG")
-//           var stock_id = $(this).val();
-//           if (stock_id == "")
-//             return
+    var txt = sel.options[sel.selectedIndex].text;
 
-//           var sales_nature = $('#id_nature_transactions_sales').val(); 
+    if (txt == "---------") {
+      document.getElementById(qtyCtrlID).value = 0;
+      document.getElementById(rateCtrlID).value = 0;
+      document.getElementById(discPerCtrlID).value = 0.0;
+      document.getElementById(totalCtrlID).value = 0.0;
+    }
+  }
 
-//           $.ajax({
-//             url: '{% url "stock_keeping:get_taxable_stock_value" %}',
-//             data: {
-//               'stock_id': stock_id,
-//             },
-//             dataType: 'json',
-//             success: function (data) {
-//               if (data.is_registered == true && sales_nature.indexOf('Exempt') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a taxable good aganist a Exempt Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_registered == true && sales_nature.indexOf('Nil Rated') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a taxable good aganist a Nil Rated Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }
-//               else {
-//                 console.log("NON TAXABLE")
-//               }
-//             }
-//           });
-//         });
-//     }
-//   });
-// });
+  function additional_ledger_value(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    ctrlIndex = sel.id.replace("id_purchase_voucher_term-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
+
+    rateCtrlID = "id_purchase_voucher_term-" + ctrlIndex + "-rate"
+    totalCtrlID = "id_purchase_voucher_term-" + ctrlIndex + "-total"
 
 
-// $(document).ready(function(){
-//   $( "select[id*='id_saletotal-']" ).each(function(index){
-//     var id = $(this).attr('id');
-//     //select only label with id that has label text in its id
-//     if(id.indexOf('-stockitem') !== -1){
-//       $(this).change(function () {
-//           var stock_id = $(this).val();
-//           if (stock_id == "")
-//             return
+    var txt = sel.options[sel.selectedIndex].text;
 
-//           var sales_nature = $('#id_nature_transactions_sales').val(); 
+    if (txt == "---------") {
+      document.getElementById(rateCtrlID).value = 0;
+      document.getElementById(totalCtrlID).value = 0.0;
+    }
+  }
 
-//           $.ajax({
-//             url: '{% url "stock_keeping:get_nilrated_stock_value" %}',
-//             data: {
-//               'stock_id': stock_id,
-//             },
-//             dataType: 'json',
-//             success: function (data) {
-//               if (data.is_unregistered == true && sales_nature == 'Intrastate Deemed Exports Taxabale' ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a nil rated good aganist a Taxable Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('Taxable') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a nil rated good aganist a Taxable Nature of transaction",
-//                         type: "warning"
-//                     });
-//               }else if (data.is_unregistered == true && sales_nature.indexOf('Exempt') >=0 ) {
-//                 swal({
-//                         title: "Warning!",
-//                         text: "You have selected a nil rated good aganist a Exempt Nature of transaction",
-//                         type: "warning"
-//                     });
-//               } 
-//               else {
-//                 console.log("Not a Error")
-//               }
-//             }
-//           });
-//         });
-//     }
-//   });
-// });
+  function additional_ledger_changed_rate(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    ctrlIndex = sel.id.replace("id_purchase_voucher_term-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
 
-// function findTotal(ctrl){
+    totalCtrlID = "id_purchase_voucher_term-" + ctrlIndex + "-total"
 
-//     ctrlIndex = ctrl.id.replace("id_saletotal-", "")
-//     i = ctrlIndex.indexOf("-")
-//     if (i < 0)
-//       return
-//     ctrlIndex = ctrlIndex.substr(0, i)
+      document.getElementById(totalCtrlID).value = 0.0;
+  }
 
-//     totalCtrlID = "id_saletotal-" + ctrlIndex +"-Total"
+  function additional_gst_value(sel) {
+    //document.getElementById("id_name").value = document.getElementById("id_LedgerGroupGroupGroup_Name").value;
+    ctrlIndex = sel.id.replace("id_purchase_voucher_tax-", "")
+    i = ctrlIndex.indexOf("-")
+    if (i < 0)
+      return
+    ctrlIndex = ctrlIndex.substr(0, i)
 
-//     var arr = document.getElementById(totalCtrlID);
-//     var arr_val = document.getElementById(totalCtrlID).value;
-//     var tot=0;
-//     console.log(arr.count);
-//     console.log(arr_val.length);
-//     for(var i=0 ;i < arr_val.length; i++){
-//         // if(parseInt(arr[i]))
-//         //     tot += nt(arr[i]);
-//       console.log(i);
-//     }
+    totalCtrlID = "id_purchase_voucher_tax-" + ctrlIndex + "-total"
 
-//     console.log(tot);
-//     document.getElementById('goods_total').value = tot;
-// }
 
+    var txt = sel.options[sel.selectedIndex].text;
+
+    if (txt == "---------") {
+      document.getElementById(totalCtrlID).value = 0.0;
+    }
+  }
+
+</script>
+
+</script>
+
+
+
+
+
+
+<div class="modal inmodal" id="modal-book-date" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated flipInY"></div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block script %}
+
+<script type="text/javascript">
+
+    
+
+    function gst_change(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Purchase From SEZ - Exempt" || txt == "Purchase From SEZ - Nil Rated" || txt == "Purchase From SEZ - Taxable" || txt == "Imports Exempt" || txt == "Imports Nil Rated" || txt == "Imports Taxable") {
+            document.getElementById("div_extra").style = "display:block;";
+
+        } else {
+            document.getElementById("div_extra").style = "display:none;";
+            document.getElementById("div_gst").style = "display:none;";
+        }
+
+        if (txt == "Imports Exempt" || txt == "Imports Nil Rated" || txt == "Imports Taxable") {
+            document.getElementById("id_port_code").disabled = false;
+            document.getElementById("export_details").style = "display:block;";
+            document.getElementById("supply_place_field").style = "display:none;";
+            document.getElementById("supply_state").style = "display:none;";
+            var element = document.getElementById("id_supply_state");
+            element.className = element.className.replace('select2_demo_2 form-control select2-hidden-accessible', "form-control");
+            document.getElementById("id_supply_state").selectedIndex = 0;
+
+        } else {
+            document.getElementById("id_port_code").disabled = true;
+            document.getElementById("export_details").style = "display:none;";
+            document.getElementById("supply_place_field").style = "display:block;";
+            document.getElementById("supply_state").style = "display:block;";
+            var element = document.getElementById("id_supply_state");
+            element.className = element.className.replace('form-control', "select2_demo_2 form-control select2-hidden-accessible");
+
+        }
+        if (txt.indexOf("SEZ") >= 0) {
+            document.getElementById("id_port_code").disabled = false;
+
+        } else {
+            document.getElementById("id_port_code").disabled = true;
+
+
+        }
+    }
+
+
+
+    function gst_details_value(sel) {
+        //document.getElementById("id_name").value = document.getElementById("id_group1_Name").value;
+        var txt = sel.options[sel.selectedIndex].text;
+
+        if (txt == "Yes") {
+            document.getElementById("div_gst").style = "display:block;";
+
+        } else {
+            document.getElementById("div_gst").style = "display:none;";
+
+        }
+    }
 
 
 </script>
+
+<script type="text/javascript">
+
+    $("#id_party_ac").change(function () {
+    var ledgerID = $(this).val();
+    if (ledgerID == "")
+      return
+
+    $.ajax({
+      url: '{% url "stock_keeping:is_ledger_gst_reg_type_registered_purchase_json" %}',
+      data: {
+        'ledger_id': ledgerID
+      },
+      dataType: 'json',
+      success: function (data) {
+        if (!data.is_registered) {
+          $('#con_gst_pan').hide();
+        }
+        else {
+          $('#con_gst_pan').show();
+        }
+      }
+    });
+  });
+
+    $("#id_doc_ledger").change(function () {
+    var ledger_id = $(this).val();
+    if (ledger_id == "")
+      return
+
+    var purchase_nature = $('#id_nature_transactions_purchase').val();
+
+    $.ajax({
+        url: '{% url "stock_keeping:is_ledger_nature_same_purchase_json" %}',
+        data: {
+          'ledger_id': ledger_id,
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.nature_purchase != purchase_nature && purchase_nature != 'Not Applicable') {
+            swal({
+              title: "Warning!",
+              text: "Nature of transaction with Purchase Ledger does not match",
+              type: "warning"
+            });
+          }else {
+            console.log("Not a Error")
+          }
+        }
+      });
+    });
+    
+  $(document).ready(function () {
+    $("select[id*='id_purchase_voucher_stock-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-stock_item') !== -1) {
+        $(this).change(function () {
+          var stock_id = $(this).val();
+          if (stock_id == "")
+            return
+
+          var purchase_nature = $('#id_nature_transactions_purchase').val();
+
+          $.ajax({
+            url: '{% url "stock_keeping:is_exempt_type_stock_purchase_json" %}',
+            data: {
+              'stock_id': stock_id,
+            },
+            dataType: 'json',
+            success: function (data) {
+              if (data.is_exempt_stock == true && purchase_nature.indexOf('Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a exempt good aganist a Taxable Nature of transaction",
+                  type: "warning"
+                });
+              } else if (data.is_exempt_stock == true && purchase_nature.indexOf('Nil Rated') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a exempt good aganist a Nil Rated Nature of transaction",
+                  type: "warning"
+                });
+              }
+              else {
+                console.log("Not a Error")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+
+  $(document).ready(function () {
+    $("select[id*='id_purchase_voucher_stock-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-stock_item') !== -1) {
+        $(this).change(function () {
+          var stock_id = $(this).val();
+          if (stock_id == "")
+            return
+
+          var purchase_nature = $('#id_nature_transactions_purchase').val();
+
+          $.ajax({
+            url: '{% url "stock_keeping:is_non_gst_type_stock_purchase_json" %}',
+            data: {
+              'stock_id': stock_id,
+            },
+            dataType: 'json',
+            success: function (data) {
+               if (data.is_non_gst == true && purchase_nature.indexOf('Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a non-gst good aganist a Taxable Nature of transaction",
+                  type: "warning"
+                });
+              } else if (data.is_non_gst == true && purchase_nature.indexOf('Exempt') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a non-gst good aganist a Exempt Nature of transaction",
+                  type: "warning"
+                });
+              } else if (data.is_non_gst == true && purchase_nature.indexOf('Nil Rated') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a non-gst good aganist a Nil Rated Nature of transaction",
+                  type: "warning"
+                });
+              } else if (data.is_non_gst == true && purchase_nature.indexOf('LUT/Bond') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a non-gst good aganist a LUT/Bond Nature of transaction",
+                  type: "warning"
+                });
+              }
+              else {
+                console.log("Not a Error")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+
+
+  $(document).ready(function () {
+    $("select[id*='id_purchase_voucher_stock-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-stock_item') !== -1) {
+        $(this).change(function () {
+          var stock_id = $(this).val();
+          if (stock_id == "")
+            return
+
+          var purchase_nature = $('#id_nature_transactions_purchase').val();
+
+          $.ajax({
+            url: '{% url "stock_keeping:is_taxable_or_non_gst_type_stock_purchase_json" %}',
+            data: {
+              'stock_id': stock_id,
+            },
+            dataType: 'json',
+            success: function (data) {
+              if (data.is_taxable_or_non_gst == true && purchase_nature.indexOf('Exempt') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a taxable good aganist a Exempt Nature of transaction",
+                  type: "warning"
+                });
+              } else if (data.is_taxable_or_non_gst == true && purchase_nature.indexOf('Nil Rated') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a taxable good aganist a Nil Rated Nature of transaction",
+                  type: "warning"
+                });
+              }
+              else {
+                console.log("NON TAXABLE")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+
+
+  $(document).ready(function () {
+    $("select[id*='id_purchase_voucher_stock-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-stock_item') !== -1) {
+        $(this).change(function () {
+          var stock_id = $(this).val();
+          if (stock_id == "")
+            return
+
+          var purchase_nature = $('#id_nature_transactions_purchase').val();
+
+          $.ajax({
+            url: '{% url "stock_keeping:is_nil_rate_type_stock_purchase_json" %}',
+            data: {
+              'stock_id': stock_id,
+            },
+            dataType: 'json',
+            success: function (data) {
+              if (data.is_nil_rated_stock == true && purchase_nature.indexOf('Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a nil rated good aganist a Taxable Nature of transaction",
+                  type: "warning"
+                });
+              } else if (data.is_nil_rated_stock == true && purchase_nature.indexOf('Exempt') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "You have selected a nil rated good aganist a Exempt Nature of transaction",
+                  type: "warning"
+                });
+              }
+              else {
+                console.log("Not a Error")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+
+
+  $(document).ready(function () {
+    $("select[id*='id_purchase_voucher_tax-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-ledger') !== -1) {
+        $(this).change(function () {
+          var ledger_ID = $(this).val();
+          if (ledger_ID == "")
+            return
+
+          var purchase_nature = $('#id_nature_transactions_purchase').val();
+
+          $.ajax({
+            url: '{% url "stock_keeping:is_ledger_nature_purchase_with_gst_json" %}',
+            data: {
+              'ledger_id': ledger_ID,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.tax_type && purchase_nature.indexOf('Nil Rated') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Tax is not applicable for Nil Rated Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type && purchase_nature.indexOf('Exempt') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Tax is not applicable for Exempt Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type && purchase_nature.indexOf('LUT/Bond') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Tax is not applicable for LUT/Bond Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type && purchase_nature == 'Purchase From Composition Dealer') {
+                swal({
+                  title: "Warning!",
+                  text: "Tax is not applicable for Composition Dealer",
+                  type: "warning"
+                });
+              }         
+              else if (data.tax_type == 'Central Tax' && purchase_nature.indexOf('Interstate') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for Interstate Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && purchase_nature.indexOf('Interstate') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for Interstate Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && purchase_nature.indexOf('SEZ - Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for SEZ Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Central Tax' && purchase_nature.indexOf('SEZ - Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for SEZ Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && purchase_nature.indexOf('SEZ (Without Bill Of Entry) - Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for SEZ Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Central Tax' && purchase_nature.indexOf('SEZ (Without Bill Of Entry) - Taxable') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for SEZ Nature of Transaction",
+                  type: "warning"
+                });
+
+              } else if (data.tax_type == 'Integrated Tax' && purchase_nature ==  'Purchase Deemed Exports - Taxable') {
+                swal({
+                  title: "Warning!",
+                  text: "Integrated Tax is not applicable for this Nature of Transaction",
+                  type: "warning"
+                });
+               } else if (data.tax_type == 'Central Tax' && purchase_nature ==  'Interstate Deemed Exports Taxable') {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for this Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && purchase_nature ==  'Interstate Deemed Exports Taxable') {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for this Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Central Tax' && purchase_nature.indexOf('Imports') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Central Tax is not applicable for Imports Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'State Tax' && purchase_nature.indexOf('Imports') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "State Tax is not applicable for Imports Nature of Transaction",
+                  type: "warning"
+                });
+              } else if (data.tax_type == 'Integrated Tax' && purchase_nature.indexOf('Intrastate') >= 0) {
+                swal({
+                  title: "Warning!",
+                  text: "Integrated Tax is not applicable for Intrastate Nature of Transaction",
+                  type: "warning"
+                });
+              } 
+              else {
+                console.log("Not a Error")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+
+
+</script>
+
+
+
+
+{% if company.gst_enabled == 'Yes' %}
+
+<script type="text/javascript">
+   $(document).ready(function () {
+    $("select[id*='id_purchase_voucher_term-']").each(function (index) {
+      var id = $(this).attr('id');
+      //select only label with id that has label text in its id
+      if (id.indexOf('-ledger') !== -1) {
+        $(this).change(function () {
+          var ledger_id = $(this).val();
+          if (ledger_id == "")
+            return
+
+          var purchase_nature = $('#id_nature_transactions_purchase').val();
+
+          $.ajax({
+            url: '{% url "stock_keeping:is_ledger_nature_same_purchase_json" %}',
+            data: {
+              'ledger_id': ledger_id,
+            },
+            dataType: 'json',
+            success: function (data) {
+              if (data.nature_purchase != purchase_nature && purchase_nature != 'Not Applicable') {
+                console.log('nature sales')
+                swal({
+                  title: "Warning!",
+                  text: "Nature of transaction does not match",
+                  type: "warning"
+                });
+              }else {
+                console.log("Not a Error")
+              }
+            }
+          });
+        });
+      }
+    });
+  });
+</script>
+
+{% endif %}
 
 
 {% endblock script %}

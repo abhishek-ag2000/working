@@ -8,11 +8,15 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <h2>Product List</h2>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active">
-                <strong>Products List</strong>
-            </li>
-        </ol>
+        {% if last_order_item %}
+        <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <a class="alert-link" href="{% url 'ecommerce_integration:productdetail' product_pk=last_order_item.price_model.product.pk %}">{{ last_order_item.price_model.product.title }}</a>
+                (<strong>{{ last_order_item.price_model.product_feature.feature_name }}</strong>) 
+                for <strong>{{ last_order_item.month_count }}</strong> month added to your cart. 
+                <a class="alert-link" href="{% url 'ecommerce_cart:order_summary' %}">Go to Cart</a>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -28,15 +32,15 @@
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
 
-        {% for products in users %}
+        {% for product in product_list_paged %}
         <div class="col-md-3">
             <div class="ibox">
                 <div class="ibox-content product-box">
 
                     <div>
 
-                        {% if products.image %}
-                        <img class="product_img" src="{{ products.image.url }}/" alt="product picture" height="200"
+                        {% if product.image %}
+                        <img class="product_img" src="{{ product.image.url }}/" alt="product picture" height="200"
                             width="100">
                         {% else %}
                         <img class="product_img" src="{% static 'userprofile/comming soon.jpg' %}" height="200"
@@ -46,20 +50,18 @@
                     </div>
                     <div class="product-desc">
                         <span class="product-price">
-                            <strong> &#8377; {{ products.price }}/-</strong> annually.
+                            Starts at <strong> &#8377; {{ product.price }}/</strong>month
                         </span>
 
-                        <a href="{% url 'ecommerce_integration:productdetail' product_pk=products.pk %}"
-                            class="product-name">{{ products.title}}</a>
-
-
+                        <a href="{% url 'ecommerce_integration:productdetail' product_pk=product.pk %}"
+                            class="product-name">{{ product.title}}</a>
 
                         <div class="small m-t-xs">
-                            {{ products.summary|safe|truncatewords:"9" }}
+                            {{ product.summary|safe|truncatewords:"9" }}
                         </div>
                         <div class="ratings">
-                            <p class="pull-right">{{ products.product_review.count }}
-                                review{{ products.product_review.count|pluralize }}</p>
+                            <p class="pull-right">{{ product.product_review.count }}
+                                review{{ product.product_review.count|pluralize }}</p>
 
                             <style type="text/css">
                                 .checked {
@@ -76,59 +78,31 @@
                         </div>
                         <div class="m-t text-righ">
 
-                            {% if products in user.profile.subscribed_products.all %}
-
-                            <button type="button" class="btn btn-xs btn-primary" data-toggle="modal"
-                                data-target="#myModal4">
-                                SUBSCRIBED
-                            </button>
-
-                            {% for productactivate in products.product_activate.all %}
-
-                            {% if productactivate.user == user %}
-
-                            {% if productactivate.is_active == False %}
-
-                            <a class="btn btn-xs btn-success pull-right"
-                                href="{% url 'user_profile:activate_product' productactivate.id %}">Activate</a>
-
-                            {% else %}
-
-                            <a class="btn btn-xs btn-danger pull-right"
-                                href="{% url 'user_profile:deactivate_product' productactivate.id %}">Dectivate</a>
-
-                            {% endif %}
-
-                            {% endif %}
-
+                            {% for productactivate in product.product_activate.all %}
+                                {% if productactivate.user == user %}
+                                    {% if productactivate.is_active == False %}
+                                    <a class="btn btn-xs btn-success pull-right"
+                                        href="{% url 'user_profile:activate_product' productactivate.id %}">Activate</a>
+                                    {% else %}
+                                    <a class="btn btn-xs btn-danger pull-right"
+                                        href="{% url 'user_profile:deactivate_product' productactivate.id %}">Dectivate</a>
+                                    {% endif %}
+                                {% endif %}
                             {% endfor %}
 
-                            {% elif products in current_order_products %}
+                            {% if product in current_order_products %}
 
-                            <a href="{% url 'ecommerce_cart:order_summary' %}" class="btn btn-xs btn-warning">Go to
-                                Cart</a>
-
+                                <a href="{% url 'ecommerce_cart:order_summary' %}" class="btn btn-xs btn-warning">Go to Cart</a>
 
                             {% else %}
-                            <!--                                <div class="col-xs-3">
-                                  
-                                  <a href="https://www.instamojo.com/@bracketlinelimited/l798821d2522d432a99234314e0ce6ee2/" rel="im-checkout" data-behaviour="remote" data-style="flat" data-text="Buy now"></a>
-                                  <script src="https://js.instamojo.com/v1/button.js"></script>
-
-                                </div> -->
-
-
-                            <a href="{% url 'ecommerce_cart:add_to_cart' products.id %}" class="btn btn-xs btn-warning"
-                                onclick="return confirm_delete();"><i class="fa fa-shopping-cart"
-                                    style="font-size:16px"></i>&nbsp; Add to cart</a>
-
+                                <a href="{% url 'ecommerce_integration:productdetail' product_pk=product.pk %}" class="btn btn-xs btn-warning">
+                                    <i class="fa fa-shopping-cart" style="font-size:16px"></i>&nbsp; Suscribe
+                                </a>
                             {% endif %}
 
-                            <a href="{% url 'ecommerce_integration:productdetail' product_pk=products.pk %}"
+                            <a href="{% url 'ecommerce_integration:productdetail' product_pk=product.pk %}"
                                 class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i>
                             </a>
-
-
                         </div>
                     </div>
                 </div>
@@ -154,5 +128,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

@@ -172,7 +172,7 @@
                     {% else %}
                     <div class="social-avatar">
                         <a href="{% url 'user_profile:specific_profile' profile_pk=consultancy.user.profile.pk %}">
-                            <img alt="image" src="{% static 'user_profile/download (1).jpg' %}">
+                            <img alt="image" src="{% static 'user_profile/download.jpg' %}">
                         </a>
                     </div>
                     {% endif %}
@@ -186,15 +186,15 @@
                             <a
                                 href="{% url 'user_profile:specific_profile' profile_pk=consultancy.user.profile.pk %}">{{ consultancy.user }}</a>
                             asked a query
-                            <small class="text-muted">{{ consultancy.Date }}</small>
+                            <small class="text-muted">{{ consultancy.date }}</small>
                         </div>
                         <div class="social-body">
                             <p>
-                                {{ consultancy.Questions }}
+                                {{ consultancy.question }}
                             </p>
 
                             <div class="btn-group">
-                                <a href="{% url 'consultancy:consultancydetail' pk=consultancy.pk %}"
+                                <a href="{% url 'consultancy:consultancydetail' consultancy_pk=consultancy.pk %}"
                                     class="btn btn-primary btn-xs">See Solutions</a>&nbsp;
                                 <span class="pull-right text-muted">{{ consultancy.consultancies.count }}
                                     Solution{{ consultancy.consultancies.count|pluralize }} -
@@ -210,16 +210,16 @@
                 {% for blog in blogs %}
                 <div class="social-feed-separated">
 
-                    {% if blog.User.profile.image %}
+                    {% if blog.user.profile.image %}
                     <div class="social-avatar">
-                        <a href="{% url 'blog:blogdetail' pk=blog.pk %}">
-                            <img alt="image" src="{{ blog.User.profile.image.url }}/">
+                        <a href="{% url 'blog:blogdetail' blog_pk=blog.pk %}">
+                            <img alt="image" src="{{ blog.user.profile.image.url }}/">
                         </a>
                     </div>
                     {% else %}
                     <div class="social-avatar">
-                        <a href="{% url 'blog:blogdetail' pk=blog.pk %}">
-                            <img alt="image" src="{% static 'user_profile/download (1).jpg' %}">
+                        <a href="{% url 'blog:blogdetail' blog_pk=blog.pk %}">
+                            <img alt="image" src="{% static 'user_profile/download.jpg' %}">
                         </a>
                     </div>
                     {% endif %}
@@ -231,7 +231,7 @@
                         </div>
                         <div class="social-avatar">
                             <a
-                                href="{% url 'user_profile:specific_profile' pk=blog.user.profile.pk %}">{{ blog.User }}</a>
+                                href="{% url 'user_profile:specific_profile' profile_pk=blog.user.profile.pk %}">{{ blog.user }}</a>
                             posted a blog
                             <small class="text-muted"> {{ blog.Date|date }}</small>
                         </div>
@@ -240,8 +240,8 @@
                                 {{ blog.Blog_title }}
                             </h3>
 
-                            {% if blog.Blog_image %}
-                            <img width="100%" height="100%" src="{{ blog.Blog_image.url }}/" alt="">
+                            {% if blog.blog_image %}
+                            <img width="100%" height="100%" src="{{ blog.blog_image.url }}/" alt="">
                             {% endif %}
 
                             <div class="btn-group">

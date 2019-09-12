@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.db.models.functions import Coalesce
-from django.db.models import Count, Value, Sum, F
+from django.db.models import Count, Value, Sum, F, Subquery, OuterRef, FloatField, Case, When
 from django.contrib.auth.decorators import login_required
 from user_profile.models import Profile
 from ecommerce_integration.decorators import product_1_activation
@@ -43,6 +43,62 @@ class LedgerMasterListView(ProductExistsRequiredMixin, LoginRequiredMixin, ListV
         period_selected = get_object_or_404(
             PeriodSelected, pk=self.kwargs['period_selected_pk'])
         context['period_selected'] = period_selected
+
+        # Journal queries to get the debit and credit balances of all ledgers
+        Journal_debit = JournalVoucher.objects.filter(company=company, dr_ledger=OuterRef(
+        'pk'), voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).values('dr_ledger')
+
+        Journal_credit = JournalVoucher.objects.filter(company=company, cr_ledger=OuterRef(
+        'pk'), voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).values('cr_ledger')
+
+        Journal_debit_opening = JournalVoucher.objects.filter(company=company, dr_ledger=OuterRef(
+        'pk'), voucher_date__lt=period_selected.start_date).values('dr_ledger')
+
+        Journal_credit_opening = JournalVoucher.objects.filter(company=company, cr_ledger=OuterRef(
+        'pk'), voucher_date__lt=period_selected.start_date).values('cr_ledger')
+
+        
+        total_debit = Journal_debit.annotate(
+        total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+        total_credit = Journal_credit.annotate(
+        total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+        total_debit_opening = Journal_debit_opening.annotate(
+        total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+        total_credit_opening = Journal_credit_opening.annotate(
+        total=Coalesce(Sum('amount'), Value(0))).values('total')
+
+        ledgers = LedgerMaster.objects.filter(company=company).annotate(
+            debit_balance_opening = Coalesce(Subquery(total_debit_opening,output_field=FloatField()), Value(0)),
+            credit_balance_opening = Coalesce(Subquery(total_credit_opening,output_field=FloatField()), Value(0)),
+            debit_balance = Coalesce(Subquery(total_debit,output_field=FloatField()), Value(0)),
+            credit_balance = Coalesce(Subquery(total_credit,output_field=FloatField()), Value(0))
+        )
+
+        ledger_list = ledgers.annotate(
+            opening_balance_generated = Case(
+                When(ledger_group__group_base__is_debit='Yes', then=F('opening_balance') + F('debit_balance_opening') - F('credit_balance_opening')),
+                When(ledger_group__group_base__is_debit='No', then=F('opening_balance') + F('credit_balance_opening') - F('debit_balance_opening')),
+                default=None,
+                output_field=FloatField()
+                ),
+            )
+
+        
+        ledger_final_list = ledger_list.annotate(
+            closing_balance_generated = Case(
+                When(ledger_group__group_base__is_debit='Yes', then=F('opening_balance_generated') + F('debit_balance') - F('credit_balance')),
+                When(ledger_group__group_base__is_debit='No', then=F('opening_balance_generated') + F('credit_balance') - F('debit_balance')),
+                default=None,
+                output_field=FloatField()
+                ),
+            )
+
+
+        context['ledger_list'] = ledger_final_list
+
 
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(

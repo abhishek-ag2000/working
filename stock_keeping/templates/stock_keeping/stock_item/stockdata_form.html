@@ -52,9 +52,15 @@ Update Stock Item
 
 <br>
 <form method="POST" id="stock-form"
-    data-validate-username-url="{% url 'stock_keeping:is_stock_name_taken_json' company_pk=company.pk %}">
+    data-validate-username-url="{% url 'stock_keeping:is_stock_group_name_taken_json' company_pk=company.pk %}">
     <div class="row">
         <div class="col-lg-12">
+
+        {% for fields in form %}
+
+            {{ field.name }} : {{ field.errors }}
+
+        {% endif %}
 
             <div class="ibox ">
                 <div class="ibox-title">
@@ -168,7 +174,7 @@ Update Stock Item
 
                         </div>
                     </div>
-
+                    {% if company.gst_enabled == 'Yes' %}
                     <div class="form-group row">
 
                         <label class="col-lg-2 col-form-label">GST Applicable<i class="material-icons"
@@ -179,6 +185,7 @@ Update Stock Item
                             {{ form.is_gst }}
                         </div>
                     </div>
+                    {% endif %}
 
                     <div class="form-group row">
 
@@ -322,6 +329,12 @@ Update Stock Item
                             </div>
                         </div>
 
+                {% if form.instance.is_non_gst == 'Yes' %}
+                    <div id="for_non_gst" style="display: none;">
+                {% else %}
+                    <div id="for_non_gst" style="display: block;">
+                {% endif %}
+
                         <div class="form-group row">
 
                             <label class="col-lg-2 col-form-label">Taxability</label>
@@ -333,6 +346,14 @@ Update Stock Item
 
                             </div>
                         </div>
+
+                </div>
+
+                {% if form.instance.taxability == 'Taxable' or form.instance.is_non_gst == 'No' %}
+                    <div id="taxability_cond" style="display: block;">
+                {% else %}
+                    <div id="taxability_cond" style="display: none;">
+                {% endif %}
 
                         <div class="form-group row">
 
@@ -406,6 +427,14 @@ Update Stock Item
 
                             </div>
                         </div>
+
+                    </div>
+
+                        
+                        
+                    
+
+                        
 
 
                     </div>
@@ -486,6 +515,7 @@ Update Stock Item
             document.getElementById("set_gst").style = "display:none";
             document.getElementById("set_gst_field").style = "display:none";
             document.getElementById("gst_dtls").style = "display:none";
+             
         }
 
     }
@@ -498,6 +528,12 @@ Update Stock Item
             document.getElementById("gst_dtls").style = "display:block";
         } else {
             document.getElementById("gst_dtls").style = "display:none";
+            document.getElementById("id_integrated_tax").value = 0;
+            document.getElementById("id_central_tax").value = 0;
+            document.getElementById("id_state_tax").value = 0;
+            document.getElementById("id_cess").value = 0;
+            document.getElementById("id_reverse_charge").value = '';
+            document.getElementById("id_input_credit").value = '';
         }
 
     }
@@ -507,24 +543,14 @@ Update Stock Item
         var txt = sel.options[sel.selectedIndex].text;
 
         if (txt == "Taxable") {
-            document.getElementById("id_integrated_tax").disabled = false;
-            document.getElementById("id_central_tax").disabled = false;
-            document.getElementById("id_state_tax").disabled = false;
-            document.getElementById("id_cess").disabled = false;
-            document.getElementById("id_reverse_charge").disabled = false;
-            document.getElementById("id_input_credit").disabled = false;
+            document.getElementById("taxability_cond").style = "display:block";
         } else {
-            document.getElementById("id_integrated_tax").disabled = true;
+            document.getElementById("taxability_cond").style = "display:none";
             document.getElementById("id_integrated_tax").value = 0;
-            document.getElementById("id_central_tax").disabled = true;
             document.getElementById("id_central_tax").value = 0;
-            document.getElementById("id_state_tax").disabled = true;
             document.getElementById("id_state_tax").value = 0;
-            document.getElementById("id_cess").disabled = true;
             document.getElementById("id_cess").value = 0;
-            document.getElementById("id_reverse_charge").disabled = true;
             document.getElementById("id_reverse_charge").value = '';
-            document.getElementById("id_input_credit").disabled = true;
             document.getElementById("id_input_credit").value = '';
         }
 
@@ -535,28 +561,17 @@ Update Stock Item
         var txt = sel.options[sel.selectedIndex].text;
 
         if (txt == "No") {
-            document.getElementById("id_taxability").disabled = false;
-            document.getElementById("id_integrated_tax").disabled = false;
-            document.getElementById("id_central_tax").disabled = false;
-            document.getElementById("id_state_tax").disabled = false;
-            document.getElementById("id_cess").disabled = false;
-            document.getElementById("id_reverse_charge").disabled = false;
-            document.getElementById("id_input_credit").disabled = false;
+            document.getElementById("for_non_gst").style = "display:block";
         } else {
-            document.getElementById("id_taxability").disabled = true;
             document.getElementById("id_taxability").value = '';
-            document.getElementById("id_reverse_charge").disabled = true;
             document.getElementById("id_reverse_charge").value = '';
-            document.getElementById("id_input_credit").disabled = true;
             document.getElementById("id_input_credit").value = '';
-            document.getElementById("id_integrated_tax").disabled = true;
             document.getElementById("id_integrated_tax").value = 0;
-            document.getElementById("id_central_tax").disabled = true;
             document.getElementById("id_central_tax").value = 0;
-            document.getElementById("id_state_tax").disabled = true;
             document.getElementById("id_state_tax").value = 0;
-            document.getElementById("id_cess").disabled = true;
             document.getElementById("id_cess").value = 0;
+            document.getElementById("for_non_gst").style = "display:none";
+            document.getElementById("taxability_cond").style = "display:none";
         }
 
     }
@@ -591,8 +606,66 @@ Update Stock Item
     });
 </script>
 
-{% endblock script %}
+<script type="text/javascript">
 
+$("#id_stock_group").change(function () {
+    var stockgroupID = $(this).val();
+    if (stockgroupID == "")
+        return
+        
+    $.ajax({
+        url: '{% url "stock_keeping:get_stock_group_value" %}',
+        data: {
+            'stock_group_id': stockgroupID
+        },
+        dataType: 'json',
+        success: function (data) {
+            if (data.set_or_alter_gst == 'Yes'){
+                console.log('IS GST')
+                $('#gst_dtls').show();
+                $('#for_non_gst').show();
+                $('#taxability_cond').show();
+                $('#set_gst').show();
+                $('#set_gst_field').show();
+                $('#id_is_gst').prop('selectedIndex', 0);
+                $('#id_set_or_alter_gst').val(data.set_or_alter_gst);
+                $('#id_is_non_gst').val(data.is_non_gst);
+                $('#id_hsn').val(data.hsn);
+                $('#id_taxability').val(data.taxability);
+                $('#id_reverse_charge').val(data.reverse_charge);
+                $('#id_input_credit').val(data.input_credit);
+                $('#id_integrated_tax').val(data.integrated_tax);
+                $('#id_central_tax').val(data.central_tax);
+                $('#id_state_tax').val(data.state_tax);
+                $('#id_cess').val(data.cess);
+            }
+            else {
+                $('#gst_dtls').hide();
+                $('#for_non_gst').hide();
+                $('#taxability_cond').hide();
+                $('#set_gst').hide();
+                $('#set_gst_field').hide();
+                $('#id_is_gst').prop('selectedIndex', 1);
+                $('#id_set_or_alter_gst').prop('selectedIndex', 1);
+                $('#id_is_non_gst').prop('selectedIndex', 1);
+                $('#id_hsn').val();
+                $('#id_taxability').prop('selectedIndex', 0);
+                $('#id_reverse_charge').prop('selectedIndex', 1);
+                $('#id_input_credit').prop('selectedIndex', 1);
+                $('#id_integrated_tax').val(0);
+                $('#id_central_tax').val(0);
+                $('#id_state_tax').val(0);
+                $('#id_cess').val(0);
+            }
+        }
+    });
+});
+
+</script>
+
+</script>
+
+{% endblock script %}
 
 
 {% endblock %}

@@ -187,10 +187,19 @@
               </tr>
               {% endif %}
 
-              <tr>
-                <th>Taxability</th>
-                <th>{{ stock_item.taxability }}</th>
-              </tr>
+              {% if stock_item.is_non_gst != 'No' %}
+                <tr>
+                  <th>Is non GST?</th>
+                  <th>{{ stock_item.is_non_gst }}</th>
+                </tr>
+              {% endif %}
+
+              {% if stock_item.taxability %}
+                <tr>
+                  <th>Taxability</th>
+                  <th>{{ stock_item.taxability }}</th>
+                </tr>
+              {% endif %}
 
               {% if stock_item.integrated_tax != 0 %}
               <tr>

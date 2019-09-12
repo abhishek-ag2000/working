@@ -4,7 +4,7 @@ from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from .models_accounts import Account, Tags
-from .models_contacts import Contact
+# from .models_contacts import Contact
 # from CRMcommon.models import User 
 from django.conf import settings    #import user
 from company.models import Company  #import company
@@ -37,7 +37,7 @@ class Opportunity(models.Model):
         _("Source of Lead"), max_length=255,
         choices=SOURCES, blank=True, null=True)
     probability = models.IntegerField(default=0, blank=True, null=True)
-    contacts = models.ManyToManyField(Contact)
+    # contacts = models.ManyToManyField(Contact)
     
     # closed_on = models.DateTimeField(blank=True, null=True)
     closed_on = models.DateField(blank=True, null=True)

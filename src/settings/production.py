@@ -98,7 +98,8 @@ INSTALLED_APPS = [
     'qr_code',
     'job',
     'CRM',
-    'CRMcommon'
+    'CRMcommon',
+    'accounts_mode_voucher'
 ]
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True

@@ -20,8 +20,10 @@ from messaging.models import Message
 from ecommerce_integration.decorators import product_1_activation
 from accounting_entry.models import PeriodSelected
 from accounting_entry.mixins import ProductExistsRequiredMixin
+from accounts_mode_voucher.model_purchase_accounts import PurchaseVoucherAccounts
 from .mixins import CompanyAccountsWithInventoryMixin
 from .decorators import company_account_with_invenroty_decorator
+from accounts_mode_voucher.model_purchase_accounts import PurchaseVoucherAccounts, PurchaseTermAccounts, PurchaseTaxAccounts
 from .models_purchase import PurchaseVoucher, PurchaseStock, PurchaseTerm, PurchaseTax
 from .forms_purchase import PurchaseForm, PURCHASE_STOCK_FORM_SET, PURCHASE_TERM_FORM_SET, PURCHASE_TAX_FORM_SET
 
@@ -45,12 +47,15 @@ class PurchaseListView(ProductExistsRequiredMixin,  LoginRequiredMixin, ListView
         context['company'] = company
         period_selected = get_object_or_404(PeriodSelected, pk=self.kwargs['period_selected_pk'])
         context['period_selected'] = period_selected
+
+        context['purchase_accounts_list'] = PurchaseVoucherAccounts.objects.filter(company=self.kwargs['company_pk'], voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).order_by('-voucher_date')
+        context['purchase_inventory_list'] = PurchaseVoucher.objects.filter(company=self.kwargs['company_pk'], voucher_date__gte=period_selected.start_date, voucher_date__lte=period_selected.end_date).order_by('-voucher_date')
+
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
         context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
 
         return context
-
 
 class PurchaseDetailsView(LoginRequiredMixin,  UserPassesTestMixin, DetailView):
     """
@@ -78,14 +83,14 @@ class PurchaseDetailsView(LoginRequiredMixin,  UserPassesTestMixin, DetailView):
         context['period_selected'] = period_selected
         purchase_details = get_object_or_404(PurchaseVoucher, pk=self.kwargs['purchase_pk'])
         qsob = PurchaseStock.objects.filter(purchase_voucher=purchase_details.pk)
-        # saving the party ledger
-        purchase_details.party_ac.save()
-        # saving the purchase ledger
-        purchase_details.doc_ledger.save()
-        # saving the party ledger group
-        purchase_details.party_ac.ledger_group.save()
-        # saving the purchase ledger group
-        purchase_details.doc_ledger.ledger_group.save()
+
+        # saving the stock and  closing stock of particular puirchase
+        purchase_stock = PurchaseStock.objects.filter(purchase_voucher=purchase_details)
+        for obj in purchase_stock:
+            if obj.stock_item:
+                obj.save()
+                obj.stock_item.save()
+                purchase_details.save()
 
         # saving the extra_charges
         extra_charge_purchases = PurchaseTerm.objects.filter(purchase_voucher=purchase_details.pk)
@@ -103,11 +108,16 @@ class PurchaseDetailsView(LoginRequiredMixin,  UserPassesTestMixin, DetailView):
                 g.save()
                 g.ledger.save()
 
-        # saving the stock and  closing stock of particular puirchase
-        purchase_stock = PurchaseStock.objects.filter(purchase_voucher=purchase_details)
-        for obj in purchase_stock:
-            if obj.stock_item:
-                obj.stock_item.save()
+        tax_total = purchase_details.purchase_voucher_tax.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        extra_total = purchase_details.purchase_voucher_term.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        stock_total = purchase_details.purchase_voucher_stock.aggregate(
+            the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
+        
+        if tax_total or extra_total or stock_total:
+            total = tax_total + extra_total + stock_total
+
 
         extra_gst_purchase_central = PurchaseTax.objects.filter(purchase_voucher=purchase_details.pk, ledger__tax_type='Central Tax').count()
 
@@ -122,6 +132,7 @@ class PurchaseDetailsView(LoginRequiredMixin,  UserPassesTestMixin, DetailView):
         context['extra_charge_purchases'] = extra_charge_purchases
         context['extra_gst_purchase'] = extra_gst_purchase
         context['stocklist'] = qsob
+        context['total'] = total
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
         context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -155,11 +166,13 @@ class PurchaseCreateView(ProductExistsRequiredMixin,  LoginRequiredMixin, Create
         if self.request.POST:
             context['stocks'] = PURCHASE_STOCK_FORM_SET(self.request.POST, form_kwargs={'company': company.pk})
             context['extra_charges'] = PURCHASE_TERM_FORM_SET(self.request.POST, form_kwargs={'company': company.pk})
-            context['extra_gst'] = PURCHASE_TAX_FORM_SET(self.request.POST, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = PURCHASE_TAX_FORM_SET(self.request.POST, form_kwargs={'company': company.pk})
         else:
             context['stocks'] = PURCHASE_STOCK_FORM_SET(form_kwargs={'company': company.pk})
             context['extra_charges'] = PURCHASE_TERM_FORM_SET(form_kwargs={'company': company.pk})
-            context['extra_gst'] = PURCHASE_TAX_FORM_SET(form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = PURCHASE_TAX_FORM_SET(form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
         context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -174,23 +187,31 @@ class PurchaseCreateView(ProductExistsRequiredMixin,  LoginRequiredMixin, Create
         form.instance.counter = counter
         context = self.get_context_data()
         stocks = context['stocks']
-        with transaction.atomic():
-            self.object = form.save()
-            if stocks.is_valid():
-                stocks.instance = self.object
-                stocks.save()
         extra_charges = context['extra_charges']
+
+        if not stocks.is_valid() or not extra_charges.is_valid():
+            print("Not Valid")
+            print(extra_charges.errors)
+            return self.render_to_response(context)
+
+
+
         with transaction.atomic():
             self.object = form.save()
-            if extra_charges.is_valid():
-                extra_charges.instance = self.object
-                extra_charges.save()
-        extra_gst = context['extra_gst']
-        with transaction.atomic():
+            stocks.instance = self.object
+            stocks.save()
+        
             self.object = form.save()
-            if extra_gst.is_valid():
-                extra_gst.instance = self.object
-                extra_gst.save()
+            extra_charges.instance = self.object
+            extra_charges.save()
+
+        
+            with transaction.atomic():
+                self.object = form.save()
+                extra_gst = context['extra_gst']
+                if extra_gst.is_valid():
+                    extra_gst.instance = self.object
+                    extra_gst.save()
         return super(PurchaseCreateView, self).form_valid(form)
 
     def get_form_kwargs(self):
@@ -241,11 +262,13 @@ class PurchaseUpdateView(ProductExistsRequiredMixin,  UserPassesTestMixin, Login
         if self.request.POST:
             context['stocks'] = PURCHASE_STOCK_FORM_SET(self.request.POST, instance=purchase_voucher, form_kwargs={'company': company.pk})
             context['extra_charges'] = PURCHASE_TERM_FORM_SET(self.request.POST, instance=purchase_voucher, form_kwargs={'company': company.pk})
-            context['extra_gst'] = PURCHASE_TAX_FORM_SET(self.request.POST, instance=purchase_voucher, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = PURCHASE_TAX_FORM_SET(self.request.POST, instance=purchase_voucher, form_kwargs={'company': company.pk})
         else:
             context['stocks'] = PURCHASE_STOCK_FORM_SET(instance=purchase_voucher, form_kwargs={'company': company.pk})
             context['extra_charges'] = PURCHASE_TERM_FORM_SET(instance=purchase_voucher, form_kwargs={'company': company.pk})
-            context['extra_gst'] = PURCHASE_TAX_FORM_SET(instance=purchase_voucher, form_kwargs={'company': company.pk})
+            if company.gst_enabled == 'Yes':
+                context['extra_gst'] = PURCHASE_TAX_FORM_SET(instance=purchase_voucher, form_kwargs={'company': company.pk})
         context['inbox'] = Message.objects.filter(reciever=self.request.user)
         context['inbox_count'] = context['inbox'].aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
         context['send_count'] = Message.objects.filter(sender=self.request.user).aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -263,9 +286,10 @@ class PurchaseUpdateView(ProductExistsRequiredMixin,  UserPassesTestMixin, Login
         extra_charges = context['extra_charges']
         if extra_charges.is_valid():
             extra_charges.save()
-        extra_gst = context['extra_gst']
-        if extra_gst.is_valid():
-            extra_gst.save()
+        if c.gst_enabled == 'Yes':
+            extra_gst = context['extra_gst']
+            if extra_gst.is_valid():
+                extra_gst.save()
         return super(PurchaseUpdateView, self).form_valid(form)
 
     def get_form_kwargs(self):
@@ -335,6 +359,10 @@ class PurchaseRegisterView(ProductExistsRequiredMixin,  LoginRequiredMixin, List
         results = collections.OrderedDict()
         result = PurchaseVoucher.objects.filter(company=company.pk, voucher_date__gte=period_selected.start_date, voucher_date__lt=period_selected.end_date).annotate(
             real_total=Case(When(total__isnull=True, then=0), default=F('total')))
+
+        result_account = PurchaseVoucherAccounts.objects.filter(company=company.pk, voucher_date__gte=period_selected.start_date, voucher_date__lt=period_selected.end_date).annotate(
+            real_total=Case(When(total__isnull=True, then=0), default=F('total')))
+
         date_cursor = period_selected.start_date
 
         z = 0
@@ -342,24 +370,46 @@ class PurchaseRegisterView(ProductExistsRequiredMixin,  LoginRequiredMixin, List
         while date_cursor <= period_selected.end_date:
             # print(date_cursor.month)
             month_partial_total = result.filter(voucher_date__month=date_cursor.month, voucher_date__year=date_cursor.year).aggregate(partial_total=Sum('real_total'))['partial_total']
+            month_partial_total_accounts = result_account.filter(voucher_date__month=date_cursor.month, voucher_date__year=date_cursor.year).aggregate(partial_total=Sum('real_total'))['partial_total']
 
             if not month_partial_total:
 
                 month_partial_total = 0
 
-                e = month_partial_total
+                g = month_partial_total
 
             else:
 
-                e = month_partial_total
+                g = month_partial_total
 
+            if not month_partial_total_accounts:
+
+                month_partial_total_accounts = 0
+
+                f = month_partial_total_accounts
+
+            else:
+
+                f = month_partial_total_accounts
+
+            e = f + g 
             z = z + e
 
             results[(date_cursor.month, date_cursor.year)] = [e, z]
 
             date_cursor += dateutil.relativedelta.relativedelta(months=1)
 
-        total_purchase = result.aggregate(the_sum=Coalesce(Sum('real_total'), Value(0)))['the_sum']
+        total_purchase_inv = result.aggregate(the_sum=Coalesce(Sum('real_total'), Value(0)))['the_sum']
+
+        total_purchase_accounts = result_account.aggregate(the_sum=Coalesce(Sum('real_total'), Value(0)))['the_sum']
+
+        if not total_purchase_inv:
+            total_purchase_inv = int(0)
+
+        if not total_purchase_accounts:
+            total_purchase_accounts = int(0)
+
+        total_purchase = total_purchase_inv + total_purchase_accounts
 
         context['data'] = results.items()
 
@@ -381,9 +431,21 @@ def purchase_register_datewise(request, month, year, company_pk, period_selected
     company = get_object_or_404(Company, pk=company_pk)
     period_selected = get_object_or_404(PeriodSelected, pk=period_selected_pk)
 
-    result = PurchaseVoucher.objects.filter(company=company.pk, voucher_date__month=month, voucher_date__year=year, voucher_date__gte=period_selected.start_date, voucher_date__lt=period_selected.end_date)
+    result = PurchaseVoucher.objects.filter(company=company.pk, voucher_date__month=month, voucher_date__year=year, voucher_date__gte=period_selected.start_date, voucher_date__lt=period_selected.end_date).order_by('-voucher_date')
 
-    total_purchase = result.aggregate(partial_total=Sum('total'))['partial_total']
+    result_account = PurchaseVoucherAccounts.objects.filter(company=company.pk, voucher_date__month=month, voucher_date__year=year, voucher_date__gte=period_selected.start_date, voucher_date__lt=period_selected.end_date).order_by('-voucher_date')
+
+    total_purchase_inv = result.aggregate(partial_total=Sum('total'))['partial_total']
+
+    total_purchase_accounts = result_account.aggregate(partial_total=Sum('total'))['partial_total']
+
+    if not total_purchase_inv:
+        total_purchase_inv = int(0)
+
+    if not total_purchase_accounts:
+        total_purchase_accounts = int(0)
+
+    total_purchase = total_purchase_accounts + total_purchase_inv
 
     inbox = Message.objects.filter(reciever=request.user)
     inbox_count = inbox.aggregate(the_sum=Coalesce(Count('id'), Value(0)))['the_sum']
@@ -393,6 +455,7 @@ def purchase_register_datewise(request, month, year, company_pk, period_selected
         'company': company,
         'period_selected': period_selected,
         'result': result,
+        'result_account' : result_account,
         'total_purchase': total_purchase,
         'm': calendar.month_name[int(month)],
         'y': year,

@@ -1,0 +1,13 @@
+{% for pro_req in pro_requests %}
+<tr>
+  <td>{{ forloop.counter }}</td>
+  <td>{{ pro_req.product.title }}</td>
+  <td>{{ pro_req.phone_no }}</td>
+  <td>{{ pro_req.phone_verified }}</td>
+  <td>{{ pro_req.email }}</td>
+  <td>{{ pro_req.email_verified }}</td>
+  <td>{{ pro_req.request_date }}</td>
+  <td>{{ pro_req.request_status }}</td>
+  <td>{{ pro_req.remarks }}</td>
+</tr>
+{% endfor %}

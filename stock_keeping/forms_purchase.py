@@ -91,7 +91,7 @@ class PurchaseForm(forms.ModelForm):
         nature_transactions_purchase = self.cleaned_data['nature_transactions_purchase']
         supply_state = self.cleaned_data['supply_state']
 
-        if self.company.organisation.state == supply_state and nature_transactions_purchase == 'Interstate Purchase  - Taxable':
+        if self.company.organisation.state == supply_state and nature_transactions_purchase == 'Interstate Purchase - Taxable':
             raise ValidationError(
                 "This nature of transaction in not valid for the given Place of Supply")
         if self.company.organisation.state == supply_state and nature_transactions_purchase == 'Imports Exempt':
@@ -155,6 +155,21 @@ class PurchaseForm(forms.ModelForm):
             raise ValidationError(
                 "This nature of transaction in not valid for the given Place of Supply")
         return supply_state
+
+    def clean_ref_no(self):
+        """
+        Clean function to raise Validation Error if Invoice Number already exist in a company.
+        """
+        ref_no = self.cleaned_data['ref_no']
+        master_id = 0
+
+        if self.instance:
+            # master id is used to exclude current master so that it is not checked as duplicate
+            master_id = self.instance.id
+
+        if PurchaseVoucher.objects.filter(company=self.company, ref_no__iexact=ref_no).exclude(id=master_id).exists():
+            raise forms.ValidationError("This Invoice Number already exists")
+        return ref_no
 
 
 class PurchaseFormAdmin(forms.ModelForm):
@@ -261,27 +276,73 @@ class PurchaseStockForm(forms.ModelForm):
         self.fields['stock_item'].queryset = StockItem.objects.filter(
             company=self.company)
         self.fields['stock_item'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', }
-        self.fields['quantity'].widget.attrs = {'class': 'form-control', 'onchange': 'calcProductTotal(this)'}
+            'class': 'select2_demo_2 form-control', 'onchange': 'stock_based_value(this)' }
+        self.fields['quantity'].widget.attrs = {'class': 'form-control', 'onchange': 'calcProductTotalPurchase(this)'}
         self.fields['rate'].widget.attrs = {
-            'class': 'form-control', 'onchange': 'calcProductTotal(this)','step': 'any'}
-        self.fields['disc'].widget.attrs = {'class': 'form-control','onchange': 'calcProductTotal(this)' }
+            'class': 'form-control', 'onchange': 'calcProductTotalPurchase(this)','step': 'any'}
+        self.fields['disc'].widget.attrs = {'class': 'form-control','step': 'any','onchange': 'calcProductTotalPurchase(this)' }
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'onchange': 'calcProductRate(this)','step': 'any'}
 
-# class BaseDetailFormSet(forms.BaseInlineFormSet):
+    def clean_stock_item(self):
+        stock_item = self.cleaned_data['stock_item']
+        print(self.company)
+        if not stock_item:
+            raise forms.ValidationError("Product must be selected")
+        return stock_item
 
-#     def clean(self):
-#         super(BaseDetailFormSet, self).clean()
-#         if any(self.errors):
-#             return
+    def clean_quantity(self):
+        quantity = self.cleaned_data['quantity']
+        if quantity < 0:
+            raise forms.ValidationError("Quantity cannot be zero or negative")
+        print(quantity)
+        return quantity
 
-#         for form in self.forms:
-#             if form.count() < 1:
-#                 raise forms.ValidationError('Provide atleast one stock') #code stops here
+    def clean_rate(self):
+        rate = self.cleaned_data['rate']
+        if rate < 0:
+            raise forms.ValidationError("Rate cannot be negative")
+        return rate
+
+    def clean_total(self):
+        total = self.cleaned_data['total']
+        if total < 0:
+            raise forms.ValidationError("Sub total cannot be negative")
+        return total
 
 
-PURCHASE_STOCK_FORM_SET = inlineformset_factory(PurchaseVoucher, PurchaseStock, form=PurchaseStockForm, extra=4)
+class PurchaseStockFormSet(forms.BaseInlineFormSet):
+
+    def clean(self):
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        form_changed_count = 0
+
+        for form in self.forms:
+            if form.has_changed():
+                form_changed_count += 1
+                # stock_item = form.cleaned_data.get('stock_item', '')
+                # if not stock_item:
+                #     raise forms.ValidationError("Please choose a product", "error")
+
+        if form.changed_data and form_changed_count == 0:
+            raise forms.ValidationError('Provide atleast one stock') #code stops here
+
+PURCHASE_STOCK_FORM_SET = inlineformset_factory(
+    PurchaseVoucher,
+    PurchaseStock,
+    form=PurchaseStockForm,
+    formset=PurchaseStockFormSet,
+    extra=1,
+    min_num=1,
+    max_num=100,
+    validate_max=True,
+    can_delete=True
+)
+
+
 
 
 class PurchaseTermForm(forms.ModelForm):
@@ -298,16 +359,32 @@ class PurchaseTermForm(forms.ModelForm):
 
         self.fields['ledger'].queryset = LedgerMaster.objects.filter(
             Q(company=self.company),
-            Q(ledger_group__group_base__is_revenue__exact='Yes'))
+            Q(ledger_group__group_base__name__exact='Purchase Accounts') |
+            Q(ledger_group__group_base__name__exact='Indirect Expenses') |
+            Q(ledger_group__group_base__name__exact='Direct Expenses') |
+            Q(ledger_group__group_base__name__exact='Indirect Incomes') |
+            Q(ledger_group__group_base__name__exact='Direct Incomes') |
+            Q(ledger_group__group_base__name__exact='Fixed Assets'))
         self.fields['ledger'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', }
+            'class': 'select2_demo_2 form-control', 'onchange': 'additional_ledger_value(this)'}
         self.fields['rate'].widget.attrs = {
-            'class': 'form-control', 'step': 'any'}
+            'class': 'form-control', 'step': 'any','onchange': 'additional_ledger_changed_rate(this)',}
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
 
 
-PURCHASE_TERM_FORM_SET = inlineformset_factory(PurchaseVoucher, PurchaseTerm, form=PurchaseTermForm, extra=3)
+
+
+PURCHASE_TERM_FORM_SET = inlineformset_factory(
+    PurchaseVoucher,
+    PurchaseTerm, 
+    form=PurchaseTermForm, 
+    extra=1,
+    min_num=1,
+    max_num=100,
+    validate_max=True,
+    can_delete=True
+)
 
 
 class PurchaseTaxForm(forms.ModelForm):
@@ -326,9 +403,18 @@ class PurchaseTaxForm(forms.ModelForm):
             Q(company=self.company),
             Q(ledger_group__group_base__name__exact='Duties & Taxes'))
         self.fields['ledger'].widget.attrs = {
-            'class': 'select2_demo_2 form-control', }
+            'class': 'select2_demo_2 form-control', 'onchange': 'additional_gst_value(this)',}
         self.fields['total'].widget.attrs = {
             'class': 'form-control', 'step': 'any'}
 
 
-PURCHASE_TAX_FORM_SET = inlineformset_factory(PurchaseVoucher, PurchaseTax, form=PurchaseTaxForm, extra=3)
+PURCHASE_TAX_FORM_SET = inlineformset_factory(
+    PurchaseVoucher, 
+    PurchaseTax, 
+    form=PurchaseTaxForm, 
+    extra=2,
+    min_num=1,
+    max_num=100,
+    validate_max=True,
+    can_delete=True
+)

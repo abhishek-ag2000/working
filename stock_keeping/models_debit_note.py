@@ -44,7 +44,7 @@ class DebitNoteVoucher(models.Model):
         ('Imports Exempt', 'Imports Exempt'),
         ('Imports Nil Rated', 'Imports Nil Rated'),
         ('Imports Taxable', 'Imports Taxable'),
-        ('Interstate Purchase exempt', 'Interstate Purchase exempt'),
+        ('Interstate Purchase Exempt', 'Interstate Purchase Exempt'),
         ('Interstate Purchase from Unregistered Dealer - Exempt',
          'Interstate Purchase from Unregistered Dealer - Exempt'),
         ('Interstate Purchase from Unregistered Dealer - Nil Rated',
@@ -53,20 +53,24 @@ class DebitNoteVoucher(models.Model):
          'Interstate Purchase from Unregistered Dealer - Services'),
         ('Interstate Purchase from Unregistered Dealer - Taxable',
          'Interstate Purchase from Unregistered Dealer - Taxable'),
-        ('Interstate Purchase - Nil Rated', 'Interstate Purchase  - Nil Rated '),
+        ('Interstate Purchase - Nil Rated',
+         'Interstate Purchase  - Nil Rated '),
         ('Interstate Purchase - Taxable', 'Interstate Purchase  - Taxable'),
-        ('Intrastate Purchase Deemed Exports - Exempt',
-         'Intrastate Purchase Deemed Exports - Exempt'),
-        ('Intrastate Purchase Deemed Exports - Nil Rated',
-         'Intrastate Purchase Deemed Exports - Nil Rated'),
-        ('Intrastate Purchase Deemed Exports - Taxable',
-         'Intrastate Purchase Deemed Exports - Taxable'),
-        ('Purchase Deemed Exports - Exempt', 'Purchase Deemed Exports - Exempt'),
+        ('Interstate Purchase Deemed Exports - Exempt',
+         'Interstate Purchase Deemed Exports - Exempt'),
+        ('Interstate Purchase Deemed Exports - Nil Rated',
+         'Interstate Purchase Deemed Exports - Nil Rated'),
+        ('Interstate Purchase Deemed Exports - Taxable',
+         'Interstate Purchase Deemed Exports - Taxable'),
+        ('Purchase Deemed Exports - Exempt',
+         'Purchase Deemed Exports - Exempt'),
         ('Purchase Deemed Exports - Nil Rated',
          'Purchase Deemed Exports - Nil Rated'),
-        ('Purchase Deemed Exports - Taxable', 'Purchase Deemed Exports - Taxable'),
+        ('Purchase Deemed Exports - Taxable',
+         'Purchase Deemed Exports - Taxable'),
         ('Purchase Exempt', 'Purchase Exempt'),
-        ('Purchase From Composition Dealer', 'Purchase From Composition Dealer'),
+        ('Purchase From Composition Dealer',
+         'Purchase From Composition Dealer'),
         ('Purchase From SEZ - Exempt', 'Purchase From SEZ - Exempt'),
         ('Purchase From SEZ - LUT/Bond', 'Purchase From SEZ - LUT/Bond'),
         ('Purchase From SEZ - Nil Rated ', 'Purchase From SEZ - Nil Rated'),
@@ -86,7 +90,7 @@ class DebitNoteVoucher(models.Model):
         ('Purchase Nil Rated', 'Purchase Nil Rated'),
         ('Intrastate Purchase Taxable', 'Intrastate Purchase Taxable'),
     )
-    nature_transactions_purchase = models.CharField(max_length=100, choices=transaction_types, default='Not Applicable')
+    nature_transactions_purchase = models.CharField(max_length=100, choices=transaction_types, default='Not Applicable',blank=True)
     delivery_note = models.CharField(max_length=32, blank=True)
     supplier_ref = models.CharField(max_length=32, blank=True)
     mode = models.TextField(blank=True)
@@ -141,6 +145,43 @@ class DebitNoteVoucher(models.Model):
             the_sum=Coalesce(Sum('total'), Value(0)))['the_sum']
         if gst_total or extra_total or stock_total:
             self.total = gst_total + extra_total + stock_total
+            self.sub_total = stock_total
+
+        total_cgst_stock = self.debit_note_voucher.aggregate(
+        the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+        total_sgst_stock = self.debit_note_voucher.aggregate(
+            the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+        total_igst_stock = self.debit_note_voucher.aggregate(
+            the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+
+        if not total_cgst_stock:
+            total_cgst_stock = 0
+
+        if not total_sgst_stock:
+            total_sgst_stock = 0
+
+        if not total_igst_stock:
+            total_igst_stock = 0
+
+        total_cgst_extra = self.debit_note_extra.aggregate(
+            the_sum=Coalesce(Sum('cgst_total'), Value(0)))['the_sum']
+        total_sgst_extra = self.debit_note_extra.aggregate(
+            the_sum=Coalesce(Sum('sgst_total'), Value(0)))['the_sum']
+        total_igst_extra = self.debit_note_extra.aggregate(
+            the_sum=Coalesce(Sum('igst_total'), Value(0)))['the_sum']
+
+        if not total_cgst_extra:
+            total_cgst_extra = 0
+
+        if not total_sgst_extra:
+            total_sgst_extra = 0
+
+        if not total_igst_extra:
+            total_igst_extra = 0
+
+        self.cgst_total = total_cgst_stock + total_cgst_extra
+        self.sgst_total = total_sgst_stock + total_sgst_extra
+        self.igst_total = total_igst_stock + total_igst_extra
 
         if not self.url_hash:
             if self.user.profile.user_type == 'Bussiness user':
@@ -184,492 +225,716 @@ class DebitNoteStock(models.Model):
         if self.rate != 0 or self.quantity != 0 or self.disc != 0:
             self.total = self.rate * self.quantity * (1 - (self.disc/100))
 
-        if self.debit_note.company.gst_registration_type == 'Regular':
-            if self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
+        if self.stock_item:
+            if self.stock_item.is_non_gst != 'Yes' and self.stock_item.taxability != 'Exempt' and self.stock_item.taxability != 'Nil Rated' and self.stock_item.taxability != 'Unknown':
+                if self.debit_note.company.gst_registration_type == 'Regular':
+                    if self.debit_note.company.organisation.state == self.debit_note.supply_place and self.debit_note.nature_transactions_purchase == 'Not Applicable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
 
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
 
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
 
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state != self.debit_note.supply_place and self.debit_note.nature_transactions_purchase == 'Not Applicable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+                    elif self.debit_note.nature_transactions_purchase == 'Imports Taxable':
+
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        elif self.stock_item.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.integrated_tax
+
+                        elif self.stock_item.stock_group.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.stock_item.stock_group.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Chandigarh' and self.debit_note.party_ac.state == 'Chandigarh' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Chandigarh' and self.debit_note.party_ac.state == 'Chandigarh' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+                    elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Daman and Diu' and self.debit_note.party_ac.state == 'Daman and Diu' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Daman and Diu' and self.debit_note.party_ac.state == 'Daman and Diu' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Lakshadweep' and self.debit_note.party_ac.state == 'Lakshadweep' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Lakshadweep' and self.debit_note.party_ac.state == 'Lakshadweep' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
+                            self.cgst = self.stock_item.central_tax
+                            self.sgst = self.stock_item.state_tax
+                            self.igst = 0
+
+                        elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
+                            self.cgst = self.stock_item.stock_group.central_tax
+                            self.sgst = self.stock_item.stock_group.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+                    else:
+                        self.cgst = 0
+                        self.igst = 0
+                        self.sgst = 0
                 else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
+                    self.tax = self.stock_item.integrated_tax
 
-            elif self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
-                if self.debit_note.doc_ledger.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.doc_ledger.integrated_tax
-
-                elif self.stock_item.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.integrated_tax
-
-                elif self.stock_item.stock_group.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.stock_group.integrated_tax
-
-                else:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.company.integrated_tax
-
-            elif self.debit_note.nature_transactions_purchase == 'Imports Taxable':
-                if self.debit_note.doc_ledger.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.doc_ledger.integrated_tax
-
-                elif self.stock_item.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.integrated_tax
-
-                elif self.stock_item.stock_group.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.stock_group.integrated_tax
-
-                else:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.company.integrated_tax
-
-            elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase - Taxable':
-                print(self.debit_note.doc_ledger.integrated_tax)
-                if self.debit_note.doc_ledger.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.doc_ledger.integrated_tax
-
-                elif self.stock_item.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.integrated_tax
-
-                elif self.stock_item.stock_group.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.stock_group.integrated_tax
-
-                else:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.company.integrated_tax
-
-            elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
-                if self.debit_note.doc_ledger.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.doc_ledger.integrated_tax
-
-                elif self.stock_item.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.integrated_tax
-
-                elif self.stock_item.stock_group.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.stock_group.integrated_tax
-
-                else:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.company.integrated_tax
-
-            elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
-                if self.debit_note.doc_ledger.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.doc_ledger.integrated_tax
-
-                elif self.stock_item.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.integrated_tax
-
-                elif self.stock_item.stock_group.integrated_tax != 0:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.stock_item.stock_group.integrated_tax
-
-                else:
-                    self.cgst = 0
-                    self.sgst = 0
-                    self.igst = self.debit_note.company.integrated_tax
-
-            elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Chandigarh' and \
-                    self.debit_note.party_ac.state == 'Chandigarh' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Chandigarh' and \
-                    self.debit_note.party_ac.state == 'Chandigarh' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Daman and Diu' and \
-                    self.debit_note.party_ac.state == 'Daman and Diu' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Daman and Diu' and \
-                    self.debit_note.party_ac.state == 'Daman and Diu' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Lakshadweep' and \
-                    self.debit_note.party_ac.state == 'Lakshadweep' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
-
-            elif self.debit_note.company.organisation.state == 'Lakshadweep' and \
-                    self.debit_note.party_ac.state == 'Lakshadweep' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
-                    self.cgst = self.debit_note.doc_ledger.central_tax
-                    self.sgst = self.debit_note.doc_ledger.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.central_tax != 0 or self.stock_item.state_tax != 0:
-                    self.cgst = self.stock_item.central_tax
-                    self.sgst = self.stock_item.state_tax
-                    self.igst = 0
-
-                elif self.stock_item.stock_group.central_tax != 0 or self.stock_item.stock_group.state_tax != 0:
-                    self.cgst = self.stock_item.stock_group.central_tax
-                    self.sgst = self.stock_item.stock_group.state_tax
-                    self.igst = 0
-
-                else:
-                    self.cgst = self.debit_note.company.central_tax
-                    self.sgst = self.debit_note.company.state_tax
-                    self.igst = 0
             else:
-                self.cgst = 0
-                self.sgst = 0
-                self.igst = 0
-        else:
-            self.tax = self.stock_item.integrated_tax
+                if self.debit_note.company.gst_registration_type == 'Regular':
+                    if self.debit_note.company.organisation.state == self.debit_note.supply_place and self.debit_note.nature_transactions_purchase == 'Not Applicable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
 
-        if self.debit_note.company.gst_registration_type == 'Regular':
-            if self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0.00
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
 
-            elif self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0.00
+                    elif self.debit_note.company.organisation.state != self.debit_note.supply_place and self.debit_note.nature_transactions_purchase == 'Not Applicable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
 
-            elif self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
 
-            elif self.debit_note.nature_transactions_purchase == 'Imports Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
 
-            elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
 
-            elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                    elif self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
 
-            elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
 
-            elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Chandigarh' \
-                    and self.debit_note.party_ac.state == 'Chandigarh' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Chandigarh' and \
-                    self.debit_note.party_ac.state == 'Chandigarh' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Daman and Diu' and \
-                    self.debit_note.party_ac.state == 'Daman and Diu' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Daman and Diu' and \
-                    self.debit_note.party_ac.state == 'Daman and Diu' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Lakshadweep' and \
-                    self.debit_note.party_ac.state == 'Lakshadweep' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
-            elif self.debit_note.company.organisation.state == 'Lakshadweep' and \
-                    self.debit_note.party_ac.state == 'Lakshadweep' and \
-                    self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
-                self.igst_total = 0
+                    elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+                            
+                    elif self.debit_note.nature_transactions_purchase == 'Imports Taxable':
+
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
+                        if self.debit_note.doc_ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.doc_ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Chandigarh' and self.debit_note.party_ac.state == 'Chandigarh' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Chandigarh' and self.debit_note.party_ac.state == 'Chandigarh' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Daman and Diu' and self.debit_note.party_ac.state == 'Daman and Diu' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Daman and Diu' and self.debit_note.party_ac.state == 'Daman and Diu' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Lakshadweep' and self.debit_note.party_ac.state == 'Lakshadweep' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+
+                    elif self.debit_note.company.organisation.state == 'Lakshadweep' and self.debit_note.party_ac.state == 'Lakshadweep' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.debit_note.doc_ledger.central_tax != 0 or self.debit_note.doc_ledger.state_tax != 0:
+                            self.cgst = self.debit_note.doc_ledger.central_tax
+                            self.sgst = self.debit_note.doc_ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = 0
+                            self.igst = 0
+                            self.sgst = 0
+                    else:
+                        self.cgst = 0
+                        self.igst = 0
+                        self.sgst = 0
+                else:
+                    self.tax = self.stock_item.integrated_tax
+
+
+            if self.debit_note.company.gst_registration_type == 'Regular':
+                if self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                elif self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase Deemed Exports - Taxable':
+                    self.cgst_total = 0
+                    self.sgst_total = 0
+                    self.igst_total = self.igst * self.total / 100
+                elif self.debit_note.nature_transactions_purchase == 'Imports Taxable':
+                    self.cgst_total = 0
+                    self.sgst_total = 0
+                    self.igst_total = self.igst * self.total / 100
+
+                elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase - Taxable':
+                    self.cgst_total = 0
+                    self.sgst_total = 0
+                    self.igst_total = self.igst * self.total / 100
+
+                elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
+                    self.cgst_total = 0
+                    self.sgst_total = 0
+                    self.igst_total = self.igst * self.total / 100
+
+                elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
+                    self.cgst_total = 0
+                    self.sgst_total = 0
+                    self.igst_total = self.igst * self.total / 100
+
+                elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Andaman & Nicobar Islands' and self.debit_note.party_ac.state == 'Andaman & Nicobar Islands' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Chandigarh' and self.debit_note.party_ac.state == 'Chandigarh' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Chandigarh' and self.debit_note.party_ac.state == 'Chandigarh' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Dadra and Nagar Haveli' and self.debit_note.party_ac.state == 'Dadra and Nagar Haveli' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Daman and Diu' and self.debit_note.party_ac.state == 'Daman and Diu' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Daman and Diu' and self.debit_note.party_ac.state == 'Daman and Diu' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Lakshadweep' and self.debit_note.party_ac.state == 'Lakshadweep' and self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                elif self.debit_note.company.organisation.state == 'Lakshadweep' and self.debit_note.party_ac.state == 'Lakshadweep' and self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                    self.cgst_total = self.cgst * self.total / 100
+                    self.sgst_total = self.sgst * self.total / 100
+                    self.igst_total = 0
+
+                else:
+                    self.igst_total = self.igst * self.total / 100
             else:
-                self.igst_total = self.igst * self.total / 100
-        else:
-            self.sgst_total = self.tax * self.total / 100
-            self.tax_total = self.tax * self.total / 100
+                self.sgst_total = self.tax * self.total / 100
+                self.tax_total = self.tax * self.total / 100
 
         super(DebitNoteStock, self).save()
 
@@ -700,120 +965,233 @@ class DebitNoteTerm(models.Model):
         """
         Save function to override the total value of particular ledger and their GST Totals
         """
-        self.total = self.debit_note.sub_total * (self.rate / 100)
+        if self.total == 0:
+            if self.rate != 0:
+                self.total = self.debit_note.sub_total * (self.rate / 100)
 
-        if self.debit_note.company.gst_registration_type == 'Regular':
-            if self.ledger:
-                if self.ledger.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                    if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                        self.cgst = self.ledger.central_tax
-                        self.sgst = self.ledger.state_tax
+        if self.ledger and self.ledger.nature_transactions_purchase != 'Not Applicable':    
+            if self.debit_note.company.gst_registration_type == 'Regular':
+                if self.debit_note.nature_transactions_purchase == 'Not Applicable':
+                    if self.ledger.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
+                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                            self.cgst = self.ledger.central_tax
+                            self.sgst = self.ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.ledger.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                            self.cgst = self.ledger.central_tax
+                            self.sgst = self.ledger.state_tax
+                            self.igst = 0
+
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
+
+                    elif self.ledger.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.ledger.nature_transactions_purchase == 'Interstate Purchase - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    else:
+                        self.cgst = 0
                         self.igst = 0
-
-                    else:
-                        self.cgst = self.debit_note.company.central_tax
-                        self.sgst = self.debit_note.company.state_tax
-                        self.igst = 0
-
-                elif self.ledger.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                    if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
-                        self.cgst = self.ledger.central_tax
-                        self.sgst = self.ledger.state_tax
-                        self.igst = 0
-
-                    else:
-                        self.cgst = self.debit_note.company.central_tax
-                        self.sgst = self.debit_note.company.state_tax
-                        self.igst = 0
-
-                elif self.ledger.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
-                    if self.ledger.integrated_tax != 0:
-                        self.cgst = 0
                         self.sgst = 0
-                        self.igst = self.ledger.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.debit_note.company.integrated_tax
-
-                elif self.ledger.nature_transactions_purchase == 'Interstate Purchase - Taxable':
-                    if self.ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.ledger.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.debit_note.company.integrated_tax
-
-                elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
-                    if self.ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.ledger.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.debit_note.company.integrated_tax
-
-                elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
-                    if self.ledger.integrated_tax != 0:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.ledger.integrated_tax
-
-                    else:
-                        self.cgst = 0
-                        self.sgst = 0
-                        self.igst = self.debit_note.company.integrated_tax
 
                 else:
-                    self.cgst = 0
-                    self.igst = 0
-                    self.sgst = 0
-        else:
-            self.tax = self.ledger.integrated_tax
+                    if self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
+                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                            self.cgst = self.ledger.central_tax
+                            self.sgst = self.ledger.state_tax
+                            self.igst = 0
 
-        if self.debit_note.company.gst_registration_type == 'Regular':
-            if self.ledger.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
 
-            elif self.ledger.nature_transactions_purchase == 'Intrastate Purchase Taxable':
-                self.cgst_total = self.cgst * self.total / 100
-                self.sgst_total = self.sgst * self.total / 100
+                    elif self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        if self.ledger.central_tax != 0 or self.ledger.state_tax != 0:
+                            self.cgst = self.ledger.central_tax
+                            self.sgst = self.ledger.state_tax
+                            self.igst = 0
 
-            elif self.ledger.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = self.debit_note.company.central_tax
+                            self.sgst = self.debit_note.company.state_tax
+                            self.igst = 0
 
-            elif self.ledger.nature_transactions_purchase == 'Imports Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = 0
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
 
-            elif self.ledger.nature_transactions_purchase == 'Interstate Purchase - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
 
-            elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                    elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
 
-            elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
-                self.cgst_total = 0
-                self.sgst_total = 0
-                self.igst_total = self.igst * self.total / 100
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
+                        if self.ledger.integrated_tax != 0:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.ledger.integrated_tax
+
+                        else:
+                            self.cgst = 0
+                            self.sgst = 0
+                            self.igst = self.debit_note.company.integrated_tax
+                    
+
+                    else:
+                        self.cgst = 0
+                        self.igst = 0
+                        self.sgst = 0
             else:
-                self.igst_total = self.igst * self.total / 100
-        else:
-            self.tax_total = self.tax * self.total / 100
+                self.tax = self.ledger.integrated_tax
+
+        if self.ledger and self.ledger.nature_transactions_purchase != 'Not Applicable':
+            if self.debit_note.company.gst_registration_type == 'Regular':
+                if self.debit_note.nature_transactions_purchase == 'Not Applicable':
+                    if self.ledger.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
+                        self.cgst_total = self.cgst * self.total / 100
+                        self.sgst_total = self.sgst * self.total / 100
+
+                    elif self.ledger.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        self.cgst_total = self.cgst * self.total / 100
+                        self.sgst_total = self.sgst * self.total / 100
+
+                    elif self.ledger.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+
+                    elif self.ledger.nature_transactions_purchase == 'Imports Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = 0
+
+                    elif self.ledger.nature_transactions_purchase == 'Interstate Purchase - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+
+                    elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+
+                    elif self.ledger.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+                    else:
+                        self.igst_total = self.igst * self.total / 100
+                else:
+                    if self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Deemed Exports - Taxable':
+                        self.cgst_total = self.cgst * self.total / 100
+                        self.sgst_total = self.sgst * self.total / 100
+
+                    elif self.debit_note.nature_transactions_purchase == 'Intrastate Purchase Taxable':
+                        self.cgst_total = self.cgst * self.total / 100
+                        self.sgst_total = self.sgst * self.total / 100
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase Deemed Exports - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+
+                    elif self.debit_note.nature_transactions_purchase == 'Imports Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = 0
+
+                    elif self.debit_note.nature_transactions_purchase == 'Interstate Purchase - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ (Without Bill Of Entry) - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+
+                    elif self.debit_note.nature_transactions_purchase == 'Purchase From SEZ - Taxable':
+                        self.cgst_total = 0
+                        self.sgst_total = 0
+                        self.igst_total = self.igst * self.total / 100
+                    else:
+                        self.igst_total = self.igst * self.total / 100
+            else:
+                self.tax_total = self.tax * self.total / 100
 
         super(DebitNoteTerm, self).save()
 
