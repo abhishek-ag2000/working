@@ -339,6 +339,13 @@ class DetailContactView(DetailView):
         contact_details=get_object_or_404(
             Contact, pk=self.kwargs['contact_pk'])
         context['contact_details']=contact_details
+        assigned_data = []
+        for each in context['contact_details'].assigned_to.all():
+            assigned_dict = {}
+            assigned_dict['id'] = each.id
+            assigned_dict['name'] = each.email
+            assigned_data.append(assigned_dict)
+        # print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',assigned_data)
 
         
 

@@ -15,7 +15,7 @@ from .models import Tags
 
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
-# from .models_contacts import Contact
+from .models_contacts import Contact
 
 
 class Account(models.Model):
@@ -72,10 +72,10 @@ class Account(models.Model):
     # lead = models.ForeignKey(
     #     Lead, related_name="account_leads",
     #     on_delete=models.SET_NULL, null=True)
-    # contact_name = models.CharField(pgettext_lazy(
-    #     "Name of Contact", "Contact Name"), max_length=120)
-    # contacts = models.ManyToManyField(
-    #     Contact, related_name="account_contacts")
+    contact_name = models.CharField(pgettext_lazy(
+        "Name of Contact", "Contact Name"), max_length=120)
+    contacts = models.ManyToManyField(
+        Contact, related_name="account_contacts")
     
 
     def __str__(self):
@@ -84,45 +84,45 @@ class Account(models.Model):
     class Meta:
         ordering = ['-created_on']
 
-    # def get_complete_address(self):
-    #     address = ""
-    #     if self.billing_address_line:
-    #         address += self.billing_address_line
-    #     if self.billing_street:
-    #         if address:
-    #             address += ", " + self.billing_street
-    #         else:
-    #             address += self.billing_street
-    #     if self.billing_city:
-    #         if address:
-    #             address += ", " + self.billing_city
-    #         else:
-    #             address += self.billing_city
-    #     if self.billing_state:
-    #         if address:
-    #             address += ", " + self.billing_state
-    #         else:
-    #             address += self.billing_state
-    #     if self.billing_postcode:
-    #         if address:
-    #             address += ", " + self.billing_postcode
-    #         else:
-    #             address += self.billing_postcode
-    #     if self.billing_country:
-    #         if address:
-    #             address += ", " + self.get_billing_country_display()
-    #         else:
-    #             address += self.get_billing_country_display()
-    #     return address
+    def get_complete_address(self):
+        address = ""
+        if self.billing_address_line:
+            address += self.billing_address_line
+        if self.billing_street:
+            if address:
+                address += ", " + self.billing_street
+            else:
+                address += self.billing_street
+        if self.billing_city:
+            if address:
+                address += ", " + self.billing_city
+            else:
+                address += self.billing_city
+        if self.billing_state:
+            if address:
+                address += ", " + self.billing_state
+            else:
+                address += self.billing_state
+        if self.billing_postcode:
+            if address:
+                address += ", " + self.billing_postcode
+            else:
+                address += self.billing_postcode
+        if self.billing_country:
+            if address:
+                address += ", " + self.get_billing_country_display()
+            else:
+                address += self.get_billing_country_display()
+        return address
 
     @property
     def created_on_arrow(self):
         return arrow.get(self.created_on).humanize()
 
-    # @property
-    # def contact_values(self):
-    #     contacts = list(self.contacts.values_list('id', flat=True))
-    #     return ','.join(str(contact) for contact in contacts)
+    @property
+    def contact_values(self):
+        contacts = list(self.contacts.values_list('id', flat=True))
+        return ','.join(str(contact) for contact in contacts)
 
 
 class Email(models.Model):

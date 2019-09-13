@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-# from .models_accounts import Account, Email, EmailLog
+from .models_accounts import Account
 # from .models import Tags
 # from .models_cases import Case
 from .models_contacts import Contact
@@ -19,13 +19,13 @@ from .models_contacts import Contact
 #     list_display = ['name', 'slug']
 #     search_fields = ['name']
 
-# class AccountAdmin(admin.ModelAdmin):
-#     """
-#     Model Admin class for AccountAdmin model
-#     """
-#     model = Account
-#     list_display = ['company', 'name','email','phone']
-#     search_fields = ['company','name']
+class AccountAdmin(admin.ModelAdmin):
+    """
+    Model Admin class for AccountAdmin model
+    """
+    model = Account
+    list_display = ['company', 'name','email','phone']
+    search_fields = ['company','name']
 
 # class EmailAdmin(admin.ModelAdmin):
 #     """
@@ -108,7 +108,7 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 # admin.site.register(Tags, TagsAdmin)
-# admin.site.register(Account, AccountAdmin)
+admin.site.register(Account, AccountAdmin)
 # admin.site.register(Email, EmailAdmin)
 # admin.site.register(EmailLog, EmailLogAdmin)
 # admin.site.register(Case, CaseAdmin)
