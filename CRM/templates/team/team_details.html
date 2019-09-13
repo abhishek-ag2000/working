@@ -1,0 +1,4 @@
+{{team_details.name}}
+{% for usr in team_details.users.all %}
+	{{usr.profile.full_name}}
+{% endfor %}

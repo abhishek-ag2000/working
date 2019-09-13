@@ -1,7 +1,7 @@
 from django import forms
 from .models_contacts import Contact
 from CRMcommon.models import Comment, Attachments 
-# from .models_teams import Teams 
+from .models_teams import Teams 
 
 
 class ContactForm(forms.ModelForm):
@@ -24,12 +24,12 @@ class ContactForm(forms.ModelForm):
                 value.widget.attrs['placeholder'] = "+91-123-456-7890"
             else:
                 value.widget.attrs['placeholder'] = value.label
-        # self.fields["teams"].choices = [(team.get('id'), team.get('name')) for team in Teams.objects.all().values('id', 'name')]
+        self.fields["teams"].choices = [(team.get('id'), team.get('name')) for team in Teams.objects.all().values('id', 'name')]
         self.fields["teams"].required = False
 
     class Meta:
         model = Contact
-        fields = ('company',
+        fields = (
             'assigned_to', 'first_name',
             'last_name', 'email',
             'phone', 'address', 'description'

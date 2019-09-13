@@ -31,6 +31,9 @@
       href="{% url 'qr_code:qr_dashboard' organisation_pk=organisation.pk period_selected_pk=period_selected.pk %}">Go
       To Bracket-QR</a></td>
   {% endif %}
+    <td><a class="btn btn-warning"
+      href="{% url 'CRM:CRMdashboard' organisation_pk=organisation.pk  %}">Go
+      To CRM Dashboard</a></td>
   <td>
     <button class="btn btn-danger show-form-delete"
       data-url="{% url 'company:delete' organisation_pk=organisation.pk %}">

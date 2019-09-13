@@ -25,7 +25,7 @@ from django.db.models import Q
 # from common.access_decorators_mixins import (
 #     sales_access_required, marketing_access_required, SalesAccessRequiredMixin, MarketingAccessRequiredMixin)
 from .models_teams import Teams
-from company.models import Organisation
+from company.models import Organisation,Company
 
 
 class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequiredMixin
@@ -62,6 +62,7 @@ class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequired
             if request_post.getlist('assigned_to'):
                 queryset = queryset.filter(
                     assigned_to__id__in=request_post.getlist('assigned_to'))
+            
         return queryset.distinct()
 
     def get_context_data(self, **kwargs):
@@ -73,12 +74,12 @@ class ContactsListView( LoginRequiredMixin, TemplateView): # SalesAccessRequired
         # print(organisation)
 
 
-        context["contact_obj_list"] = self.get_queryset()
+        context["contact_obj_list"] = Contact.objects.filter(company=organisation.id)
+
         context["per_page"] = self.request.POST.get('per_page')
         # context["users"] = settings.AUTH_USER_MODEL.objects.filter(
         #     is_active=True).order_by('email')
-        context["assignedto_list"] = [
-            int(i) for i in self.request.POST.getlist('assigned_to', []) if i]
+        context["assignedto_list"] = [int(i) for i in self.request.POST.getlist('assigned_to', []) if i]
         search = False
         if (
             self.request.POST.get('first_name') or
@@ -130,6 +131,9 @@ class CreateContactView(CreateView):
             contact_obj = form.save(commit=False)
             contact_obj.address = address_obj
             contact_obj.created_by = self.request.user
+            c = Company.objects.get(pk=self.kwargs['organisation_pk'])
+        
+            contact_obj.company=c
             contact_obj.save()
             if self.request.GET.get('view_account', None):
                 if Account.objects.filter(

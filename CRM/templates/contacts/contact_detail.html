@@ -65,10 +65,9 @@
                                     <i class="fa fa-wrench"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-user">
-                                    <li><a href="#" class="dropdown-item">Config option 1</a>
+                                    <li><a href="{% url 'CRM:crm_contact_update' organisation_pk=organisation.pk contact_pk=contact.pk %}" class="dropdown-item">Edit</a>
                                     </li>
-                                    <li><a href="#" class="dropdown-item">Config option 2</a>
-                                    </li>
+                                    
                                 </ul>
                                 <a class="close-link">
                                     <i class="fa fa-times"></i>

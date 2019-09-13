@@ -9,7 +9,7 @@ from .models_contacts import Contact
 # from .models_opportunity import Opportunity
 # from .models_events import Event
 # from .models_tasks import Task
-# from .models_teams import Teams
+from .models_teams import Teams
 
 # class TagsAdmin(admin.ModelAdmin):
 #     """
@@ -97,13 +97,13 @@ class ContactAdmin(admin.ModelAdmin):
 #     search_fields = ['company', 'title', 'created_by']
 
 
-# class TeamsAdmin(admin.ModelAdmin):
-#     """
-#     Model Admin class for TeamsAdmin model
-#     """
-#     model = Teams
-#     list_display = ['company', 'name', 'description', 'created_by']
-#     search_fields = ['company', 'name', 'description']
+class TeamsAdmin(admin.ModelAdmin):
+    """
+    Model Admin class for TeamsAdmin model
+    """
+    model = Teams
+    list_display = ['company', 'name', 'description', 'created_by']
+    search_fields = ['company', 'name', 'description']
 
 
 
@@ -117,4 +117,4 @@ admin.site.register(Contact, ContactAdmin)
 # admin.site.register(Opportunity, OpportunityAdmin)
 # admin.site.register(Event, EventAdmin)
 # admin.site.register(Task, TaskAdmin)
-# admin.site.register(Teams, TeamsAdmin)
+admin.site.register(Teams, TeamsAdmin)

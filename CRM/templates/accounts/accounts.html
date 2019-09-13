@@ -20,7 +20,7 @@
                     <a href="{% url 'company:list' %}">Company list</a>
                 </li>
                 <li class="breadcrumb-item active">
-                    <strong> Contacts </strong>
+                    <strong> Accounts </strong>
                 </li>
             </ol>
             <br>
@@ -96,12 +96,12 @@
                           </td>
                           <td title="{{account.created_on}}">{{account.created_on}}</td>
                           <td class="actions">
-                            <a href="{% url 'CRM:crm_contact_detail' organisation_pk=organisation.pk contact_pk=account.pk %}" class="btn btn-info view"><i
+                            <a href="{% url 'CRM:crm_account_detail' organisation_pk=organisation.pk account_pk=account.pk %}" class="btn btn-info view"><i
                                 class="glyphicon glyphicon-eye-open"></i></a>
-                            <a href="{% url 'CRM:crm_contact_update' organisation_pk=organisation.pk contact_pk=account.pk %}" class="btn btn-success edit"><i
+                            <a href="{% url 'CRM:crm_account_update' organisation_pk=organisation.pk account_pk=account.pk %}" class="btn btn-success edit"><i
                                 class="glyphicon glyphicon-pencil"></i></a>
                             {% if request.user == account.created_by or request.user.role == "ADMIN" or request.user.is_superuser %}
-                            <a href="{% url 'CRM:crm_contact_delete' organisation_pk=organisation.pk contact_pk=account.pk %}"
+                            <a href=""
                               class="btn btn-danger delete remove_account"><i class="glyphicon glyphicon-trash"></i></a>
                             {% endif %}
                           </td>
@@ -110,7 +110,7 @@
                       </tbody>
                     </table>
                   </div>
-                  {%ifequal contact_obj_list|length 0 %}
+                  {%ifequal accounts_list|length 0 %}
                   <h6 class="text-center">No Contact Records Found</h6>
                   {%endifequal%}
                   
