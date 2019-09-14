@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import (
     CreateView, UpdateView, DetailView, TemplateView, View,DeleteView)
-# from common.models import User, Comment, Attachments
+from bracketline.models import BracketlineUser
 
 from bracketline.models import BracketlineUser
 from django.conf import settings    #import user
@@ -144,34 +144,35 @@ class CreateContactView(CreateView):
 
         return self.form_invalid(form)
 
-    # def form_valid(self, form):
-    #     c = Company.objects.get(pk=self.kwargs['organisation_pk'])
-    #     form.instance.company = c
-    #     contact_obj = form.save(commit=False)
-    #     if self.request.POST.getlist('assigned_to', []):
-    #         contact_obj.assigned_to.add(
-    #             *self.request.POST.getlist('assigned_to'))
+    def form_valid(self, form):
+        c = Company.objects.get(pk=self.kwargs['organisation_pk'])
+        form.instance.company = c
+        contact_obj = form.save(commit=False)
+        if self.request.POST.getlist('assigned_to', []):
+            contact_obj.assigned_to.add(
+                *self.request.POST.getlist('assigned_to'))
             # for assigned_to_user in assigned_to_list:
-                # user = get_object_or_404(User, pk=assigned_to_user)
-                # mail_subject = 'Assigned to contact.'
-                # message = render_to_string(
-                #     'assigned_to/contact_assigned.html', {
-                #         'user': user,
-                #         'domain': current_site.domain,
-                #         'protocol': self.request.scheme,
-                #         'contact': contact_obj
-                #     })
-                # email = EmailMessage(mail_subject, message, to=[user.email])
-                # email.content_subtype = "html"
-                # email.send()
-        # if self.request.POST.getlist('teams', []):
-        #     user_ids = Teams.objects.filter(id__in=self.request.POST.getlist('teams')).values_list('users', flat=True)
-        #     assinged_to_users_ids = contact_obj.assigned_to.all().values_list('id', flat=True)
-        #     for user_id in user_ids:
-        #         if user_id not in assinged_to_users_ids:
-        #             contact_obj.assigned_to.add(user_id)
+            #     user = get_object_or_404(User, pk=assigned_to_user)
+            #     mail_subject = 'Assigned to contact.'
+            #     message = render_to_string(
+            #         'assigned_to/contact_assigned.html', {
+            #             'user': user,
+            #             'domain': current_site.domain,
+            #             'protocol': self.request.scheme,
+            #             'contact': contact_obj
+            #         })
+            #     email = EmailMessage(mail_subject, message, to=[user.email])
+            #     email.content_subtype = "html"
+            #     email.send()
+        if self.request.POST.getlist('teams', []):
+            user_ids = Teams.objects.filter(id__in=self.request.POST.getlist('teams')).values_list('BracketlineUser', flat=True)
+            assinged_to_users_ids = contact_obj.assigned_to.all().values_list('id', flat=True)
+            for user_id in user_ids:
+                if user_id not in assinged_to_users_ids:
+                    contact_obj.assigned_to.add(user_id)
 
-        # assigned_to_list = list(contact_obj.assigned_to.all().values_list('id', flat=True))
+        assigned_to_list = list(contact_obj.assigned_to.all().values_list('id', flat=True))
+        print('test asign list ................',assigned_to_list)
         # current_site = get_current_site(self.request)
         # recipients = assigned_to_list
         # send_email_to_assigned_user.delay(recipients, contact_obj.id, domain=current_site.domain,
@@ -192,21 +193,23 @@ class CreateContactView(CreateView):
         #     return JsonResponse({'error': False})
         # if self.request.POST.get("savenewform"):
         #     return redirect("contacts:add_contact")
+       
+    
+        return redirect('CRM:crm_contacts',organisation_pk=self.kwargs['organisation_pk'])
 
-        # return redirect('contacts:list')
-    def get_success_url(self, **kwargs):
-        organisation = get_object_or_404(
-            Organisation, pk=self.kwargs['organisation_pk'])
-        return reverse('CRM:crm_contacts', kwargs={'organisation_pk': organisation.pk})
+    # def get_success_url(self, **kwargs):
+    #     organisation = get_object_or_404(
+    #         Organisation, pk=self.kwargs['organisation_pk'])
+    #     return reverse('CRM:crm_contacts', kwargs={'organisation_pk': organisation.pk})
 
-    def form_valid(self, form):
-        print("befor save")
-        c = Company.objects.get(pk=self.kwargs['organisation_pk'])
-        form.instance.company = c
-        form.instance.created_by = self.request.user
+    # def form_valid(self, form):
+    #     print("befor save")
+    #     c = Company.objects.get(pk=self.kwargs['organisation_pk'])
+    #     form.instance.company = c
+    #     form.instance.created_by = self.request.user
         
         
-        return super(CreateContactView, self).form_valid(form)
+    #     return super(CreateContactView, self).form_valid(form)
 
     # def form_invalid(self, form):
     #     address_form = BillingAddressForm(self.request.POST)
@@ -226,7 +229,7 @@ class CreateContactView(CreateView):
 
         context["contact_form"] = context["form"]
         
-        
+        # context["users"] = BracketlineUser
         context["assignedto_list"] = [
             int(i) for i in self.request.POST.getlist('assigned_to', []) if i]
         if "address_form" in kwargs:

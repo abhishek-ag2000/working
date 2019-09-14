@@ -36,12 +36,12 @@ class AccountForm(forms.ModelForm):
             'placeholder': 'Street'})
         self.fields['billing_city'].widget.attrs.update({
             'placeholder': 'City'})
-        self.fields['billing_state'].widget.attrs.update({
+        self.fields['billing_accounts_state'].widget.attrs.update({
             'placeholder': 'State'})
         self.fields['billing_postcode'].widget.attrs.update({
             'placeholder': 'Postcode'})
-        self.fields["billing_country"].choices = [
-            ("", "--Country--"), ] + list(self.fields["billing_country"].choices)[1:]
+        # self.fields["billing_accounts_country"].choices = [
+        #     ("", "--Country--"), ] + list(self.fields["billing_accounts_country"].choices)[1:]
         # self.fields["lead"].queryset = Lead.objects.all(
         # ).exclude(status='closed')
         # if request_user.role == 'ADMIN':
@@ -62,9 +62,9 @@ class AccountForm(forms.ModelForm):
             self.fields['billing_address_line'].required = True
             self.fields['billing_street'].required = True
             self.fields['billing_city'].required = True
-            self.fields['billing_state'].required = True
+            self.fields['billing_accounts_state'].required = True
             self.fields['billing_postcode'].required = True
-            self.fields['billing_country'].required = True
+            self.fields['billing_accounts_country'].required = True
 
         # lead is not mandatory while editing
         # if self.instance.id:
@@ -76,5 +76,5 @@ class AccountForm(forms.ModelForm):
         fields = ('name', 'phone', 'email', 'website', 'industry',
                   'description', 'status', 'assigned_to',
                   'billing_address_line', 'billing_street',
-                  'billing_city', 'billing_state',
-                  'billing_postcode', 'billing_country', 'contacts')
+                  'billing_city', 'billing_accounts_state',
+                  'billing_postcode', 'billing_accounts_country', 'contacts')

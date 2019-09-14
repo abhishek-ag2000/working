@@ -8,7 +8,7 @@ from company.models import Company  #import company
 
 from CRMcommon.models import Address
 
-from phonenumber_field.modelfields import PhoneNumberField
+# from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 class Contact(models.Model):
@@ -24,7 +24,7 @@ class Contact(models.Model):
     first_name = models.CharField(_("First name"), max_length=255)
     last_name = models.CharField(_("Last name"), max_length=255)
     email = models.EmailField(unique=True ,blank=True, null=True)
-    phone = PhoneNumberField(null=True, unique=True)
+    # phone = PhoneNumberField(null=True, unique=True)
     address = models.ForeignKey(
         Address, related_name='adress_contacts',
         on_delete=models.CASCADE, blank=True, null=True)

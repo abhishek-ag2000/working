@@ -2,7 +2,7 @@ from django import forms
 from .models_contacts import Contact
 from CRMcommon.models import Comment, Attachments 
 from .models_teams import Teams 
-
+from django.forms.widgets import CheckboxSelectMultiple
 
 class ContactForm(forms.ModelForm):
     teams_queryset = []
@@ -16,14 +16,16 @@ class ContactForm(forms.ModelForm):
         self.fields['description'].widget.attrs.update({
             'rows': '6'})
         if assigned_users:
+
+            self.fields['assigned_to'].widget = CheckboxSelectMultiple
             self.fields['assigned_to'].queryset = assigned_users
         self.fields['assigned_to'].required = False
 
-        for key, value in self.fields.items():
-            if key == 'phone':
-                value.widget.attrs['placeholder'] = "+91-123-456-7890"
-            else:
-                value.widget.attrs['placeholder'] = value.label
+        # for key, value in self.fields.items():
+        #     if key == 'phone':
+        #         value.widget.attrs['placeholder'] = "+91-123-456-7890"
+        #     else:
+        #         value.widget.attrs['placeholder'] = value.label
         self.fields["teams"].choices = [(team.get('id'), team.get('name')) for team in Teams.objects.all().values('id', 'name')]
         self.fields["teams"].required = False
 
@@ -31,8 +33,7 @@ class ContactForm(forms.ModelForm):
         model = Contact
         fields = (
             'assigned_to', 'first_name',
-            'last_name', 'email',
-            'phone', 'address', 'description'
+            'last_name', 'email', 'address', 'description'
         )
 
 

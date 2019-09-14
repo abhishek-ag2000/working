@@ -2,7 +2,7 @@ import arrow
 from django.db import models
 from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
-from phonenumber_field.modelfields import PhoneNumberField
+
 from .models import Tags
 # from common.models import User
 from django.conf import settings    #import user
@@ -10,6 +10,7 @@ from company.models import Company  #import company
 from CRMcommon.utils import (COUNTRIES, LEAD_SOURCE, LEAD_STATUS,
                           return_complete_address)
 from .models_contacts import Contact
+from bracketline.models import CountryMaster, StateMaster 
 
 
 class Lead(models.Model):
@@ -27,7 +28,7 @@ class Lead(models.Model):
     first_name = models.CharField(_("First name"), null=True, max_length=255)
     last_name = models.CharField(_("Last name"), null=True, max_length=255)
     email = models.EmailField(null=True, blank=True)
-    phone = PhoneNumberField(null=True, blank=True)
+    
     status = models.CharField(
         _("Status of Lead"),
         max_length=255, blank=True,
@@ -40,11 +41,12 @@ class Lead(models.Model):
     street = models.CharField(
         _("Street"), max_length=55, blank=True, null=True)
     city = models.CharField(_("City"), max_length=255, blank=True, null=True)
-    state = models.CharField(_("State"), max_length=255, blank=True, null=True)
+    state = models.ForeignKey(StateMaster, on_delete=models.DO_NOTHING, related_name='lead_state',blank=True, null=True)
+    country = models.ForeignKey(CountryMaster, on_delete=models.DO_NOTHING, default=12, related_name="lead_country",blank=True, null=True)
+    
     postcode = models.CharField(
         _("Post/Zip-code"), max_length=64, blank=True, null=True)
-    country = models.CharField(
-        max_length=3, choices=COUNTRIES, blank=True, null=True)
+
     website = models.CharField(
         _("Website"), max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -69,7 +71,35 @@ class Lead(models.Model):
         return self.title
 
     def get_complete_address(self):
-        return return_complete_address(self)
+        address = ""
+        if self.address_line:
+            address += self.address_line
+        if self.street:
+            if address:
+                address += ", " + self.street
+            else:
+                address += self.street
+        if self.city:
+            if address:
+                address += ", " + self.city
+            else:
+                address += self.city
+        # if self.state:
+        #     if address:
+        #         address += ", " + self.state
+        #     else:
+        #         address += self.state
+        if self.postcode:
+            if address:
+                address += ", " + self.postcode
+            else:
+                address += self.postcode
+        # if self.country:
+        #     if address:
+        #         address += ", " + self.get_country_display()
+        #     else:
+        #         address += self.get_country_display()
+        return address
 
     @property
     def created_on_arrow(self):

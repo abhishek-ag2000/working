@@ -16,6 +16,7 @@ from .models import Tags
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
 from .models_contacts import Contact
+from bracketline.models import CountryMaster, StateMaster 
 
 
 class Account(models.Model):
@@ -55,12 +56,10 @@ class Account(models.Model):
         _("Street"), max_length=55, blank=True, null=True)
     billing_city = models.CharField(
         _("City"), max_length=255, blank=True, null=True)
-    billing_state = models.CharField(
-        _("State"), max_length=255, blank=True, null=True)
+    billing_accounts_state = models.ForeignKey(StateMaster, on_delete=models.DO_NOTHING, related_name='account_state',blank=True, null=True)
     billing_postcode = models.CharField(
         _("Post/Zip-code"), max_length=64, blank=True, null=True)
-    billing_country = models.CharField(
-        max_length=3, choices=COUNTRIES, blank=True, null=True)
+    billing_accounts_country =  models.ForeignKey(CountryMaster, on_delete=models.DO_NOTHING, default=12, related_name="account_country",blank=True, null=True)
     website = models.URLField(_("Website"), blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     
@@ -98,21 +97,21 @@ class Account(models.Model):
                 address += ", " + self.billing_city
             else:
                 address += self.billing_city
-        if self.billing_state:
-            if address:
-                address += ", " + self.billing_state
-            else:
-                address += self.billing_state
+        # if self.billing_accounts_state:
+        #     if address:
+        #         address += ", " + self.billing_accounts_state
+        #     else:
+        #         address += self.billing_accounts_state
         if self.billing_postcode:
             if address:
                 address += ", " + self.billing_postcode
             else:
                 address += self.billing_postcode
-        if self.billing_country:
-            if address:
-                address += ", " + self.get_billing_country_display()
-            else:
-                address += self.get_billing_country_display()
+        # if self.billing_accounts_country:
+        #     if address:
+        #         address += ", " + self.get_billing_country_display()
+        #     else:
+        #         address += self.get_billing_country_display()
         return address
 
     @property

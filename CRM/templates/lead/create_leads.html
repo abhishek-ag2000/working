@@ -3,10 +3,10 @@
 {% load mathfilters %}
 {% load humanize %}
 
-{% block title %}Contacts{% endblock %}
+{% block title %}Leads{% endblock %}
 
 {% block content %}
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
 <div class="wrapper wrapper-content">
 
     <div class="row wrapper border-bottom white-bg page-heading">
@@ -21,7 +21,7 @@
                     <a href="{% url 'company:list' %}">Company list</a>
                 </li>
                 <li class="breadcrumb-item active">
-                    <strong> Contacts </strong>
+                    <strong> Lead </strong>
                 </li>
             </ol>
             <br>
@@ -57,7 +57,7 @@
      <div class="col-lg-12">
                     <div class="ibox ">
                         <div class="ibox-title">
-                            <h5>{% if contact_obj %} Update contact{% else %}Create contact {% endif %} </h5>
+                            <h5>{% if lead_obj %} Update Lead{% else %}Create Lead {% endif %} </h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -87,8 +87,8 @@
 
                                     <div class="col-lg-10">
 
-                                        {{ contact_form.first_name.errors }}
-                                        {{ contact_form.first_name }}
+                                        {{ lead_form.first_name.errors }}
+                                        {{ lead_form.first_name }}
 
                                     </div>
                                 </div>
@@ -99,8 +99,32 @@
 
                                     <div class="col-lg-10">
 
-                                        {{ contact_form.last_name.errors }}
-                                        {{ contact_form.last_name }}
+                                        {{ lead_form.last_name.errors }}
+                                        {{ lead_form.last_name }}
+
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label">Account Name<i class="material-icons required-style"
+                                            style="font-size:16px;color:red">*</i></label>
+
+                                    <div class="col-lg-10">
+
+                                        {{ lead_form.account_name.errors }}
+                                        {{ lead_form.account_name }}
+
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label">Title<i class="material-icons required-style"
+                                            style="font-size:16px;color:red">*</i></label>
+
+                                    <div class="col-lg-10">
+
+                                        {{ lead_form.title.errors }}
+                                        {{ lead_form.title }}
 
                                     </div>
                                 </div>
@@ -111,85 +135,102 @@
 
                                     <div class="col-lg-10">
 
-                                        {{ contact_form.email.errors }}
-                                        {{ contact_form.email }}
+                                        {{ lead_form.email.errors }}
+                                        {{ lead_form.email }}
 
                                     </div>
                                 </div>
-                               <div class="form-group row">
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label">Status<i class="material-icons required-style"
+                                            style="font-size:16px;color:red">*</i></label>
+
+                                    <div class="col-lg-10">
+
+                                        {{ lead_form.status.errors }}
+                                        {{ lead_form.status }}
+
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label">Source<i class="material-icons required-style"
+                                            style="font-size:16px;color:red">*</i></label>
+
+                                    <div class="col-lg-10">
+
+                                        {{ lead_form.source.errors }}
+                                        {{ lead_form.source }}
+
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label">Website<i class="material-icons required-style"
+                                            style="font-size:16px;color:red">*</i></label>
+
+                                    <div class="col-lg-10">
+
+                                        {{ lead_form.website.errors }}
+                                        {{ lead_form.website }}
+
+                                    </div>
+                                </div>
+                                <div class="form-group row">
 
                                     <label class="col-lg-2 col-form-label">Address<i class="material-icons required-style"
                                             style="font-size:16px;color:red">*</i></label>
 
                                     <div class="col-lg-10">
 
-                                        {{ address_form.address_line.errors }}
-                                        {{ address_form.address_line }}
-
-
-                                    </div>
-
-                                </div>
-                                 <div class="form-group row">
-
-                                    <label class="col-lg-2 col-form-label"></label>
-
-                                    <div class="col-lg-10">
-
-                                        {{ address_form.street.errors }}
-                                        {{ address_form.street }}
-
+                                        {{ lead_form.address_line.errors }}
+                                        {{ lead_form.address_line }}
 
                                     </div>
-
                                 </div>
-                                 <div class="form-group row">
-
-                                    <label class="col-lg-2 col-form-label"></label>
-
-                                    
-
-                                    
-                                        <div class="col-lg-3">
-                                        {{ address_form.city }}
-                                        {{ address_form.city.errors }}
-                                        </div>
-                                        <div class="col-lg-4">
-                                        {{ address_form.state }}
-                                        {{ address_form.state.errors }}
-                                        </div>
-                                         <div class="col-lg-3">
-                                        {{ address_form.postcode }}
-                                        {{ address_form.postcode.errors }}
-                                        </div>
-                                       
-
-
-
-                                </div>
-                               
-                              
                                 <div class="form-group row">
 
                                     <label class="col-lg-2 col-form-label"></label>
 
                                     <div class="col-lg-10">
 
-                                        {{ address_form.country.errors }}
-                                        {{ address_form.country }}
-
+                                        {{ lead_form.street.errors }}
+                                        {{ lead_form.street }}
 
                                     </div>
-
                                 </div>
+                                <div class="form-group row">
+
+                                    <label class="col-lg-2 col-form-label"></label>
+
+                                    <div class="col-lg-3">
+
+                                        {{ lead_form.city.errors }}
+                                        {{ lead_form.city }}
+
+                                    </div>
+                                    <div class="col-lg-4">
+
+                                        {{ lead_form.state.errors }}
+                                        {{ lead_form.state }}
+
+                                    </div>
+                                    <div class="col-lg-3">
+
+                                        {{ lead_form.postcode.errors }}
+                                        {{ lead_form.postcode }}
+
+                                    </div>
+                                </div>
+                               
                                  <div class="form-group row">
 
                                     <label class="col-lg-2 col-form-label">Description</label>
 
                                     <div class="col-lg-10">
 
-                                        {{ contact_form.description.errors }}
-                                        {{ contact_form.description }}
+                                        {{ lead_form.description.errors }}
+                                        {{ lead_form.description }}
 
 
                                     </div>
@@ -202,9 +243,9 @@
                                     <div class="col-lg-10">
                                     <select class="assigned_users form-control" name="assigned_to" multiple="multiple"> -->
                                        <!-- {% for user in users %}
-                                        <option value="{{user.id}}" {% if user in contact_obj.assigned_to.all or user.id in assignedto_list %} selected="" {% endif %}>{{user}}</option>
+                                        <option value="{{user.id}}" {% if user in lead_obj.assigned_to.all or user.id in assignedto_list %} selected="" {% endif %}>{{user}}</option>
                                         {% endfor %} -->
-                                        <!-- {{ contact_form.assigned_to }}
+                                        <!-- {{ lead_form.assigned_to }}
 
                                     </select>
                                     </div>
@@ -217,8 +258,8 @@
 
                                     <div class="col-lg-10">
 
-                                        {{ contact_form.assigned_to.errors }}
-                                        {{ contact_form.assigned_to }}
+                                        {{ lead_form.assigned_to.errors }}
+                                        {{ lead_form.assigned_to }}
 
 
                                     </div>
@@ -231,8 +272,8 @@
 
                                     <div class="col-lg-10">
 
-                                        {{ contact_form.teams.errors }}
-                                        {{ contact_form.teams }}
+                                        {{ lead_form.teams.errors }}
+                                        {{ lead_form.teams }}
 
 
                                     </div>

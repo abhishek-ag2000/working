@@ -5,7 +5,7 @@ from .models_accounts import Account
 # from .models import Tags
 # from .models_cases import Case
 from .models_contacts import Contact
-# from .models_leads import Lead
+from .models_leads import Lead
 # from .models_opportunity import Opportunity
 # from .models_events import Event
 # from .models_tasks import Task
@@ -62,13 +62,13 @@ class ContactAdmin(admin.ModelAdmin):
     search_fields = ['company', 'created_by', 'first_name']
 
 
-# class LeadAdmin(admin.ModelAdmin):
-#     """
-#     Model Admin class for LeadAdmin model
-#     """
-#     model = Lead
-#     list_display = ['company', 'created_by', 'title',  'first_name', 'phone']
-#     search_fields = ['company', 'created_by', 'title']
+class LeadAdmin(admin.ModelAdmin):
+    """
+    Model Admin class for LeadAdmin model
+    """
+    model = Lead
+    list_display = ['company', 'created_by', 'title',  'first_name']
+    search_fields = ['company', 'created_by', 'title']
 
 
 # class OpportunityAdmin(admin.ModelAdmin):
@@ -113,7 +113,7 @@ admin.site.register(Account, AccountAdmin)
 # admin.site.register(EmailLog, EmailLogAdmin)
 # admin.site.register(Case, CaseAdmin)
 admin.site.register(Contact, ContactAdmin)
-# admin.site.register(Lead, LeadAdmin)
+admin.site.register(Lead, LeadAdmin)
 # admin.site.register(Opportunity, OpportunityAdmin)
 # admin.site.register(Event, EventAdmin)
 # admin.site.register(Task, TaskAdmin)
