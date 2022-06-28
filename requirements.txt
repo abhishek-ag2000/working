@@ -1,6 +1,6 @@
 amqp==2.4.2
 argon2-cffi==19.1.0
-arrow==0.13.1
+arrow==0.15.1
 astroid==2.2.5
 autopep8==1.4.4
 Babel==2.7.0
